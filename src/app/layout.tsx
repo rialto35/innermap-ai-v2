@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: '🗺️ innerMap AI - 나를 찾는 지도',
-  description: '통합 AI 내면 자아분석 서비스',
-  keywords: '성격분석, MBTI, RETI, 색채심리, 사주, 타로, 운세, AI',
+  description: 'AI 성격분석과 심리 운세 통합 플랫폼. MBTI, RETI, 색채심리, 사주, 타로, 운세까지 한 번에.',
+  keywords: '성격분석, MBTI, RETI, 색채심리, 사주, 타로, 운세, AI, 심리테스트, 성격검사',
   authors: [{ name: 'PromptCore' }],
   creator: 'PromptCore',
   publisher: 'PromptCore',
@@ -24,58 +24,52 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL('https://innermap-ai.vercel.app'),
-  alternates: {
-    canonical: '/',
-  },
-  openGraph: {
-    title: 'innerMap AI - 나를 찾는 지도',
-    description: 'AI가 그려주는 나만의 성격 지도와 운명의 길잡이',
-    url: 'https://innermap-ai.vercel.app',
-    siteName: 'innerMap AI',
-    locale: 'ko_KR',
-    type: 'website',
-    images: [
-      {
-        url: '/icon-512.png',
-        width: 512,
-        height: 512,
-        alt: 'InnerMap AI 아이콘',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'innerMap AI - 나를 찾는 지도',
-    description: 'AI가 그려주는 나만의 성격 지도와 운명의 길잡이',
-    images: ['/icon-512.png'],
+  manifest: '/manifest.json',
+  themeColor: '#8b5cf6',
+  colorScheme: 'dark',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
   },
   icons: {
     icon: [
-      { url: '/icon.svg', type: 'image/svg+xml' },
-      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/icon-16.png', sizes: '16x16', type: 'image/png' },
+      { url: '/icon-32.png', sizes: '32x32', type: 'image/png' },
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
-    shortcut: '/favicon.ico',
   },
-  manifest: '/manifest.json',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'InnerMap AI',
   },
-  verification: {
-    google: 'your-google-verification-code',
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    url: 'https://innermap-ai.vercel.app',
+    siteName: 'InnerMap AI',
+    title: 'InnerMap AI - 나를 찾는 지도',
+    description: 'AI가 그려주는 나만의 성격 지도와 운명의 길잡이',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'InnerMap AI - 나를 찾는 지도',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'InnerMap AI - 나를 찾는 지도',
+    description: 'AI가 그려주는 나만의 성격 지도와 운명의 길잡이',
+    images: ['/og-image.png'],
   },
 };
 
@@ -86,6 +80,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        {/* PWA 추가 메타 태그 */}
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#8b5cf6" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="InnerMap" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="msapplication-TileColor" content="#8b5cf6" />
+        <meta name="msapplication-tap-highlight" content="no" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -100,6 +105,22 @@ export default function RootLayout({
           <div className="floating-shape"></div>
         </div>
         {children}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                      console.log('서비스 워커 등록 성공:', registration.scope);
+                    }, function(err) {
+                      console.log('서비스 워커 등록 실패:', err);
+                    });
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );

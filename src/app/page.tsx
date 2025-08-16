@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PWAInstallPrompt from '@/components/PWAInstallPrompt';
 
 export default function LandingPage() {
   return (
@@ -135,6 +136,9 @@ export default function LandingPage() {
             </p>
           </div>
         </footer>
+        
+        {/* PWA 설치 프롬프트 */}
+        <PWAInstallPrompt />
         
       </div>
     </div>
