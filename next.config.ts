@@ -8,8 +8,6 @@ const nextConfig: NextConfig = {
   images: {
     formats: ['image/webp', 'image/avif'],
   },
-  // 컴파일 최적화
-  swcMinify: true,
 };
 
 export default nextConfig;
