@@ -1,326 +1,206 @@
-'use client';
-import { useState } from 'react';
-import MindCard from '@/components/MindCard';
-import ColorSelector from '@/components/ColorSelector';
-import MBTITest from '@/components/MBTITest';
-import EnneagramTest from '@/components/EnneagramTest';
-import AnalysisResult from '@/components/AnalysisResult';
-import QuickInput from '@/components/QuickInput';
+import Link from 'next/link';
 
-// 타입 정의
-type TestResults = {
-  mindCard: any;
-  colors: string[] | null;
-  mbti: string | null;
-  enneagram: string | null;
-  birthDate: string | null;
-};
-
-type TestType = keyof TestResults;
-
-export default function Home() {
-  const [testResults, setTestResults] = useState<TestResults>({
-    mindCard: null,
-    colors: null,
-    mbti: null,
-    enneagram: null,
-    birthDate: null
-  });
-
-  const [showAnalysis, setShowAnalysis] = useState(false);
-  const [activeTab, setActiveTab] = useState('quick');
-
-  const updateTestResult = (testType: TestType, result: any) => {
-    setTestResults(prev => ({
-      ...prev,
-      [testType]: result
-    }));
-  };
-
-  const resetAllTests = () => {
-    setTestResults({
-      mindCard: null,
-      colors: null,
-      mbti: null,
-      enneagram: null,
-      birthDate: null
-    });
-    setShowAnalysis(false);
-    setActiveTab('quick');
-  };
-
-  const checkAllCompleted = () => {
-    return (testResults.colors && testResults.colors.length >= 1) || 
-           testResults.mbti || testResults.enneagram || testResults.birthDate;
-  };
-
-  const handleQuickInputComplete = (quickResults: Partial<TestResults>) => {
-    setTestResults(prev => ({
-      ...prev,
-      ...quickResults
-    }));
-    
-    setTimeout(() => {
-      setShowAnalysis(true);
-    }, 1000);
-  };
-
-  // 결과 분석 페이지 표시
-  if (showAnalysis || checkAllCompleted()) {
-    return (
-      <main className="min-h-screen py-8 animate-fade-in">
-        <div className="container mx-auto px-4">
-          <AnalysisResult 
-            testResults={testResults} 
-            onReset={resetAllTests}
-          />
-        </div>
-      </main>
-    );
-  }
-
+export default function LandingPage() {
   return (
-    <main className="min-h-screen py-8">
-      <div className="container mx-auto px-4">
-        {/* 헤더 섹션 - 우주 테마 */}
-        <div className="text-center mb-16 animate-fade-in">
-          <div className="relative">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 배경 애니메이션 */}
+      <div className="animated-background"></div>
+      <div className="floating-shapes">
+        <div className="floating-shape"></div>
+        <div className="floating-shape"></div>
+        <div className="floating-shape"></div>
+      </div>
+      
+      {/* 메인 컨테이너 */}
+      <div className="relative z-10">
+        
+        {/* 히어로 섹션 */}
+        <section className="min-h-screen flex items-center justify-center px-4">
+          <div className="text-center max-w-4xl mx-auto">
+            
             {/* PromptCore 브랜딩 */}
-            <div className="flex justify-center mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full border border-white/30 backdrop-blur-sm shadow-lg">
-                <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-pulse"></div>
+            <div className="flex justify-center mb-8">
+              <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-2xl border border-white/30 backdrop-blur-sm shadow-xl">
+                <div className="w-4 h-4 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-pulse"></div>
                 <span className="text-sm font-semibold text-white tracking-wide">PromptCore</span>
               </div>
             </div>
             
             {/* 메인 타이틀 */}
-            <div className="relative z-10">
-              <h1 className="text-5xl md:text-7xl font-bold mb-6">
-                <span className="text-gradient">🧠 InnerMap AI</span>
+            <div className="mb-8">
+              <h1 className="text-6xl md:text-8xl font-bold mb-4">
+                <span className="holographic-text">🗺️ InnerMap AI</span>
               </h1>
-              <h2 className="text-2xl md:text-3xl font-semibold text-gray-300 mb-8">
+              <p className="text-2xl md:text-4xl text-white/90 font-light tracking-wide">
                 나를 찾는 지도
-              </h2>
-              
-              <p className="text-xl md:text-2xl text-gray-300 mb-6 font-medium">
-                AI가 분석하는 당신의 성격과 심리 프로필
               </p>
-              
-              <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                MBTI, RETI 검사, 색채심리를 통해 더 깊이 있는 자아를 발견하세요
+              <p className="text-lg md:text-xl text-white/70 mt-4 max-w-2xl mx-auto">
+                AI가 그려주는 나만의 성격 지도와 운명의 길잡이
               </p>
-              
-              {/* 미니멀 장식 요소 */}
-              <div className="flex justify-center mt-12 space-x-3">
-                <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce-gentle"></div>
-                <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce-gentle" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce-gentle" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 탭 메뉴 - 미니멀 다크 테마 */}
-        <div className="max-w-3xl mx-auto mb-16 animate-slide-up">
-          <div className="card p-3">
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => setActiveTab('quick')}
-                className={`relative py-6 px-8 rounded-xl font-semibold text-lg transition-all duration-300 transform ${
-                  activeTab === 'quick'
-                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg scale-102'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800 hover:scale-102'
-                }`}
-              >
-                <span className="relative z-10 flex items-center justify-center">
-                  <span className="mr-3 text-2xl">⚡</span>
-                  빠른 입력
-                </span>
-              </button>
-              
-              <button
-                onClick={() => setActiveTab('detailed')}
-                className={`relative py-6 px-8 rounded-xl font-semibold text-lg transition-all duration-300 transform ${
-                  activeTab === 'detailed'
-                    ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg scale-102'
-                    : 'text-gray-300 hover:text-white hover:bg-gray-800 hover:scale-102'
-                }`}
-              >
-                <span className="relative z-10 flex items-center justify-center">
-                  <span className="mr-3 text-2xl">📋</span>
-                  상세 테스트
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 빠른 입력 탭 */}
-        {activeTab === 'quick' && (
-          <div className="space-y-8 animate-fade-in">
-            <QuickInput onComplete={handleQuickInputComplete} />
-            
-            {/* 미니멀 안내 메시지 */}
-            <div className="max-w-4xl mx-auto">
-              <div className="card-soft p-8">
-                <div className="text-center mb-8">
-                  <h3 className="section-title text-gradient-secondary">💡 빠른 입력 가이드</h3>
-                </div>
-                
-                <div className="grid md:grid-cols-3 gap-8">
-                  <div className="text-center p-8 rounded-2xl bg-gray-800/50 border border-gray-700 hover-lift">
-                    <div className="text-4xl mb-4">🎂</div>
-                    <h4 className="font-bold text-white mb-3">히어로컬러</h4>
-                    <p className="text-sm text-gray-400">
-                      입력하면 색채심리가<br />자동으로 계산됩니다
-                    </p>
-                  </div>
-                  
-                  <div className="text-center p-8 rounded-2xl bg-gray-800/50 border border-gray-700 hover-lift">
-                    <div className="text-4xl mb-4">🧠</div>
-                    <h4 className="font-bold text-white mb-3">MBTI & RETI 검사</h4>
-                    <p className="text-sm text-gray-400">
-                      이미 아신다면<br />바로 선택하세요
-                    </p>
-                  </div>
-                  
-                  <div className="text-center p-8 rounded-2xl bg-gray-800/50 border border-gray-700 hover-lift">
-                    <div className="text-4xl mb-4">⚡</div>
-                    <h4 className="font-bold text-white mb-3">즉시 분석</h4>
-                    <p className="text-sm text-gray-400">
-                      하나만 입력해도<br />AI 분석이 가능합니다
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* 상세 테스트 탭 */}
-        {activeTab === 'detailed' && (
-          <div className="animate-fade-in">
-            {/* 미니멀 진행 상황 표시 */}
-            <div className="max-w-5xl mx-auto card p-8 mb-16">
-              <h3 className="section-title text-gradient">📊 테스트 진행 상황</h3>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {[
-                  {
-                    key: 'colors',
-                    icon: '🎨',
-                    title: '컬러심리',
-                    completed: testResults.colors && testResults.colors.length >= 1,
-                    value: testResults.colors && testResults.colors.length >= 1 ? '완료' : ''
-                  },
-                  {
-                    key: 'mbti',
-                    icon: '🧠',
-                    title: 'MBTI',
-                    completed: testResults.mbti,
-                    value: testResults.mbti || ''
-                  },
-                  {
-                    key: 'enneagram',
-                    icon: '🔢',
-                    title: '에니어그램',
-                    completed: testResults.enneagram,
-                    value: testResults.enneagram ? `유형 ${testResults.enneagram}` : ''
-                  },
-                  {
-                    key: 'mindCard',
-                    icon: '💭',
-                    title: '마음카드',
-                    completed: testResults.mindCard,
-                    value: '선택사항'
-                  }
-                ].map((test, index) => (
-                  <div
-                    key={test.key}
-                    className={`text-center p-6 rounded-2xl transition-all duration-300 transform hover:scale-102 border ${
-                      test.completed
-                        ? 'bg-green-900/20 border-green-700 text-green-400 shadow-lg'
-                        : 'bg-gray-800/50 border-gray-700 text-gray-400'
-                    }`}
-                  >
-                    <div className={`text-4xl mb-3 ${test.completed ? 'animate-bounce-gentle' : ''}`}>
-                      {test.completed ? '✓' : test.icon}
-                    </div>
-                    <div className="font-bold text-lg mb-1">{test.title}</div>
-                    <div className="text-sm">{test.value}</div>
-                  </div>
-                ))}
-              </div>
-              
-              {checkAllCompleted() && (
-                <div className="text-center mt-8 animate-bounce-gentle">
-                  <button
-                    onClick={() => setShowAnalysis(true)}
-                    className="btn-primary text-xl px-12 py-4 shadow-lg"
-                  >
-                    🤖 AI 종합 분석 시작하기
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* 테스트 컴포넌트들 */}
-            <div className="space-y-12">
-              <div className="animate-slide-up" style={{ animationDelay: '0.1s' }}>
-                <MindCard onComplete={(result: any) => updateTestResult('mindCard', result)} />
-              </div>
-
-              <div className="animate-slide-up" style={{ animationDelay: '0.2s' }}>
-                <ColorSelector onComplete={(result: any) => updateTestResult('colors', result)} />
-              </div>
-
-              <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                <MBTITest />
-              </div>
-
-              <div className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
-                <EnneagramTest />
-              </div>
-            </div>
-
-            {/* 미니멀 하단 안내 */}
-            <div className="text-center mt-20">
-              <div className="card-soft p-8 max-w-2xl mx-auto">
-                <h4 className="text-lg font-semibold text-white mb-4">
-                  🌟 완벽한 분석을 위한 팁
-                </h4>
-                <p className="text-gray-400 leading-relaxed">
-                  모든 테스트를 완료하면 더욱 정확하고 개인화된 분석 결과를 받아보실 수 있습니다. 
-                  각 테스트는 당신의 다른 면을 분석하여 종합적인 성격 프로필을 만들어냅니다.
-                </p>
-              </div>
             </div>
             
-            {/* PromptCore 푸터 */}
-            <div className="text-center mt-20">
-              <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-gray-900/40 to-gray-800/40 border border-white/20 rounded-2xl backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
-                <div className="w-8 h-8 relative">
-                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg"></div>
-                  <div className="absolute inset-1 bg-gradient-to-br from-blue-400 to-purple-500 rounded-md"></div>
-                </div>
-                <span className="text-sm text-gray-300 font-medium">Powered by</span>
-                <a 
-                  href="https://promptcore.co.kr" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-lg font-bold text-white hover:text-blue-300 transition-colors"
-                >
-                  PromptCore
-                </a>
-              </div>
-              <p className="text-xs text-gray-500 mt-3">
-                통합 AI 내면 자아분석 서비스
-              </p>
+            {/* 메인 CTA */}
+            <div className="mb-16">
+              <Link href="/psychology">
+                <button className="neon-button text-xl px-12 py-4 rounded-full font-bold">
+                  🎯 무료로 나의 영웅 찾기
+                </button>
+              </Link>
+            </div>
+            
+          </div>
+        </section>
+        
+        {/* 서비스 소개 섹션 */}
+        <section className="py-20 px-4">
+          <div className="max-w-7xl mx-auto">
+            
+            <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
+              <span className="holographic-text">나를 찾는 모든 길</span>
+            </h2>
+            
+            {/* 서비스 카드 그리드 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              
+              {/* 성격 분석 카드 */}
+              <ServiceCard 
+                icon="🧠"
+                title="성격 분석"
+                description="MBTI•RETI•색채심리로 나만의 영웅 찾기"
+                link="/psychology"
+                status="✅ 베타 오픈"
+                gradient="from-blue-500 to-purple-600"
+                features={["144개 고유 영웅", "AI 맞춤 분석", "성격 통찰"]}
+              />
+              
+              {/* 마음 카드 */}
+              <ServiceCard 
+                icon="💭"
+                title="마음 카드"
+                description="오늘 나에게 필요한 심리적 통찰과 조언"
+                link="/mindcard"
+                status="✅ 베타 오픈"
+                gradient="from-green-500 to-teal-600"
+                features={["일일 질문", "심리 통찰", "성찰 가이드"]}
+              />
+              
+              {/* 사주팔자 */}
+              <ServiceCard 
+                icon="🔮"
+                title="사주팔자"
+                description="생년월일로 보는 나의 운명과 성향 분석"
+                link="/saju"
+                status="🔄 준비 중"
+                gradient="from-purple-500 to-pink-600"
+                features={["운명 분석", "성향 파악", "미래 전망"]}
+                comingSoon={true}
+              />
+              
+              {/* 타로카드 */}
+              <ServiceCard 
+                icon="🃏"
+                title="타로카드"
+                description="신비로운 카드로 보는 미래의 길과 조언"
+                link="/tarot"
+                status="🔄 준비 중"
+                gradient="from-orange-500 to-red-600"
+                features={["카드 리딩", "미래 예측", "상황 조언"]}
+                comingSoon={true}
+              />
+              
+              {/* 오늘의 운세 */}
+              <ServiceCard 
+                icon="⭐"
+                title="오늘의 운세"
+                description="매일 새로운 나만의 운세와 행운 가이드"
+                link="/fortune"
+                status="🔄 준비 중"
+                gradient="from-yellow-500 to-orange-600"
+                features={["일일 운세", "행운 팁", "주의사항"]}
+                comingSoon={true}
+              />
+              
             </div>
           </div>
+        </section>
+        
+        {/* 푸터 */}
+        <footer className="py-12 text-center border-t border-white/10">
+          <div className="max-w-4xl mx-auto px-4">
+            <p className="text-white/60 mb-4">
+              © 2025 InnerMap AI. All rights reserved.
+            </p>
+            <p className="text-white/40 text-sm">
+              Powered by <span className="font-bold text-white/60">PromptCore</span>
+            </p>
+          </div>
+        </footer>
+        
+      </div>
+    </div>
+  );
+}
+
+// 서비스 카드 컴포넌트
+function ServiceCard({ icon, title, description, link, status, gradient, features, comingSoon = false }: {
+  icon: string;
+  title: string;
+  description: string;
+  link: string;
+  status: string;
+  gradient: string;
+  features: string[];
+  comingSoon?: boolean;
+}) {
+  return (
+    <div className={`glass-card floating-card p-8 rounded-2xl ${comingSoon ? 'opacity-75' : ''}`}>
+      
+      {/* 카드 헤더 */}
+      <div className="text-center mb-6">
+        <div className="text-6xl mb-4">{icon}</div>
+        <h3 className="text-2xl font-bold text-white mb-2">{title}</h3>
+        <p className="text-white/70 leading-relaxed">{description}</p>
+      </div>
+      
+      {/* 상태 표시 */}
+      <div className="text-center mb-6">
+        <span className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${
+          comingSoon 
+            ? 'bg-gray-500/20 text-gray-300' 
+            : 'bg-green-500/20 text-green-300'
+        }`}>
+          {status}
+        </span>
+      </div>
+      
+      {/* 기능 목록 */}
+      <div className="mb-8">
+        <ul className="space-y-2">
+          {features.map((feature, index) => (
+            <li key={index} className="flex items-center text-white/70">
+              <span className="w-2 h-2 bg-white/50 rounded-full mr-3"></span>
+              {feature}
+            </li>
+          ))}
+        </ul>
+      </div>
+      
+      {/* 액션 버튼 */}
+      <div className="text-center">
+        {comingSoon ? (
+          <button className="w-full py-3 rounded-lg bg-gray-500/20 text-gray-400 cursor-not-allowed">
+            준비 중
+          </button>
+        ) : (
+          <Link href={link}>
+            <button className={`w-full py-3 rounded-lg bg-gradient-to-r ${gradient} text-white font-medium hover:scale-105 transition-transform`}>
+              시작하기
+            </button>
+          </Link>
         )}
       </div>
-    </main>
+      
+    </div>
   );
 }
 
