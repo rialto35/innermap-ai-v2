@@ -128,7 +128,7 @@ export default function AnalysisResult({ testResults, onReset }) {
           </div>
         </div>
 
-        {/* 히어로 카드 - 상단에 배치 */}
+        {/* 히어로 카드 - AI 분석 완료 후에도 표시 */}
         {testResults?.mbti && (
           <div className="mb-8">
             <div className="text-center mb-6">
