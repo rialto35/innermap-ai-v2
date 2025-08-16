@@ -159,7 +159,7 @@ export default function ColorSelector({ onComplete }) {
           <div className="w-20 h-20 bg-gradient-to-br from-blue-400 via-purple-500 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 rotate-12 hover:rotate-0 transition-all duration-500">
             <span className="text-3xl text-white">🎨</span>
           </div>
-          <h2 className="section-title text-gradient">컬러심리 분석</h2>
+                     <h2 className="section-title text-gradient">색채심리 분석</h2>
           <p className="text-gray-600 text-lg mb-4">
             직감적으로 끌리는 색상 <span className="font-bold text-purple-600">3개</span>를 순서대로 선택하세요
           </p>

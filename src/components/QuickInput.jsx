@@ -273,11 +273,11 @@ export default function QuickInput({ onComplete }) {
             </select>
           </div>
 
-          {/* 에니어그램 선택 */}
+          {/* RETI 검사 선택 */}
           <div>
             <label className="block text-lg font-semibold text-gray-700 mb-3 flex items-center">
               <span className="mr-2 text-2xl">🔢</span>
-              에니어그램
+              RETI 검사
               <span className="ml-2 text-sm text-gray-500 font-normal">(알고 있다면 선택)</span>
             </label>
             <select
@@ -285,7 +285,7 @@ export default function QuickInput({ onComplete }) {
               onChange={(e) => setFormData(prev => ({ ...prev, enneagram: e.target.value }))}
               className="input-field text-lg py-4 cursor-pointer"
             >
-              <option value="">에니어그램을 선택하세요</option>
+              <option value="">RETI 검사를 선택하세요</option>
               {Object.entries(enneagramData.types).map(([type, data]) => (
                 <option key={type} value={type}>
                   유형 {type} - {data.name}
