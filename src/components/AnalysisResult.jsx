@@ -132,13 +132,14 @@ export default function AnalysisResult({ testResults, onReset }) {
         {testResults?.mbti && (
           <div className="mb-8">
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">🎭 당신의 히어로</h3>
-              <p className="text-gray-600">MBTI 유형에 따른 당신만의 히어로를 만나보세요!</p>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">🎭 Your Hero</h3>
+              <p className="text-gray-600">Meet your unique hero based on your personality type!</p>
             </div>
             <div className="flex justify-center">
               <HeroCard 
                 mbtiType={testResults.mbti} 
-                enneagramType={testResults.enneagram ? `type${testResults.enneagram}` : null} 
+                enneagramType={testResults.enneagram ? `type${testResults.enneagram}` : null}
+                colorPreference={testResults.colorPreference}
               />
             </div>
           </div>
@@ -239,13 +240,14 @@ export default function AnalysisResult({ testResults, onReset }) {
         {testResults?.mbti && (
           <div className="mb-8">
             <div className="text-center mb-6">
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">🎭 당신의 히어로</h3>
-              <p className="text-gray-600">MBTI 유형에 따른 당신만의 히어로를 만나보세요!</p>
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">🎭 Your Hero</h3>
+              <p className="text-gray-600">Meet your unique hero based on your personality type!</p>
             </div>
             <div className="flex justify-center">
               <HeroCard 
                 mbtiType={testResults.mbti} 
-                enneagramType={testResults.enneagram ? `type${testResults.enneagram}` : null} 
+                enneagramType={testResults.enneagram ? `type${testResults.enneagram}` : null}
+                colorPreference={testResults.colorPreference}
               />
             </div>
           </div>

@@ -30,7 +30,7 @@ function generatePrompt(heroKey, heroData) {
   const mbtiType = heroKey.split('_')[0];
   const enneagramType = heroKey.split('_')[1];
   
-  return `A fantasy hero named '${heroData.name}', ${mbtiType} personality type ${enneagramType.replace('type', '')}, ${heroData.personality}, digital art style, portrait, high quality, fantasy character design, vibrant colors, detailed illustration, professional artwork`;
+  return `A fantasy hero character, ${mbtiType} personality type ${enneagramType.replace('type', '')}, '${heroData.name}', ${heroData.personality}, transparent background, PNG format, character portrait, digital art style, no background, isolated character, high quality, fantasy character design, vibrant colors, detailed illustration, professional artwork`;
 }
 
 // 이미지 생성 함수
@@ -151,7 +151,12 @@ async function generateAllHeroImages() {
 }
 
 // 스크립트 실행
-if (import.meta.url === `file://${process.argv[1]}`) {
+console.log('🚀 스크립트 시작...');
+console.log('🔑 API 키 확인:', process.env.OPENAI_API_KEY ? '설정됨' : '설정되지 않음');
+
+if (import.meta.url.includes(process.argv[1].replace(/\\/g, '/'))) {
+  console.log('✅ 스크립트 실행 조건 만족');
+  
   // 환경 변수 확인
   if (!process.env.OPENAI_API_KEY) {
     console.error('❌ OPENAI_API_KEY 환경 변수가 설정되지 않았습니다.');
@@ -159,6 +164,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     process.exit(1);
   }
   
+  console.log('🎯 이미지 생성 시작...');
   generateAllHeroImages()
     .then(result => {
       console.log('\n🎊 모든 작업이 완료되었습니다!');
@@ -168,6 +174,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       console.error('💥 치명적 오류:', error);
       process.exit(1);
     });
+} else {
+  console.log('❌ 스크립트 실행 조건 불만족');
+  console.log('import.meta.url:', import.meta.url);
+  console.log('process.argv[1]:', process.argv[1]);
 }
 
 export { generateAllHeroImages, generateImage };
