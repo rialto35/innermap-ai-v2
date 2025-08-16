@@ -136,7 +136,10 @@ export default function AnalysisResult({ testResults, onReset }) {
               <p className="text-gray-600">MBTI 유형에 따른 당신만의 히어로를 만나보세요!</p>
             </div>
             <div className="flex justify-center">
-              <HeroCard mbtiType={testResults.mbti} />
+              <HeroCard 
+                mbtiType={testResults.mbti} 
+                enneagramType={testResults.enneagram ? `type${testResults.enneagram}` : null} 
+              />
             </div>
           </div>
         )}
@@ -240,7 +243,10 @@ export default function AnalysisResult({ testResults, onReset }) {
               <p className="text-gray-600">MBTI 유형에 따른 당신만의 히어로를 만나보세요!</p>
             </div>
             <div className="flex justify-center">
-              <HeroCard mbtiType={testResults.mbti} />
+              <HeroCard 
+                mbtiType={testResults.mbti} 
+                enneagramType={testResults.enneagram ? `type${testResults.enneagram}` : null} 
+              />
             </div>
           </div>
         )}

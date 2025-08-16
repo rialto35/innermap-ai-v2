@@ -1,106 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { heroMapping } from '../data/heroMapping.js';
 
-const heroData = {
-  ENFP: {
-    name: '스파이더맨',
-    emoji: '🕷️',
-    traits: ['자유로운 영웅', '창의적 사고', '공감 능력'],
-    gradient: 'from-red-500 to-blue-600'
-  },
-  INTJ: {
-    name: '배트맨',
-    emoji: '🦇',
-    traits: ['전략적 사고', '독립적 성향', '완벽주의'],
-    gradient: 'from-gray-800 to-black'
-  },
-  ESFJ: {
-    name: '슈퍼맨',
-    emoji: '🦸‍♂️',
-    traits: ['보호자 정신', '동정심', '책임감'],
-    gradient: 'from-blue-600 to-red-500'
-  },
-  ISTP: {
-    name: '아이언맨',
-    emoji: '🤖',
-    traits: ['실용적 천재', '문제 해결', '혁신'],
-    gradient: 'from-red-600 to-yellow-500'
-  },
-  INFP: {
-    name: '호크아이',
-    emoji: '🏹',
-    traits: ['내적 신념', '이상주의', '창의성'],
-    gradient: 'from-purple-500 to-blue-600'
-  },
-  ENTJ: {
-    name: '토르',
-    emoji: '⚡',
-    traits: ['리더십', '결단력', '자신감'],
-    gradient: 'from-yellow-400 to-blue-600'
-  },
-  ISFJ: {
-    name: '캡틴 아메리카',
-    emoji: '🛡️',
-    traits: ['책임감', '충성심', '정의감'],
-    gradient: 'from-blue-600 to-red-600'
-  },
-  ENTP: {
-    name: '휴먼 토치',
-    emoji: '🔥',
-    traits: ['혁신가', '창의성', '즉흥성'],
-    gradient: 'from-orange-500 to-red-600'
-  },
-  ISFP: {
-    name: '포이즌 아이비',
-    emoji: '🌿',
-    traits: ['예술가', '자연 친화', '감수성'],
-    gradient: 'from-green-500 to-emerald-600'
-  },
-  ESTJ: {
-    name: '닉 퓨리',
-    emoji: '👑',
-    traits: ['조직가', '리더십', '실용성'],
-    gradient: 'from-gray-600 to-black'
-  },
-  INFJ: {
-    name: '닥터 스트레인지',
-    emoji: '🔮',
-    traits: ['통찰력', '직관', '이상주의'],
-    gradient: 'from-purple-600 to-indigo-800'
-  },
-  ESTP: {
-    name: '데드풀',
-    emoji: '💥',
-    traits: ['즉흥성', '모험심', '유연성'],
-    gradient: 'from-red-500 to-black'
-  },
-  ISTJ: {
-    name: '윈터 솔져',
-    emoji: '🗡️',
-    traits: ['신뢰성', '체계성', '실용성'],
-    gradient: 'from-gray-700 to-slate-800'
-  },
-  ENFJ: {
-    name: '원더우먼',
-    emoji: '✨',
-    traits: ['영감을 주는 리더', '공감 능력', '이상주의'],
-    gradient: 'from-yellow-400 to-red-600'
-  },
-  INTP: {
-    name: '브루스 배너',
-    emoji: '🧪',
-    traits: ['분석가', '논리적 사고', '지적 호기심'],
-    gradient: 'from-green-600 to-gray-700'
-  },
-  ESFP: {
-    name: '하울리 퀸',
-    emoji: '🎭',
-    traits: ['엔터테이너', '낙관적', '사교성'],
-    gradient: 'from-pink-500 to-purple-600'
-  }
-};
-
-const HeroCard = ({ mbtiType }) => {
-  const hero = heroData[mbtiType];
+const HeroCard = ({ mbtiType, enneagramType }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+  
+  // MBTI와 에니어그램 조합으로 영웅 키 생성
+  const heroKey = enneagramType ? `${mbtiType}_${enneagramType}` : mbtiType;
+  const hero = heroMapping[heroKey];
+  
+  // 이미지 경로 생성
+  const imagePath = `/heroes/${heroKey}.png`;
+  
+  // 이미지 로딩 처리
+  useEffect(() => {
+    if (enneagramType) {
+      const img = new Image();
+      img.onload = () => setImageLoaded(true);
+      img.onerror = () => setImageError(true);
+      img.src = imagePath;
+    }
+  }, [heroKey, imagePath, enneagramType]);
   
   if (!hero) {
     return (
@@ -114,7 +34,7 @@ const HeroCard = ({ mbtiType }) => {
     <div className="w-full max-w-sm mx-auto">
       <div className={`
         relative overflow-hidden rounded-xl p-6 text-white shadow-2xl
-        bg-gradient-to-br ${hero.gradient}
+        bg-gradient-to-br ${hero.gradient || 'from-blue-500 to-purple-600'}
         transform transition-all duration-300 hover:scale-105 hover:shadow-3xl
         border border-white/20
       `}>
@@ -123,11 +43,33 @@ const HeroCard = ({ mbtiType }) => {
         
         {/* 카드 내용 */}
         <div className="relative z-10">
-          {/* 히어로 이모지와 이름 */}
+          {/* 히어로 이미지 또는 이모지 */}
           <div className="text-center mb-4">
-            <div className="text-6xl mb-2">{hero.emoji}</div>
+            {enneagramType && !imageError ? (
+              <div className="relative mb-2">
+                {!imageLoaded && (
+                  <div className="w-24 h-24 mx-auto bg-white/20 rounded-full flex items-center justify-center">
+                    <div className="text-4xl">🎭</div>
+                  </div>
+                )}
+                <img
+                  src={imagePath}
+                  alt={hero.name}
+                  className={`w-24 h-24 mx-auto rounded-full object-cover border-2 border-white/30 ${
+                    imageLoaded ? 'block' : 'hidden'
+                  }`}
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageError(true)}
+                />
+              </div>
+            ) : (
+              <div className="text-6xl mb-2">🎭</div>
+            )}
             <h3 className="text-2xl font-bold mb-1">{hero.name}</h3>
             <p className="text-lg opacity-90">{mbtiType}</p>
+            {enneagramType && (
+              <p className="text-sm opacity-70">에니어그램 {enneagramType.replace('type', '')}</p>
+            )}
           </div>
           
           {/* 구분선 */}
@@ -136,12 +78,17 @@ const HeroCard = ({ mbtiType }) => {
           {/* 특성들 */}
           <div className="space-y-2">
             <h4 className="text-sm font-semibold opacity-80 mb-3">핵심 특성</h4>
-            {hero.traits.map((trait, index) => (
+            {hero.powers.map((power, index) => (
               <div key={index} className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-white rounded-full"></div>
-                <span className="text-sm">{trait}</span>
+                <span className="text-sm">{power}</span>
               </div>
             ))}
+          </div>
+          
+          {/* 성격 설명 */}
+          <div className="mt-4 p-3 bg-white/10 rounded-lg">
+            <p className="text-xs opacity-80 italic">{hero.personality}</p>
           </div>
           
           {/* 카드 하단 장식 */}
