@@ -1,11 +1,18 @@
 import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
+import Anthropic from '@anthropic-ai/sdk';
 
 export async function POST(request) {
   try {
     const data = await request.json();
     
+    // API 키 체크 로직
+    console.log('OpenAI API 키 존재:', !!process.env.OPENAI_API_KEY);
+    console.log('Anthropic API 키 존재:', !!process.env.ANTHROPIC_API_KEY);
+    
     // API 키 없을 때 더미 데이터 반환 (데모용)
     if (!process.env.OPENAI_API_KEY || !process.env.ANTHROPIC_API_KEY) {
+      console.log('API 키가 없어서 데모 데이터를 반환합니다.');
       return NextResponse.json({
         success: true,
         analysis: {
@@ -35,18 +42,21 @@ export async function POST(request) {
     }
     
     // 실제 AI 분석 (API 키 있을 때)
+    console.log('실제 AI 분석을 시작합니다.');
     const openaiResult = await callOpenAI(data);
     const claudeResult = await callClaude({
       ...data,
       openaiResult
     });
     
+    const combinedAnalysis = generateCombinedAnalysis(openaiResult, claudeResult);
+    
     return NextResponse.json({
       success: true,
       analysis: {
         openai: openaiResult,
         claude: claudeResult,
-        combined: generateCombinedAnalysis(openaiResult, claudeResult)
+        combined: combinedAnalysis
       },
       timestamp: new Date().toISOString()
     });
@@ -73,23 +83,12 @@ export async function POST(request) {
 }
 
 async function callOpenAI(data) {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: 'gpt-4',
-      max_tokens: 1000,
-      messages: [
-        {
-          role: 'system',
-          content: '당신은 전문 심리분석가입니다. 간결하고 실용적인 분석을 제공하세요.'
-        },
-        {
-          role: 'user',
-          content: `다음 데이터를 분석해주세요:
+  try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+
+    const prompt = `다음 데이터를 분석해주세요:
 
 MBTI: ${data.mbti || '미완성'}
 에니어그램: ${data.enneagram || '미완성'}
@@ -101,38 +100,50 @@ JSON 형식으로 답변:
   "strengths": ["강점1", "강점2", "강점3"],
   "challenges": ["개선점1", "개선점2"],
   "advice": "실생활 조언 1문장"
-}`
+}`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 1000,
+      messages: [
+        {
+          role: 'system',
+          content: '당신은 전문 심리분석가입니다. 간결하고 실용적인 분석을 제공하세요.'
+        },
+        {
+          role: 'user',
+          content: prompt
         }
       ]
-    })
-  });
+    });
 
-  if (!response.ok) {
-    throw new Error(`OpenAI API 에러: ${response.status}`);
-  }
-
-  const result = await response.json();
-  try {
-    return JSON.parse(result.choices[0].message.content);
-  } catch {
-    return { summary: result.choices[0].message.content };
+    const content = completion.choices[0].message.content;
+    console.log('OpenAI 응답:', content);
+    
+    try {
+      return JSON.parse(content);
+    } catch (parseError) {
+      console.error('OpenAI JSON 파싱 에러:', parseError);
+      return { 
+        summary: content,
+        strengths: ["분석 완료"],
+        challenges: ["더 자세한 정보 필요"],
+        advice: "당신의 특성을 더 깊이 이해해보세요!"
+      };
+    }
+  } catch (error) {
+    console.error('OpenAI API 호출 에러:', error);
+    throw new Error(`OpenAI API 에러: ${error.message}`);
   }
 }
 
 async function callClaude(data) {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': process.env.ANTHROPIC_API_KEY
-    },
-    body: JSON.stringify({
-      model: 'claude-3-sonnet-20240229',
-      max_tokens: 1000,
-      messages: [
-        {
-          role: 'user',
-          content: `이전 분석을 보완해주세요:
+  try {
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    const prompt = `이전 분석을 보완해주세요:
 
 기존 분석: ${JSON.stringify(data.openaiResult)}
 MBTI: ${data.mbti}
@@ -145,31 +156,59 @@ JSON으로 답변:
   "growth_path": "성장 방향 제안",
   "daily_tips": ["실천법1", "실천법2"],
   "relationships": "인간관계 조언"
-}`
+}`;
+
+    const message = await anthropic.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 1000,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
         }
       ]
-    })
-  });
+    });
 
-  if (!response.ok) {
-    throw new Error(`Claude API 에러: ${response.status}`);
-  }
-
-  const result = await response.json();
-  try {
-    return JSON.parse(result.content[0].text);
-  } catch {
-    return { personality_type: result.content[0].text };
+    const content = message.content[0].text;
+    console.log('Claude 응답:', content);
+    
+    try {
+      return JSON.parse(content);
+    } catch (parseError) {
+      console.error('Claude JSON 파싱 에러:', parseError);
+      return { 
+        personality_type: content,
+        growth_path: "지속적인 성장",
+        daily_tips: ["자기성찰", "목표설정"],
+        relationships: "진솔한 소통을 통해 더 깊은 관계를 맺어보세요"
+      };
+    }
+  } catch (error) {
+    console.error('Claude API 호출 에러:', error);
+    throw new Error(`Claude API 에러: ${error.message}`);
   }
 }
 
 function generateCombinedAnalysis(openai, claude) {
-  return {
-    title: "종합 성격 분석",
-    summary: openai.summary || claude.personality_type || "분석 완료",
-    strengths: openai.strengths || [],
-    growth_areas: [...(openai.challenges || []), claude.growth_path].filter(Boolean),
-    daily_practices: claude.daily_tips || [],
-    final_advice: claude.relationships || openai.advice || "당신만의 독특함을 발휘하세요!"
-  };
+  try {
+    return {
+      title: "종합 성격 분석",
+      summary: openai.summary || claude.personality_type || "분석 완료",
+      strengths: openai.strengths || [],
+      growth_areas: [...(openai.challenges || []), claude.growth_path].filter(Boolean),
+      daily_practices: claude.daily_tips || [],
+      final_advice: claude.relationships || openai.advice || "당신만의 독특함을 발휘하세요!"
+    };
+  } catch (error) {
+    console.error('Combined Analysis 생성 에러:', error);
+    return {
+      title: "기본 성격 분석",
+      summary: "분석이 완료되었습니다.",
+      strengths: ["분석 완료"],
+      growth_areas: ["지속적인 성장"],
+      daily_practices: ["자기성찰"],
+      final_advice: "당신만의 독특함을 발휘하세요!"
+    };
+  }
 }
+

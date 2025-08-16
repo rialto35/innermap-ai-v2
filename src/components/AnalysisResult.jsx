@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { generatePDF, generatePrintPDF, generateTextFile } from '@/utils/pdfGenerator';
+import HeroCard from './HeroCard';
 
 export default function AnalysisResult({ testResults, onReset }) {
   const [analysis, setAnalysis] = useState(null);
@@ -126,6 +127,19 @@ export default function AnalysisResult({ testResults, onReset }) {
             </div>
           </div>
         </div>
+
+        {/* 히어로 카드 */}
+        {testResults?.mbti && (
+          <div className="mb-8">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">🎭 당신의 히어로</h3>
+              <p className="text-gray-600">MBTI 유형에 따른 당신만의 히어로를 만나보세요!</p>
+            </div>
+            <div className="flex justify-center">
+              <HeroCard mbtiType={testResults.mbti} />
+            </div>
+          </div>
+        )}
 
         {/* 강점 */}
         {safeData.strengths.length > 0 && (
