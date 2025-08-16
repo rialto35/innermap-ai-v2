@@ -128,7 +128,7 @@ export default function AnalysisResult({ testResults, onReset }) {
           </div>
         </div>
 
-        {/* 히어로 카드 */}
+        {/* 히어로 카드 - 상단에 배치 */}
         {testResults?.mbti && (
           <div className="mb-8">
             <div className="text-center mb-6">
@@ -228,9 +228,22 @@ export default function AnalysisResult({ testResults, onReset }) {
   }
 
   return (
-    <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 m-4">
+    <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 m-4">
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">🤖 AI 종합 분석</h2>
+        
+        {/* MBTI가 있으면 히어로 카드 표시 */}
+        {testResults?.mbti && (
+          <div className="mb-8">
+            <div className="text-center mb-6">
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">🎭 당신의 히어로</h3>
+              <p className="text-gray-600">MBTI 유형에 따른 당신만의 히어로를 만나보세요!</p>
+            </div>
+            <div className="flex justify-center">
+              <HeroCard mbtiType={testResults.mbti} />
+            </div>
+          </div>
+        )}
         
         {/* 완료 상태 표시 */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
