@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { heroMapping } from '../data/heroMapping.js';
 import { backgroundMapping } from '../data/backgroundMapping.js';
+import { heroKoreanNames } from '../data/heroKoreanNames.js';
+import { backgroundKoreanDescriptions } from '../data/backgroundKoreanDescriptions.js';
 
 const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+  const cardRef = useRef(null);
 
   // MBTI와 에니어그램 조합으로 영웅 키 생성
   const heroKey = enneagramType ? `${mbtiType}_${enneagramType}` : mbtiType;
@@ -21,12 +26,65 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
   
   const displayHero = hero || fallbackHero;
   
+  // 한글 데이터 가져오기
+  const koreanHero = heroKoreanNames[heroKey] || {
+    koreanName: `${mbtiType} 영웅`,
+    koreanTitle: "당신만의 영웅",
+    koreanPowers: ["개성", "창의성", "잠재력"],
+    koreanPersonality: "특별한 특성을 가진 당신만의 성격 영웅"
+  };
+  
   // 배경 선택 (색채 선호도가 있으면 사용, 없으면 기본값)
   const backgroundKey = colorPreference || 'blue';
   const background = backgroundMapping[backgroundKey] || backgroundMapping['blue'];
+  const koreanBackground = backgroundKoreanDescriptions[backgroundKey] || backgroundKoreanDescriptions['blue'];
   
   // 이미지 경로
   const imagePath = `/heroes/${heroKey}.png`;
+
+  // 텍스트 복사 함수
+  const copyToClipboard = async () => {
+    try {
+      const heroText = `
+🎭 내 영웅: ${koreanHero.koreanName}
+🏆 직함: ${koreanHero.koreanTitle}
+⚡ 능력: ${koreanHero.koreanPowers.join(', ')}
+💫 성격: ${koreanHero.koreanPersonality}
+🌍 원소: ${displayHero.element}
+🎨 배경: ${koreanBackground.koreanElement} - ${koreanBackground.koreanScene}
+🌅 배경 설명: ${koreanBackground.koreanDescription}
+      `.trim();
+      
+      await navigator.clipboard.writeText(heroText);
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 2000);
+    } catch (err) {
+      console.error('복사 실패:', err);
+    }
+  };
+
+  // 이미지 저장 함수
+  const saveAsImage = async () => {
+    try {
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(cardRef.current, {
+        backgroundColor: null,
+        scale: 2,
+        useCORS: true,
+        allowTaint: true
+      });
+      
+      const link = document.createElement('a');
+      link.download = `${displayHero.name}_hero_card.png`;
+      link.href = canvas.toDataURL();
+      link.click();
+      
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    } catch (err) {
+      console.error('이미지 저장 실패:', err);
+    }
+  };
   
   if (!displayHero) {
     return (
@@ -38,12 +96,15 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
 
   return (
     <div className="w-full max-w-sm mx-auto">
-      <div className={`
-        relative overflow-hidden rounded-xl p-6 text-white shadow-2xl
-        ${background.gradient}
-        transform transition-all duration-300 hover:scale-105 hover:shadow-3xl
-        border border-white/20
-      `}>
+      <div 
+        ref={cardRef}
+        className={`
+          relative overflow-hidden rounded-xl p-6 text-white shadow-2xl
+          ${background.gradient}
+          transform transition-all duration-300 hover:scale-105 hover:shadow-3xl
+          border border-white/20
+        `}
+      >
         {/* 배경 효과 */}
         <div className="absolute inset-0 opacity-20">
           <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
@@ -84,14 +145,14 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
           
           {/* 영웅 정보 */}
           <div className="text-center">
-            <h3 className="text-2xl font-bold mb-1">{displayHero.name}</h3>
-            <p className="text-sm opacity-90 mb-3">{displayHero.title}</p>
+            <h3 className="text-2xl font-bold mb-1">{koreanHero.koreanName}</h3>
+            <p className="text-sm opacity-90 mb-3">{koreanHero.koreanTitle}</p>
             
             {/* 능력 */}
             <div className="mb-4">
-              <h4 className="text-xs font-semibold uppercase tracking-wider mb-2 opacity-80">POWERS</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wider mb-2 opacity-80">능력</h4>
               <div className="space-y-1">
-                {displayHero.powers.map((power, index) => (
+                {koreanHero.koreanPowers.map((power, index) => (
                   <div key={index} className="text-xs bg-white/10 rounded-full px-3 py-1 backdrop-blur-sm">
                     {power}
                   </div>
@@ -100,7 +161,7 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
             </div>
             
             {/* 성격 설명 */}
-            <p className="text-xs opacity-80 italic">{displayHero.personality}</p>
+            <p className="text-xs opacity-80 italic">{koreanHero.koreanPersonality}</p>
             
             {/* 원소 */}
             <div className="mt-3">
@@ -108,12 +169,45 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
                 {displayHero.element}
               </span>
             </div>
+            
+            {/* 배경 설명 */}
+            <div className="mt-4 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
+              <h4 className="text-xs font-semibold mb-1 opacity-90">🌅 배경 환경</h4>
+              <p className="text-xs opacity-80 leading-relaxed">
+                {koreanBackground.koreanDescription}
+              </p>
+            </div>
           </div>
         </div>
         
         {/* 장식 요소 */}
         <div className="absolute top-2 right-2 w-8 h-8 border-2 border-white/30 rounded-full"></div>
         <div className="absolute bottom-2 left-2 w-6 h-6 border border-white/20 rounded-full"></div>
+      </div>
+      
+      {/* 액션 버튼들 */}
+      <div className="flex gap-2 mt-4 justify-center">
+        <button
+          onClick={copyToClipboard}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+            copySuccess 
+              ? 'bg-green-500 text-white' 
+              : 'bg-blue-500 hover:bg-blue-600 text-white hover:scale-105'
+          }`}
+        >
+          {copySuccess ? '✅ 복사됨!' : '📋 결과 복사'}
+        </button>
+        
+        <button
+          onClick={saveAsImage}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+            saveSuccess 
+              ? 'bg-green-500 text-white' 
+              : 'bg-purple-500 hover:bg-purple-600 text-white hover:scale-105'
+          }`}
+        >
+          {saveSuccess ? '✅ 저장됨!' : '💾 이미지 저장'}
+        </button>
       </div>
     </div>
   );
