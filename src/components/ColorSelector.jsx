@@ -50,7 +50,7 @@ export default function ColorSelector({ onComplete }) {
             <div className="w-20 h-20 bg-gradient-to-br from-purple-400 to-pink-500 rounded-3xl flex items-center justify-center mx-auto mb-6 animate-bounce-gentle">
               <span className="text-3xl text-white">🎨</span>
             </div>
-            <h2 className="section-title text-gradient">컬러심리 분석 결과</h2>
+            <h2 className="section-title text-gradient">색채심리 분석 결과</h2>
             <p className="text-gray-600">당신이 선택한 색상으로 알아본 마음의 언어</p>
           </div>
           

@@ -89,6 +89,14 @@ export default function AnalysisResult({ testResults, onReset }) {
     
     return (
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8 m-4">
+        {/* PromptCore 브랜딩 */}
+        <div className="flex justify-center mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full border border-blue-200/50">
+            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+            <span className="text-sm font-medium text-gray-700 tracking-wide">Powered by PromptCore</span>
+          </div>
+        </div>
+        
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold text-gray-800 mb-2">🧠 InnerMap AI 종합 분석</h2>
           <p className="text-gray-600">AI가 분석한 당신의 성격 프로필입니다</p>
@@ -106,12 +114,12 @@ export default function AnalysisResult({ testResults, onReset }) {
             <h4 className="font-bold text-gray-800 mb-2">MBTI</h4>
             <p className="text-2xl font-bold text-blue-600">{testResults?.mbti || 'N/A'}</p>
           </div>
-          <div className="bg-green-50 rounded-lg p-4 text-center">
-            <h4 className="font-bold text-gray-800 mb-2">에니어그램</h4>
-            <p className="text-2xl font-bold text-green-600">유형 {testResults?.enneagram || 'N/A'}</p>
-          </div>
-          <div className="bg-purple-50 rounded-lg p-4 text-center">
-            <h4 className="font-bold text-gray-800 mb-2">주요 컬러</h4>
+                     <div className="bg-green-50 rounded-lg p-4 text-center">
+             <h4 className="font-bold text-gray-800 mb-2">RETI 검사</h4>
+             <p className="text-2xl font-bold text-green-600">유형 {testResults?.enneagram || 'N/A'}</p>
+           </div>
+                     <div className="bg-purple-50 rounded-lg p-4 text-center">
+             <h4 className="font-bold text-gray-800 mb-2">색채심리</h4>
             <div className="flex justify-center space-x-1">
               {(testResults?.colors || []).slice(0, 3).map((color, index) => (
                 <div
@@ -233,6 +241,14 @@ export default function AnalysisResult({ testResults, onReset }) {
 
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-6 m-4">
+      {/* PromptCore 브랜딩 */}
+      <div className="flex justify-center mb-6">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full border border-blue-200/50">
+          <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+          <span className="text-sm font-medium text-gray-700 tracking-wide">Powered by PromptCore</span>
+        </div>
+      </div>
+      
       <div className="text-center">
         <h2 className="text-2xl font-bold text-gray-800 mb-4">🤖 AI 종합 분석</h2>
         
@@ -255,18 +271,18 @@ export default function AnalysisResult({ testResults, onReset }) {
         
         {/* 완료 상태 표시 */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <div className="p-3 rounded-lg bg-blue-100 text-blue-800">
-            <div className="text-sm">컬러심리</div>
-            <div className="font-bold">💭</div>
-          </div>
+                     <div className="p-3 rounded-lg bg-blue-100 text-blue-800">
+             <div className="text-sm">색채심리</div>
+             <div className="font-bold">💭</div>
+           </div>
           <div className="p-3 rounded-lg bg-blue-100 text-blue-800">
             <div className="text-sm">MBTI</div>
             <div className="font-bold">🧠</div>
           </div>
-          <div className="p-3 rounded-lg bg-blue-100 text-blue-800">
-            <div className="text-sm">에니어그램</div>
-            <div className="font-bold">🔢</div>
-          </div>
+                     <div className="p-3 rounded-lg bg-blue-100 text-blue-800">
+             <div className="text-sm">RETI 검사</div>
+             <div className="font-bold">🔢</div>
+           </div>
           <div className="p-3 rounded-lg bg-blue-100 text-blue-800">
             <div className="text-sm">마음카드</div>
             <div className="font-bold">💭</div>

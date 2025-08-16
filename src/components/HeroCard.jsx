@@ -145,15 +145,15 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
           
           {/* 영웅 정보 */}
           <div className="text-center">
-            <h3 className="text-2xl font-bold mb-1">{koreanHero.koreanName}</h3>
-            <p className="text-sm opacity-90 mb-3">{koreanHero.koreanTitle}</p>
+            <h3 className="text-2xl font-bold mb-1 text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">{koreanHero.koreanName}</h3>
+            <p className="text-sm opacity-90 mb-3 text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]">{koreanHero.koreanTitle}</p>
             
             {/* 능력 */}
             <div className="mb-4">
-              <h4 className="text-xs font-semibold uppercase tracking-wider mb-2 opacity-80">능력</h4>
+              <h4 className="text-xs font-semibold uppercase tracking-wider mb-2 opacity-90 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">능력</h4>
               <div className="space-y-1">
                 {koreanHero.koreanPowers.map((power, index) => (
-                  <div key={index} className="text-xs bg-white/10 rounded-full px-3 py-1 backdrop-blur-sm">
+                  <div key={index} className="text-xs bg-black/40 rounded-full px-3 py-1 backdrop-blur-sm text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)] font-medium">
                     {power}
                   </div>
                 ))}
@@ -161,19 +161,19 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
             </div>
             
             {/* 성격 설명 */}
-            <p className="text-xs opacity-80 italic">{koreanHero.koreanPersonality}</p>
+            <p className="text-xs opacity-90 italic text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-medium">{koreanHero.koreanPersonality}</p>
             
             {/* 원소 */}
             <div className="mt-3">
-              <span className="text-xs bg-white/20 rounded-full px-2 py-1">
+              <span className="text-xs bg-black/50 rounded-full px-2 py-1 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] font-semibold">
                 {displayHero.element}
               </span>
             </div>
             
             {/* 배경 설명 */}
-            <div className="mt-4 p-3 bg-white/10 rounded-lg backdrop-blur-sm">
-              <h4 className="text-xs font-semibold mb-1 opacity-90">🌅 배경 환경</h4>
-              <p className="text-xs opacity-80 leading-relaxed">
+            <div className="mt-4 p-3 bg-black/50 rounded-lg backdrop-blur-sm border border-white/20">
+              <h4 className="text-xs font-semibold mb-1 opacity-90 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">🌅 배경 환경</h4>
+              <p className="text-xs opacity-90 leading-relaxed text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.7)] font-medium">
                 {koreanBackground.koreanDescription}
               </p>
             </div>
@@ -185,30 +185,38 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
         <div className="absolute bottom-2 left-2 w-6 h-6 border border-white/20 rounded-full"></div>
       </div>
       
-      {/* 액션 버튼들 */}
-      <div className="flex gap-2 mt-4 justify-center">
-        <button
-          onClick={copyToClipboard}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-            copySuccess 
-              ? 'bg-green-500 text-white' 
-              : 'bg-blue-500 hover:bg-blue-600 text-white hover:scale-105'
-          }`}
-        >
-          {copySuccess ? '✅ 복사됨!' : '📋 결과 복사'}
-        </button>
-        
-        <button
-          onClick={saveAsImage}
-          className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
-            saveSuccess 
-              ? 'bg-green-500 text-white' 
-              : 'bg-purple-500 hover:bg-purple-600 text-white hover:scale-105'
-          }`}
-        >
-          {saveSuccess ? '✅ 저장됨!' : '💾 이미지 저장'}
-        </button>
-      </div>
+             {/* 액션 버튼들 */}
+       <div className="flex gap-2 mt-4 justify-center">
+         <button
+           onClick={copyToClipboard}
+           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+             copySuccess 
+               ? 'bg-green-500 text-white' 
+               : 'bg-blue-500 hover:bg-blue-600 text-white hover:scale-105'
+           }`}
+         >
+           {copySuccess ? '✅ 복사됨!' : '📋 결과 복사'}
+         </button>
+         
+         <button
+           onClick={saveAsImage}
+           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
+             saveSuccess 
+               ? 'bg-green-500 text-white' 
+               : 'bg-purple-500 hover:bg-purple-600 text-white hover:scale-105'
+           }`}
+         >
+           {saveSuccess ? '✅ 저장됨!' : '💾 이미지 저장'}
+         </button>
+       </div>
+       
+       {/* PromptCore 브랜딩 */}
+       <div className="flex justify-center mt-4">
+         <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-black/20 rounded-full border border-white/10 backdrop-blur-sm">
+           <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
+           <span className="text-xs text-white/60 font-medium tracking-wide">Powered by PromptCore</span>
+         </div>
+       </div>
     </div>
   );
 };

@@ -4,7 +4,7 @@ export const backgroundMapping = {
   "red": {
     element: "Volcanic Fire",
     scene: "Active Volcano Peak",
-    gradient: "bg-gradient-to-br from-red-500 via-red-600 to-red-700",
+    gradient: "bg-gradient-to-br from-red-600 via-red-700 to-red-800",
     effects: "Flame Animation"
   },
   "orange": {
@@ -22,19 +22,19 @@ export const backgroundMapping = {
   "green": {
     element: "Deep Forest",
     scene: "Mysterious Jungle",
-    gradient: "bg-gradient-to-br from-green-500 via-emerald-600 to-emerald-700",
+    gradient: "bg-gradient-to-br from-green-600 via-emerald-700 to-emerald-800",
     effects: "Forest Mist"
   },
   "blue": {
     element: "Deep Ocean",
     scene: "Mystical Underwater Palace",
-    gradient: "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700",
+    gradient: "bg-gradient-to-br from-blue-600 via-blue-700 to-blue-800",
     effects: "Wave Animation"
   },
   "purple": {
     element: "Purple Mist",
     scene: "Mystical Magic Forest",
-    gradient: "bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700",
+    gradient: "bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800",
     effects: "Mystical Aura"
   },
   "pink": {

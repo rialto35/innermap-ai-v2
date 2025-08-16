@@ -48,7 +48,7 @@ export default function EnneagramTest() {
     
     return (
       <div className="max-w-2xl mx-auto bg-white rounded-xl shadow-lg p-6 m-4">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">🔢 에니어그램 결과</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">🔢 RETI 검사 결과</h2>
         
         <div className="text-center mb-6">
           <div className="bg-gradient-to-r from-green-500 to-blue-600 text-white rounded-lg p-6 mb-4">
@@ -108,7 +108,7 @@ export default function EnneagramTest() {
     return (
       <div className="max-w-md mx-auto bg-white rounded-xl shadow-lg p-6 m-4">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">🔢 에니어그램 테스트</h2>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">🔢 RETI 검사</h2>
           <div className="bg-green-50 rounded-lg p-4 mb-6">
             <p className="text-gray-700 mb-4">
               27개 문항으로 당신의 핵심 동기와 성격 패턴을 분석합니다.
@@ -137,7 +137,7 @@ export default function EnneagramTest() {
     <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg p-6 m-4">
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-gray-800">에니어그램 테스트</h2>
+          <h2 className="text-xl font-bold text-gray-800">RETI 검사</h2>
           <span className="text-sm text-gray-500">
             {answeredCount} / {totalQuestions}
           </span>

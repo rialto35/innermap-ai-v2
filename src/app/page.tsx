@@ -85,14 +85,11 @@ export default function Home() {
         {/* 헤더 섹션 - 우주 테마 */}
         <div className="text-center mb-16 animate-fade-in">
           <div className="relative">
-            {/* PromptCore 로고 */}
-            <div className="flex justify-center mb-8">
-              <div className="promptcore-logo">
-                <div className="logo-container">
-                  <div className="logo-p-shape"></div>
-                  <div className="logo-inner-shape"></div>
-                </div>
-                <span className="logo-text">PromptCore</span>
+            {/* PromptCore 브랜딩 */}
+            <div className="flex justify-center mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full border border-white/20 backdrop-blur-sm">
+                <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
+                <span className="text-xs font-medium text-gray-300 tracking-wide">PromptCore</span>
               </div>
             </div>
             
@@ -107,7 +104,7 @@ export default function Home() {
               </p>
               
               <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                MBTI, 에니어그램, 컬러심리를 통해 더 깊이 있는 자아를 발견하세요
+                MBTI, RETI 검사, 색채심리를 통해 더 깊이 있는 자아를 발견하세요
               </p>
               
               {/* 미니멀 장식 요소 */}
@@ -170,15 +167,15 @@ export default function Home() {
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="text-center p-8 rounded-2xl bg-gray-800/50 border border-gray-700 hover-lift">
                     <div className="text-4xl mb-4">🎂</div>
-                    <h4 className="font-bold text-white mb-3">생년월일</h4>
+                    <h4 className="font-bold text-white mb-3">히어로컬러</h4>
                     <p className="text-sm text-gray-400">
-                      입력하면 컬러심리가<br />자동으로 계산됩니다
+                      입력하면 색채심리가<br />자동으로 계산됩니다
                     </p>
                   </div>
                   
                   <div className="text-center p-8 rounded-2xl bg-gray-800/50 border border-gray-700 hover-lift">
                     <div className="text-4xl mb-4">🧠</div>
-                    <h4 className="font-bold text-white mb-3">MBTI & 에니어그램</h4>
+                    <h4 className="font-bold text-white mb-3">MBTI & RETI 검사</h4>
                     <p className="text-sm text-gray-400">
                       이미 아신다면<br />바로 선택하세요
                     </p>

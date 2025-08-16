@@ -15,7 +15,7 @@ export default function QuickInput({ onComplete }) {
   const [calculatedColor, setCalculatedColor] = useState(null);
   const [showResult, setShowResult] = useState(false);
 
-  // 생년월일로 컬러 계산
+  // 히어로컬러 계산
   const calculateColorFromBirth = (birthDate) => {
     if (!birthDate) return null;
     
@@ -148,7 +148,7 @@ export default function QuickInput({ onComplete }) {
               <div className="space-y-3">
                 {formData.birthDate && (
                   <div className="flex items-center justify-between p-3 bg-white/60 rounded-xl">
-                    <span className="font-medium text-gray-700">🎂 생년월일</span>
+                    <span className="font-medium text-gray-700">🎂 히어로컬러</span>
                     <span className="text-gray-600">{formData.birthDate}</span>
                   </div>
                 )}
@@ -162,14 +162,14 @@ export default function QuickInput({ onComplete }) {
                 
                 {formData.enneagram && (
                   <div className="flex items-center justify-between p-3 bg-white/60 rounded-xl">
-                    <span className="font-medium text-gray-700">🔢 에니어그램</span>
+                    <span className="font-medium text-gray-700">🔢 RETI 검사</span>
                     <span className="font-bold text-emerald-600">유형 {formData.enneagram}</span>
                   </div>
                 )}
                 
                 {calculatedColor && (
                   <div className="flex items-center justify-between p-3 bg-white/60 rounded-xl">
-                    <span className="font-medium text-gray-700">🎨 생년월일 컬러</span>
+                    <span className="font-medium text-gray-700">🎨 히어로컬러</span>
                     <div className="flex items-center">
                       <div
                         className="w-6 h-6 rounded-full mr-2 border-2 border-white shadow-md"
@@ -219,11 +219,11 @@ export default function QuickInput({ onComplete }) {
         </div>
 
         <div className="space-y-8">
-          {/* 생년월일 입력 */}
+          {/* 히어로컬러 입력 */}
           <div className="relative">
             <label className="block text-lg font-semibold text-gray-300 mb-3 flex items-center">
               <span className="mr-2 text-2xl">🎂</span>
-              생년월일 (양력)
+              히어로컬러 확인
             </label>
             <input
               type="text"
