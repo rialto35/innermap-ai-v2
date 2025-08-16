@@ -86,18 +86,21 @@ export default function Home() {
         <div className="text-center mb-16 animate-fade-in">
           <div className="relative">
             {/* PromptCore 브랜딩 */}
-            <div className="flex justify-center mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-full border border-white/20 backdrop-blur-sm">
-                <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
-                <span className="text-xs font-medium text-gray-300 tracking-wide">PromptCore</span>
+            <div className="flex justify-center mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600/20 to-purple-600/20 rounded-full border border-white/30 backdrop-blur-sm shadow-lg">
+                <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-pulse"></div>
+                <span className="text-sm font-semibold text-white tracking-wide">PromptCore</span>
               </div>
             </div>
             
             {/* 메인 타이틀 */}
             <div className="relative z-10">
-              <h1 className="text-5xl md:text-7xl font-bold mb-8">
+              <h1 className="text-5xl md:text-7xl font-bold mb-6">
                 <span className="text-gradient">🧠 InnerMap AI</span>
               </h1>
+              <h2 className="text-2xl md:text-3xl font-semibold text-gray-300 mb-8">
+                나를 찾는 지도
+              </h2>
               
               <p className="text-xl md:text-2xl text-gray-300 mb-6 font-medium">
                 AI가 분석하는 당신의 성격과 심리 프로필
@@ -294,21 +297,25 @@ export default function Home() {
             </div>
             
             {/* PromptCore 푸터 */}
-            <div className="text-center mt-16">
-              <div className="inline-flex items-center gap-3 px-6 py-3 bg-gray-900/30 border border-cyan-400/20 rounded-full backdrop-blur-sm">
-                <div className="w-6 h-6">
-                  <div className="w-full h-full bg-gradient-to-br from-blue-600 to-blue-400 rounded-sm"></div>
+            <div className="text-center mt-20">
+              <div className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-gray-900/40 to-gray-800/40 border border-white/20 rounded-2xl backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
+                <div className="w-8 h-8 relative">
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg"></div>
+                  <div className="absolute inset-1 bg-gradient-to-br from-blue-400 to-purple-500 rounded-md"></div>
                 </div>
-                <span className="text-sm text-cyan-300">Powered by</span>
+                <span className="text-sm text-gray-300 font-medium">Powered by</span>
                 <a 
                   href="https://promptcore.co.kr" 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="text-sm font-semibold text-white hover:text-cyan-300 transition-colors"
+                  className="text-lg font-bold text-white hover:text-blue-300 transition-colors"
                 >
                   PromptCore
                 </a>
               </div>
+              <p className="text-xs text-gray-500 mt-3">
+                통합 AI 내면 자아분석 서비스
+              </p>
             </div>
           </div>
         )}

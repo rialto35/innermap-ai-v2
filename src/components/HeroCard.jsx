@@ -211,10 +211,11 @@ const HeroCard = ({ mbtiType, enneagramType, colorPreference }) => {
        </div>
        
        {/* PromptCore 브랜딩 */}
-       <div className="flex justify-center mt-4">
-         <div className="inline-flex items-center gap-1.5 px-2 py-1 bg-black/20 rounded-full border border-white/10 backdrop-blur-sm">
-           <div className="w-2 h-2 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full"></div>
-           <span className="text-xs text-white/60 font-medium tracking-wide">Powered by PromptCore</span>
+       <div className="flex justify-center mt-6">
+         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-black/30 to-gray-800/30 rounded-xl border border-white/20 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
+           <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full animate-pulse"></div>
+           <span className="text-xs text-white/80 font-medium tracking-wide">Powered by</span>
+           <span className="text-xs text-blue-300 font-bold">PromptCore</span>
          </div>
        </div>
     </div>

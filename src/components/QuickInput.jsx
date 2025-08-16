@@ -32,28 +32,26 @@ export default function QuickInput({ onComplete }) {
     return colorsData.colors[index];
   };
 
-  // 날짜 포맷팅 함수
+  // 날짜 포맷팅 함수 - 백스페이스 친화적
   const formatDate = (value) => {
     // 숫자만 추출
     const numbers = value.replace(/\D/g, '');
     
     // 8자리까지만 허용
-    if (numbers.length > 8) return value;
-    
-    // YYYY-MM-DD 형식으로 포맷팅
-    if (numbers.length >= 4) {
-      const year = numbers.substring(0, 4);
-      const month = numbers.substring(4, 6);
-      const day = numbers.substring(6, 8);
-      
-      if (numbers.length >= 6) {
-        return `${year}-${month}-${day}`;
-      } else if (numbers.length >= 4) {
-        return `${year}-${month}`;
-      }
+    if (numbers.length > 8) {
+      return value.slice(0, -1);
     }
     
-    return numbers;
+    // YYYY-MM-DD 형식으로 포맷팅
+    if (numbers.length >= 5) {
+      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}-${numbers.slice(6, 8)}`;
+    } else if (numbers.length >= 3) {
+      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}`;
+    } else if (numbers.length >= 1) {
+      return numbers.slice(0, 4);
+    }
+    
+    return '';
   };
 
   // 날짜 유효성 검사
@@ -225,14 +223,14 @@ export default function QuickInput({ onComplete }) {
               <span className="mr-2 text-2xl">🎂</span>
               히어로컬러 확인
             </label>
-            <input
-              type="text"
-              value={formData.birthDate}
-              onChange={handleBirthDateChange}
-              className="input-field text-lg py-4"
-              placeholder="YYYY-MM-DD (예: 1990-01-15)"
-              maxLength="10"
-            />
+                                                   <input
+                type="text"
+                value={formData.birthDate}
+                onChange={handleBirthDateChange}
+                className="input-field text-lg py-4"
+                placeholder="YYYY-MM-DD (예: 1990-01-15)"
+                maxLength="10"
+              />
             
             {/* 계산된 컬러 표시 */}
             {calculatedColor && (

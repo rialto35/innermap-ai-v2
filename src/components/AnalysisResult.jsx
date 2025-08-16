@@ -90,10 +90,11 @@ export default function AnalysisResult({ testResults, onReset }) {
     return (
       <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8 m-4">
         {/* PromptCore 브랜딩 */}
-        <div className="flex justify-center mb-6">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-purple-50 rounded-full border border-blue-200/50">
-            <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
-            <span className="text-sm font-medium text-gray-700 tracking-wide">Powered by PromptCore</span>
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-2xl border border-blue-300/30 backdrop-blur-sm shadow-lg">
+            <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full animate-pulse"></div>
+            <span className="text-sm font-semibold text-gray-700 tracking-wide">Powered by</span>
+            <span className="text-sm font-bold text-blue-600">PromptCore</span>
           </div>
         </div>
         
