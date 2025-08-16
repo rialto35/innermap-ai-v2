@@ -92,16 +92,40 @@ async function generateAllHeroImages() {
   const heroKeys = Object.keys(heroMapping);
   const results = [];
   const failedHeroes = [];
+  const skippedHeroes = [];
   
-  // 배치별 처리
-  for (let i = 0; i < heroKeys.length; i += BATCH_SIZE) {
+  // 이미 존재하는 이미지 필터링
+  const missingHeroKeys = heroKeys.filter(heroKey => {
+    const fileName = `${heroKey}.png`;
+    const filePath = path.join(heroesDir, fileName);
+    const exists = fs.existsSync(filePath);
+    
+    if (exists) {
+      skippedHeroes.push(heroKey);
+      console.log(`⏭️ 건너뛰기: ${heroKey} (이미 존재)`);
+    }
+    
+    return !exists;
+  });
+  
+  console.log(`\n📊 처리 통계:`);
+  console.log(`✅ 이미 존재: ${skippedHeroes.length}개`);
+  console.log(`🔄 생성 필요: ${missingHeroKeys.length}개`);
+  
+  if (missingHeroKeys.length === 0) {
+    console.log('🎉 모든 이미지가 이미 존재합니다!');
+    return { successful: 0, failed: 0, skipped: skippedHeroes.length, heroIndex: {} };
+  }
+  
+  // 배치별 처리 (없는 이미지만)
+  for (let i = 0; i < missingHeroKeys.length; i += BATCH_SIZE) {
     const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
-    const totalBatches = Math.ceil(heroKeys.length / BATCH_SIZE);
+    const totalBatches = Math.ceil(missingHeroKeys.length / BATCH_SIZE);
     
     console.log(`\n📦 배치 ${batchNumber}/${totalBatches} 처리 중...`);
-    console.log(`📈 진행률: ${i + 1}-${Math.min(i + BATCH_SIZE, heroKeys.length)}/${heroKeys.length}`);
+    console.log(`📈 진행률: ${i + 1}-${Math.min(i + BATCH_SIZE, missingHeroKeys.length)}/${missingHeroKeys.length}`);
     
-    const batchResults = await processBatch(heroKeys, i);
+    const batchResults = await processBatch(missingHeroKeys, i);
     
     // 결과 수집
     batchResults.forEach(result => {
@@ -112,7 +136,7 @@ async function generateAllHeroImages() {
     });
     
     // 배치 간 대기 (API 제한 고려)
-    if (i + BATCH_SIZE < heroKeys.length) {
+    if (i + BATCH_SIZE < missingHeroKeys.length) {
       console.log(`⏳ ${DELAY_BETWEEN_BATCHES/1000}초 대기 중...`);
       await new Promise(resolve => setTimeout(resolve, DELAY_BETWEEN_BATCHES));
     }
@@ -125,6 +149,7 @@ async function generateAllHeroImages() {
   console.log('\n🎉 생성 완료!');
   console.log(`✅ 성공: ${successful}개`);
   console.log(`❌ 실패: ${failed}개`);
+  console.log(`⏭️ 건너뛴: ${skippedHeroes.length}개`);
   
   if (failedHeroes.length > 0) {
     console.log('\n❌ 실패한 영웅들:');
@@ -147,7 +172,7 @@ async function generateAllHeroImages() {
   fs.writeFileSync(indexPath, JSON.stringify(heroIndex, null, 2));
   console.log(`\n📄 인덱스 파일 생성: ${indexPath}`);
   
-  return { successful, failed, failedHeroes, heroIndex };
+  return { successful, failed, failedHeroes, skipped: skippedHeroes.length, heroIndex };
 }
 
 // 스크립트 실행
