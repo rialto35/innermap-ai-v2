@@ -1,4 +1,14 @@
 {
+  "ENFP_type1": {
+    "fileName": "ENFP_type1.png",
+    "exists": true,
+    "path": "/heroes/ENFP_type1.png"
+  },
+  "ENFP_type2": {
+    "fileName": "ENFP_type2.png",
+    "exists": true,
+    "path": "/heroes/ENFP_type2.png"
+  },
   "ENFP_type3": {
     "fileName": "ENFP_type3.png",
     "exists": true,
@@ -28,6 +38,21 @@
     "fileName": "ENFP_type8.png",
     "exists": true,
     "path": "/heroes/ENFP_type8.png"
+  },
+  "ENFP_type9": {
+    "fileName": "ENFP_type9.png",
+    "exists": true,
+    "path": "/heroes/ENFP_type9.png"
+  },
+  "INTJ_type1": {
+    "fileName": "INTJ_type1.png",
+    "exists": true,
+    "path": "/heroes/INTJ_type1.png"
+  },
+  "INTJ_type2": {
+    "fileName": "INTJ_type2.png",
+    "exists": true,
+    "path": "/heroes/INTJ_type2.png"
   },
   "INTJ_type3": {
     "fileName": "INTJ_type3.png",
@@ -59,6 +84,21 @@
     "exists": true,
     "path": "/heroes/INTJ_type8.png"
   },
+  "INTJ_type9": {
+    "fileName": "INTJ_type9.png",
+    "exists": true,
+    "path": "/heroes/INTJ_type9.png"
+  },
+  "ESFJ_type1": {
+    "fileName": "ESFJ_type1.png",
+    "exists": true,
+    "path": "/heroes/ESFJ_type1.png"
+  },
+  "ESFJ_type2": {
+    "fileName": "ESFJ_type2.png",
+    "exists": true,
+    "path": "/heroes/ESFJ_type2.png"
+  },
   "ESFJ_type3": {
     "fileName": "ESFJ_type3.png",
     "exists": true,
@@ -88,6 +128,21 @@
     "fileName": "ESFJ_type8.png",
     "exists": true,
     "path": "/heroes/ESFJ_type8.png"
+  },
+  "ESFJ_type9": {
+    "fileName": "ESFJ_type9.png",
+    "exists": true,
+    "path": "/heroes/ESFJ_type9.png"
+  },
+  "ISTP_type1": {
+    "fileName": "ISTP_type1.png",
+    "exists": true,
+    "path": "/heroes/ISTP_type1.png"
+  },
+  "ISTP_type2": {
+    "fileName": "ISTP_type2.png",
+    "exists": true,
+    "path": "/heroes/ISTP_type2.png"
   },
   "ISTP_type3": {
     "fileName": "ISTP_type3.png",
@@ -119,364 +174,9 @@
     "exists": true,
     "path": "/heroes/ISTP_type8.png"
   },
-  "INFP_type3": {
-    "fileName": "INFP_type3.png",
+  "ISTP_type9": {
+    "fileName": "ISTP_type9.png",
     "exists": true,
-    "path": "/heroes/INFP_type3.png"
-  },
-  "INFP_type4": {
-    "fileName": "INFP_type4.png",
-    "exists": true,
-    "path": "/heroes/INFP_type4.png"
-  },
-  "INFP_type5": {
-    "fileName": "INFP_type5.png",
-    "exists": true,
-    "path": "/heroes/INFP_type5.png"
-  },
-  "INFP_type6": {
-    "fileName": "INFP_type6.png",
-    "exists": true,
-    "path": "/heroes/INFP_type6.png"
-  },
-  "INFP_type7": {
-    "fileName": "INFP_type7.png",
-    "exists": true,
-    "path": "/heroes/INFP_type7.png"
-  },
-  "INFP_type8": {
-    "fileName": "INFP_type8.png",
-    "exists": true,
-    "path": "/heroes/INFP_type8.png"
-  },
-  "ENTJ_type3": {
-    "fileName": "ENTJ_type3.png",
-    "exists": true,
-    "path": "/heroes/ENTJ_type3.png"
-  },
-  "ENTJ_type4": {
-    "fileName": "ENTJ_type4.png",
-    "exists": true,
-    "path": "/heroes/ENTJ_type4.png"
-  },
-  "ENTJ_type5": {
-    "fileName": "ENTJ_type5.png",
-    "exists": true,
-    "path": "/heroes/ENTJ_type5.png"
-  },
-  "ENTJ_type6": {
-    "fileName": "ENTJ_type6.png",
-    "exists": true,
-    "path": "/heroes/ENTJ_type6.png"
-  },
-  "ENTJ_type7": {
-    "fileName": "ENTJ_type7.png",
-    "exists": true,
-    "path": "/heroes/ENTJ_type7.png"
-  },
-  "ENTJ_type8": {
-    "fileName": "ENTJ_type8.png",
-    "exists": true,
-    "path": "/heroes/ENTJ_type8.png"
-  },
-  "ISFJ_type3": {
-    "fileName": "ISFJ_type3.png",
-    "exists": true,
-    "path": "/heroes/ISFJ_type3.png"
-  },
-  "ISFJ_type4": {
-    "fileName": "ISFJ_type4.png",
-    "exists": true,
-    "path": "/heroes/ISFJ_type4.png"
-  },
-  "ISFJ_type5": {
-    "fileName": "ISFJ_type5.png",
-    "exists": true,
-    "path": "/heroes/ISFJ_type5.png"
-  },
-  "ISFJ_type6": {
-    "fileName": "ISFJ_type6.png",
-    "exists": true,
-    "path": "/heroes/ISFJ_type6.png"
-  },
-  "ISFJ_type7": {
-    "fileName": "ISFJ_type7.png",
-    "exists": true,
-    "path": "/heroes/ISFJ_type7.png"
-  },
-  "ISFJ_type8": {
-    "fileName": "ISFJ_type8.png",
-    "exists": true,
-    "path": "/heroes/ISFJ_type8.png"
-  },
-  "ENTP_type3": {
-    "fileName": "ENTP_type3.png",
-    "exists": true,
-    "path": "/heroes/ENTP_type3.png"
-  },
-  "ENTP_type4": {
-    "fileName": "ENTP_type4.png",
-    "exists": true,
-    "path": "/heroes/ENTP_type4.png"
-  },
-  "ENTP_type5": {
-    "fileName": "ENTP_type5.png",
-    "exists": true,
-    "path": "/heroes/ENTP_type5.png"
-  },
-  "ENTP_type6": {
-    "fileName": "ENTP_type6.png",
-    "exists": true,
-    "path": "/heroes/ENTP_type6.png"
-  },
-  "ENTP_type7": {
-    "fileName": "ENTP_type7.png",
-    "exists": true,
-    "path": "/heroes/ENTP_type7.png"
-  },
-  "ENTP_type8": {
-    "fileName": "ENTP_type8.png",
-    "exists": true,
-    "path": "/heroes/ENTP_type8.png"
-  },
-  "ISFP_type3": {
-    "fileName": "ISFP_type3.png",
-    "exists": true,
-    "path": "/heroes/ISFP_type3.png"
-  },
-  "ISFP_type4": {
-    "fileName": "ISFP_type4.png",
-    "exists": true,
-    "path": "/heroes/ISFP_type4.png"
-  },
-  "ISFP_type5": {
-    "fileName": "ISFP_type5.png",
-    "exists": true,
-    "path": "/heroes/ISFP_type5.png"
-  },
-  "ISFP_type6": {
-    "fileName": "ISFP_type6.png",
-    "exists": true,
-    "path": "/heroes/ISFP_type6.png"
-  },
-  "ISFP_type7": {
-    "fileName": "ISFP_type7.png",
-    "exists": true,
-    "path": "/heroes/ISFP_type7.png"
-  },
-  "ISFP_type8": {
-    "fileName": "ISFP_type8.png",
-    "exists": true,
-    "path": "/heroes/ISFP_type8.png"
-  },
-  "ESTJ_type3": {
-    "fileName": "ESTJ_type3.png",
-    "exists": true,
-    "path": "/heroes/ESTJ_type3.png"
-  },
-  "ESTJ_type4": {
-    "fileName": "ESTJ_type4.png",
-    "exists": true,
-    "path": "/heroes/ESTJ_type4.png"
-  },
-  "ESTJ_type5": {
-    "fileName": "ESTJ_type5.png",
-    "exists": true,
-    "path": "/heroes/ESTJ_type5.png"
-  },
-  "ESTJ_type6": {
-    "fileName": "ESTJ_type6.png",
-    "exists": true,
-    "path": "/heroes/ESTJ_type6.png"
-  },
-  "ESTJ_type7": {
-    "fileName": "ESTJ_type7.png",
-    "exists": true,
-    "path": "/heroes/ESTJ_type7.png"
-  },
-  "ESTJ_type8": {
-    "fileName": "ESTJ_type8.png",
-    "exists": true,
-    "path": "/heroes/ESTJ_type8.png"
-  },
-  "INFJ_type3": {
-    "fileName": "INFJ_type3.png",
-    "exists": true,
-    "path": "/heroes/INFJ_type3.png"
-  },
-  "INFJ_type4": {
-    "fileName": "INFJ_type4.png",
-    "exists": true,
-    "path": "/heroes/INFJ_type4.png"
-  },
-  "INFJ_type5": {
-    "fileName": "INFJ_type5.png",
-    "exists": true,
-    "path": "/heroes/INFJ_type5.png"
-  },
-  "INFJ_type6": {
-    "fileName": "INFJ_type6.png",
-    "exists": true,
-    "path": "/heroes/INFJ_type6.png"
-  },
-  "INFJ_type7": {
-    "fileName": "INFJ_type7.png",
-    "exists": true,
-    "path": "/heroes/INFJ_type7.png"
-  },
-  "INFJ_type8": {
-    "fileName": "INFJ_type8.png",
-    "exists": true,
-    "path": "/heroes/INFJ_type8.png"
-  },
-  "ESTP_type3": {
-    "fileName": "ESTP_type3.png",
-    "exists": true,
-    "path": "/heroes/ESTP_type3.png"
-  },
-  "ESTP_type4": {
-    "fileName": "ESTP_type4.png",
-    "exists": true,
-    "path": "/heroes/ESTP_type4.png"
-  },
-  "ESTP_type5": {
-    "fileName": "ESTP_type5.png",
-    "exists": true,
-    "path": "/heroes/ESTP_type5.png"
-  },
-  "ESTP_type6": {
-    "fileName": "ESTP_type6.png",
-    "exists": true,
-    "path": "/heroes/ESTP_type6.png"
-  },
-  "ESTP_type7": {
-    "fileName": "ESTP_type7.png",
-    "exists": true,
-    "path": "/heroes/ESTP_type7.png"
-  },
-  "ESTP_type8": {
-    "fileName": "ESTP_type8.png",
-    "exists": true,
-    "path": "/heroes/ESTP_type8.png"
-  },
-  "ISTJ_type3": {
-    "fileName": "ISTJ_type3.png",
-    "exists": true,
-    "path": "/heroes/ISTJ_type3.png"
-  },
-  "ISTJ_type4": {
-    "fileName": "ISTJ_type4.png",
-    "exists": true,
-    "path": "/heroes/ISTJ_type4.png"
-  },
-  "ISTJ_type5": {
-    "fileName": "ISTJ_type5.png",
-    "exists": true,
-    "path": "/heroes/ISTJ_type5.png"
-  },
-  "ISTJ_type6": {
-    "fileName": "ISTJ_type6.png",
-    "exists": true,
-    "path": "/heroes/ISTJ_type6.png"
-  },
-  "ISTJ_type7": {
-    "fileName": "ISTJ_type7.png",
-    "exists": true,
-    "path": "/heroes/ISTJ_type7.png"
-  },
-  "ISTJ_type8": {
-    "fileName": "ISTJ_type8.png",
-    "exists": true,
-    "path": "/heroes/ISTJ_type8.png"
-  },
-  "ENFJ_type3": {
-    "fileName": "ENFJ_type3.png",
-    "exists": true,
-    "path": "/heroes/ENFJ_type3.png"
-  },
-  "ENFJ_type4": {
-    "fileName": "ENFJ_type4.png",
-    "exists": true,
-    "path": "/heroes/ENFJ_type4.png"
-  },
-  "ENFJ_type5": {
-    "fileName": "ENFJ_type5.png",
-    "exists": true,
-    "path": "/heroes/ENFJ_type5.png"
-  },
-  "ENFJ_type6": {
-    "fileName": "ENFJ_type6.png",
-    "exists": true,
-    "path": "/heroes/ENFJ_type6.png"
-  },
-  "ENFJ_type7": {
-    "fileName": "ENFJ_type7.png",
-    "exists": true,
-    "path": "/heroes/ENFJ_type7.png"
-  },
-  "ENFJ_type8": {
-    "fileName": "ENFJ_type8.png",
-    "exists": true,
-    "path": "/heroes/ENFJ_type8.png"
-  },
-  "INTP_type3": {
-    "fileName": "INTP_type3.png",
-    "exists": true,
-    "path": "/heroes/INTP_type3.png"
-  },
-  "INTP_type4": {
-    "fileName": "INTP_type4.png",
-    "exists": true,
-    "path": "/heroes/INTP_type4.png"
-  },
-  "INTP_type5": {
-    "fileName": "INTP_type5.png",
-    "exists": true,
-    "path": "/heroes/INTP_type5.png"
-  },
-  "INTP_type6": {
-    "fileName": "INTP_type6.png",
-    "exists": true,
-    "path": "/heroes/INTP_type6.png"
-  },
-  "INTP_type7": {
-    "fileName": "INTP_type7.png",
-    "exists": true,
-    "path": "/heroes/INTP_type7.png"
-  },
-  "INTP_type8": {
-    "fileName": "INTP_type8.png",
-    "exists": true,
-    "path": "/heroes/INTP_type8.png"
-  },
-  "ESFP_type3": {
-    "fileName": "ESFP_type3.png",
-    "exists": true,
-    "path": "/heroes/ESFP_type3.png"
-  },
-  "ESFP_type4": {
-    "fileName": "ESFP_type4.png",
-    "exists": true,
-    "path": "/heroes/ESFP_type4.png"
-  },
-  "ESFP_type5": {
-    "fileName": "ESFP_type5.png",
-    "exists": true,
-    "path": "/heroes/ESFP_type5.png"
-  },
-  "ESFP_type6": {
-    "fileName": "ESFP_type6.png",
-    "exists": true,
-    "path": "/heroes/ESFP_type6.png"
-  },
-  "ESFP_type7": {
-    "fileName": "ESFP_type7.png",
-    "exists": true,
-    "path": "/heroes/ESFP_type7.png"
-  },
-  "ESFP_type8": {
-    "fileName": "ESFP_type8.png",
-    "exists": true,
-    "path": "/heroes/ESFP_type8.png"
+    "path": "/heroes/ISTP_type9.png"
   }
 }
