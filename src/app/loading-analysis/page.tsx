@@ -1,18 +1,63 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function LoadingPage() {
   const router = useRouter();
+  const [status, setStatus] = useState('분석 시작...');
 
   useEffect(() => {
-    // 15초 후 /result로 이동
-    const timer = setTimeout(() => {
-      router.push('/result');
-    }, 15000);
+    const analyze = async () => {
+      try {
+        // 로컬스토리지에서 데이터 로드
+        const birthDate = JSON.parse(localStorage.getItem('birthDate') || '{}');
+        const testAnswers = JSON.parse(localStorage.getItem('testAnswers') || '{}');
+        const testMode = localStorage.getItem('testMode') || 'simple';
+        const testProgress = JSON.parse(localStorage.getItem('testProgress') || '{}');
 
-    return () => clearTimeout(timer);
+        // 1. 점수 계산
+        setStatus('점수 계산 중...');
+        const scoreRes = await fetch('/api/test/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            answers: testAnswers,
+            questions: testProgress.questions,
+            birth: { 
+              y: parseInt(birthDate.year), 
+              m: parseInt(birthDate.month), 
+              d: parseInt(birthDate.day) 
+            },
+            mode: testMode
+          })
+        });
+
+        const scoreData = await scoreRes.json();
+        
+        if (scoreData.success) {
+          localStorage.setItem('testScores', JSON.stringify(scoreData.scores));
+          localStorage.setItem('testMetadata', JSON.stringify(scoreData.metadata));
+        }
+
+        // 2. AI 분석 호출 (기존 /api/analyze)
+        setStatus('AI 분석 중...');
+        // TODO: 기존 analyze API와 연동
+        
+        // 3초 대기 후 결과로 이동
+        setTimeout(() => {
+          router.push('/result');
+        }, 3000);
+
+      } catch (error) {
+        console.error('분석 에러:', error);
+        setTimeout(() => {
+          router.push('/result');
+        }, 2000);
+      }
+    };
+
+    analyze();
   }, [router]);
 
   return (
@@ -35,6 +80,7 @@ export default function LoadingPage() {
           MBTI, RETI, Big5 데이터를<br />
           영웅 세계관으로 해석하는 중...
         </p>
+        <p className="text-indigo-400 text-sm mb-8">{status}</p>
 
         {/* 진행 단계 */}
         <div className="space-y-3 text-left">
