@@ -39,19 +39,17 @@ export default function QuickInput({ onComplete }) {
     
     // 8자리까지만 허용
     if (numbers.length > 8) {
-      return value.slice(0, -1);
+      return formData.birthDate; // 이전 값 유지
     }
     
     // YYYY-MM-DD 형식으로 포맷팅
-    if (numbers.length >= 5) {
-      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}-${numbers.slice(6, 8)}`;
-    } else if (numbers.length >= 3) {
-      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}`;
-    } else if (numbers.length >= 1) {
-      return numbers.slice(0, 4);
+    if (numbers.length >= 6) {
+      return `${numbers.slice(0, 4)}-${numbers.slice(4, 6)}-${numbers.slice(6)}`;
+    } else if (numbers.length >= 4) {
+      return `${numbers.slice(0, 4)}-${numbers.slice(4)}`;
+    } else {
+      return numbers;
     }
-    
-    return '';
   };
 
   // 날짜 유효성 검사
@@ -263,11 +261,13 @@ export default function QuickInput({ onComplete }) {
               className="input-field text-lg py-4 cursor-pointer"
             >
               <option value="">MBTI를 선택하세요</option>
-              {Object.entries(mbtiData.types).map(([type, data]) => (
-                <option key={type} value={type}>
-                  {type} - {data.name}
-                </option>
-              ))}
+              {Object.entries(mbtiData.types)
+                .sort(([a], [b]) => a.localeCompare(b))
+                .map(([type, data]) => (
+                  <option key={type} value={type}>
+                    {type} - {data.name}
+                  </option>
+                ))}
             </select>
           </div>
 

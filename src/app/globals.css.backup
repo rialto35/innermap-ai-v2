@@ -1,0 +1,955 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* InnerMap AI 디자인 시스템 - 우주 테마 */
+:root {
+  /* 우주 테마 컬러 팔레트 */
+  --bg-primary: #0a0a0f;
+  --bg-secondary: #0f0f1a;
+  --bg-tertiary: #1a1a2e;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #e5e5ff;
+  --text-muted: #a3a3cc;
+  
+  --accent-primary: #00d4ff;
+  --accent-secondary: #8b5cf6;
+  --accent-cyan: #06b6d4;
+  --accent-purple: #a855f7;
+  
+  --border-light: #1e1e3f;
+  --border-medium: #2d2d5f;
+  
+  /* 우주 글로우 효과 */
+  --glow-primary: 0 0 20px rgba(0, 212, 255, 0.3);
+  --glow-secondary: 0 0 30px rgba(139, 92, 246, 0.3);
+  --glow-cyan: 0 0 25px rgba(6, 182, 212, 0.4);
+  
+  /* 우주 그림자 */
+  --shadow-cosmic: 0 8px 32px rgba(0, 212, 255, 0.1);
+  --shadow-nebula: 0 12px 40px rgba(139, 92, 246, 0.15);
+  --shadow-stellar: 0 20px 60px rgba(6, 182, 212, 0.2);
+  
+  /* 반응형 브레이크포인트 */
+  --mobile: 480px;
+  --tablet: 768px;
+  --desktop: 1024px;
+  --wide: 1280px;
+}
+
+/* 전역 기본 스타일 */
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* 우주 애니메이션 배경 */
+.animated-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 60% 60%, rgba(168, 85, 247, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 25%, #1a1a2e 50%, #0f0f1a 75%, #0a0a0f 100%);
+  background-size: 400% 400%, 300% 300%, 200% 200%, 250% 250%, 100% 100%;
+  animation: cosmicGradient 50s ease infinite;
+}
+
+/* 우주 떠다니는 요소들 */
+.floating-shapes {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  perspective: 1000px;
+}
+
+.floating-shape {
+  position: absolute;
+  animation: cosmicFloat 25s ease-in-out infinite;
+}
+
+/* 우주선 */
+.floating-shape:nth-child(1) {
+  width: 80px;
+  height: 40px;
+  top: 15%;
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 30s;
+}
+
+.floating-shape:nth-child(1)::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(0, 212, 255, 0.2), rgba(6, 182, 212, 0.1));
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 50% 50% 0 0;
+  transform: rotateX(45deg) rotateY(45deg);
+  animation: spaceshipFloat 8s linear infinite;
+  box-shadow: var(--glow-primary);
+}
+
+/* 위성 */
+.floating-shape:nth-child(2) {
+  width: 60px;
+  height: 60px;
+  top: 70%;
+  left: 85%;
+  animation-delay: -8s;
+  animation-duration: 35s;
+}
+
+.floating-shape:nth-child(2)::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.2) 0%, rgba(168, 85, 247, 0.1) 70%);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 50%;
+  transform: rotateX(60deg) rotateY(0deg);
+  animation: satelliteRotate 12s linear infinite;
+  box-shadow: var(--glow-secondary);
+}
+
+/* 행성 */
+.floating-shape:nth-child(3) {
+  width: 100px;
+  height: 100px;
+  top: 80%;
+  left: 15%;
+  animation-delay: -15s;
+  animation-duration: 40s;
+}
+
+.floating-shape:nth-child(3)::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, rgba(0, 212, 255, 0.1) 50%, transparent 70%);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 50%;
+  transform: rotateX(30deg) rotateY(30deg);
+  animation: planetRotate 20s linear infinite;
+  box-shadow: var(--glow-cyan);
+}
+
+/* 별들 */
+.floating-shape:nth-child(4) {
+  width: 4px;
+  height: 4px;
+  top: 20%;
+  left: 80%;
+  animation-delay: -5s;
+  animation-duration: 15s;
+}
+
+.floating-shape:nth-child(4)::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  animation: starTwinkle 3s ease-in-out infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+.floating-shape:nth-child(5) {
+  width: 3px;
+  height: 3px;
+  top: 60%;
+  left: 30%;
+  animation-delay: -12s;
+  animation-duration: 18s;
+}
+
+.floating-shape:nth-child(5)::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 212, 255, 0.9);
+  border-radius: 50%;
+  animation: starTwinkle 4s ease-in-out infinite;
+  box-shadow: 0 0 15px rgba(0, 212, 255, 0.8);
+}
+
+.floating-shape:nth-child(6) {
+  width: 5px;
+  height: 5px;
+  top: 40%;
+  left: 70%;
+  animation-delay: -20s;
+  animation-duration: 22s;
+}
+
+.floating-shape:nth-child(6)::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(139, 92, 246, 0.9);
+  border-radius: 50%;
+  animation: starTwinkle 5s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.7);
+}
+
+
+
+/* 3D 원통 */
+.floating-shape:nth-child(5) {
+  width: 40px;
+  height: 60px;
+  top: 40%;
+  left: 50%;
+  animation-delay: -8s;
+  animation-duration: 18s;
+}
+
+.floating-shape:nth-child(5)::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 50% / 10%;
+  transform: rotateX(90deg) rotateY(0deg);
+  animation: rotate3D 6s linear infinite reverse;
+}
+
+/* 3D 정사각형 */
+.floating-shape:nth-child(6) {
+  width: 65px;
+  height: 65px;
+  top: 70%;
+  left: 30%;
+  animation-delay: -12s;
+  animation-duration: 24s;
+}
+
+.floating-shape:nth-child(6)::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(16, 185, 129, 0.1), rgba(59, 130, 246, 0.1));
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  transform: rotateX(45deg) rotateY(45deg) rotateZ(15deg);
+  animation: rotate3D 9s linear infinite;
+}
+
+.floating-shape:nth-child(1) {
+  width: 80px;
+  height: 80px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 20s;
+}
+
+.floating-shape:nth-child(2) {
+  width: 120px;
+  height: 120px;
+  top: 60%;
+  left: 80%;
+  animation-delay: -5s;
+  animation-duration: 25s;
+}
+
+.floating-shape:nth-child(3) {
+  width: 60px;
+  height: 60px;
+  top: 80%;
+  left: 20%;
+  animation-delay: -10s;
+  animation-duration: 18s;
+}
+
+.floating-shape:nth-child(4) {
+  width: 100px;
+  height: 100px;
+  top: 10%;
+  left: 70%;
+  animation-delay: -15s;
+  animation-duration: 22s;
+}
+
+.floating-shape:nth-child(5) {
+  width: 40px;
+  height: 40px;
+  top: 40%;
+  left: 50%;
+  animation-delay: -8s;
+  animation-duration: 16s;
+}
+
+.floating-shape:nth-child(6) {
+  width: 90px;
+  height: 90px;
+  top: 70%;
+  left: 30%;
+  animation-delay: -12s;
+  animation-duration: 24s;
+}
+
+/* 우주 그라데이션 변화 애니메이션 */
+@keyframes cosmicGradient {
+  0%, 100% {
+    background-position: 0% 0%, 100% 100%, 50% 50%, 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%, 0% 100%, 100% 50%, 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%, 0% 0%, 50% 100%, 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%, 100% 0%, 0% 50%, 0% 100%;
+  }
+}
+
+/* 우주 떠다니는 애니메이션 */
+@keyframes cosmicFloat {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px) translateZ(0px);
+    opacity: 0.4;
+  }
+  25% {
+    transform: translateY(-30px) translateX(15px) translateZ(20px);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateY(-60px) translateX(-25px) translateZ(40px);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translateY(-20px) translateX(35px) translateZ(10px);
+    opacity: 0.8;
+  }
+}
+
+/* 우주선 애니메이션 */
+@keyframes spaceshipFloat {
+  0% {
+    transform: rotateX(45deg) rotateY(45deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(45deg) rotateY(45deg) rotateZ(360deg);
+  }
+}
+
+/* 위성 회전 애니메이션 */
+@keyframes satelliteRotate {
+  0% {
+    transform: rotateX(60deg) rotateY(0deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(60deg) rotateY(0deg) rotateZ(360deg);
+  }
+}
+
+/* 행성 회전 애니메이션 */
+@keyframes planetRotate {
+  0% {
+    transform: rotateX(30deg) rotateY(30deg) rotateZ(0deg);
+  }
+  100% {
+    transform: rotateX(30deg) rotateY(30deg) rotateZ(360deg);
+  }
+}
+
+/* 별 깜빡임 애니메이션 */
+@keyframes starTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+}
+
+/* 커스텀 컴포넌트 클래스 */
+@layer components {
+  /* 우주 버튼 스타일 */
+  .btn-primary {
+    @apply bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-medium px-8 py-4 rounded-xl 
+           transition-all duration-300 transform hover:scale-105 active:scale-95
+           shadow-lg hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50
+           border border-cyan-400/30;
+  }
+  
+  .btn-secondary {
+    @apply bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium px-8 py-4 rounded-xl 
+           transition-all duration-300 transform hover:scale-105 active:scale-95
+           shadow-lg hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50
+           border border-purple-400/30;
+  }
+  
+  .btn-accent {
+    @apply bg-gradient-to-r from-cyan-400 to-purple-500 hover:from-cyan-300 hover:to-purple-400 text-white font-medium px-8 py-4 rounded-xl 
+           transition-all duration-300 transform hover:scale-105 active:scale-95
+           shadow-lg hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50
+           border border-cyan-400/30;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-cyan-400/50 text-cyan-300 hover:bg-cyan-500/10 hover:text-cyan-200 font-medium px-8 py-4 rounded-xl 
+           transition-all duration-300 transform hover:scale-105 active:scale-95
+           focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-opacity-50
+           backdrop-blur-sm;
+  }
+  
+  /* 우주 카드 스타일 */
+  .card {
+    @apply bg-gradient-to-br from-gray-900/80 to-gray-800/60 border border-cyan-400/20 rounded-2xl shadow-2xl hover:shadow-cosmic transition-all duration-500 backdrop-blur-md;
+  }
+  
+  .card-soft {
+    @apply bg-gradient-to-br from-gray-900/40 to-gray-800/30 backdrop-blur-md border border-cyan-400/10 rounded-2xl shadow-xl hover:shadow-nebula transition-all duration-500;
+  }
+  
+  /* 우주 입력 필드 스타일 */
+  .input-field {
+    @apply w-full px-6 py-4 border-2 border-cyan-400/30 rounded-xl focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 
+           transition-all duration-300 bg-gray-900/50 text-white placeholder-cyan-300/50 backdrop-blur-sm
+           hover:border-cyan-400/50 hover:bg-gray-900/70;
+  }
+  
+  /* 우주 그라데이션 텍스트 */
+  .text-gradient {
+    @apply bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-500 bg-clip-text text-transparent;
+  }
+  
+  .text-gradient-secondary {
+    @apply bg-gradient-to-r from-cyan-300 to-purple-400 bg-clip-text text-transparent;
+  }
+  
+  /* 우주 섹션 스타일 */
+  .section-title {
+    @apply text-4xl font-bold text-white mb-10 text-center;
+  }
+  
+  .section-subtitle {
+    @apply text-2xl font-semibold text-cyan-300 mb-8;
+  }
+  
+  /* 우주 애니메이션 클래스 */
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out forwards;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 1s ease-out forwards;
+  }
+  
+  .animate-bounce-gentle {
+    animation: bounceGentle 4s ease-in-out infinite;
+  }
+  
+  /* 우주 호버 효과 */
+  .hover-lift {
+    @apply transition-all duration-500 transform hover:-translate-y-2 hover:shadow-cosmic;
+  }
+  
+  .hover-scale {
+    @apply transition-all duration-500 transform hover:scale-105;
+  }
+  
+  /* 우주 상태별 색상 */
+  .status-success {
+    @apply bg-cyan-900/30 border border-cyan-500/50 text-cyan-300 backdrop-blur-sm;
+  }
+  
+  .status-warning {
+    @apply bg-yellow-900/30 border border-yellow-500/50 text-yellow-300 backdrop-blur-sm;
+  }
+  
+  .status-error {
+    @apply bg-red-900/30 border border-red-500/50 text-red-300 backdrop-blur-sm;
+  }
+  
+  .status-info {
+    @apply bg-blue-900/30 border border-blue-500/50 text-blue-300 backdrop-blur-sm;
+  }
+}
+
+/* 키프레임 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bounceGentle {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-8px);
+  }
+  60% {
+    transform: translateY(-4px);
+  }
+}
+
+/* 우주 스크롤바 커스터마이징 */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+  border-radius: 4px;
+  border: 1px solid var(--accent-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(to bottom, var(--accent-cyan), var(--accent-purple));
+  box-shadow: var(--glow-primary);
+}
+
+/* 포커스 스타일 개선 */
+*:focus {
+  outline: none;
+}
+
+/* 반응형 유틸리티 */
+@media (max-width: 768px) {
+  .mobile-stack {
+    @apply flex-col space-y-4 space-x-0;
+  }
+}
+
+/* PromptCore 로고 스타일 */
+.promptcore-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s ease;
+}
+
+.promptcore-logo:hover {
+  transform: scale(1.05);
+}
+
+.logo-container {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-p-shape {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+  border-radius: 20px;
+  clip-path: polygon(0 0, 70% 0, 70% 30%, 100% 30%, 100% 70%, 70% 70%, 70% 100%, 0 100%);
+  box-shadow: 0 8px 32px rgba(59, 130, 246, 0.3);
+  transition: all 0.3s ease;
+}
+
+.logo-inner-shape {
+  position: absolute;
+  width: 60%;
+  height: 40%;
+  background: linear-gradient(135deg, #60a5fa, #93c5fd);
+  border-radius: 12px;
+  top: 30%;
+  left: 15%;
+  box-shadow: 0 4px 16px rgba(96, 165, 250, 0.4);
+  transition: all 0.3s ease;
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e5e7eb;
+  letter-spacing: 0.5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.promptcore-logo:hover .logo-p-shape {
+  transform: rotate(5deg);
+  box-shadow: 0 12px 40px rgba(59, 130, 246, 0.4);
+}
+
+.promptcore-logo:hover .logo-inner-shape {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(96, 165, 250, 0.5);
+}
+
+/* 우주 포커스 스타일 */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+  box-shadow: var(--glow-primary);
+}
+
+/* 인쇄 스타일 */
+@media print {
+  body {
+    background: white !important;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* 새로운 세련된 애니메이션들 */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer-effect {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+  }
+}
+
+.glow-pulse {
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes floatGently {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.float-gently {
+  animation: floatGently 4s ease-in-out infinite;
+}
+
+/* 세련된 카드 효과 */
+.card-modern {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.card-modern:hover {
+  transform: translateY(-5px);
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+/* 세련된 버튼 효과 */
+.btn-modern {
+  background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(139, 92, 246, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.btn-modern:hover::before {
+  left: 100%;
+}
+
+.btn-modern:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 212, 255, 0.2);
+  border-color: rgba(0, 212, 255, 0.5);
+}
+
+/* 세련된 텍스트 효과 */
+.text-glow {
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+}
+
+.text-glow-purple {
+  text-shadow: 0 0 10px rgba(139, 92, 246, 0.5);
+}
+
+/* 세련된 그라데이션 텍스트 */
+.gradient-text {
+  background: linear-gradient(135deg, #00d4ff, #8b5cf6, #06b6d4);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* 글래스모피즘 */
+.glass-card {
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* 홀로그래픽 텍스트 */
+.holographic-text {
+  background: linear-gradient(45deg, 
+    #ff006e, #8338ec, #3a86ff, #06ffa5, #ffbe0b, #ff006e
+  );
+  background-size: 300% 300%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rainbow 8s ease infinite;
+}
+
+@keyframes rainbow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 네온 버튼 */
+.neon-button {
+  background: linear-gradient(45deg, #00d4ff, #8b5cf6);
+  color: white;
+  border: none;
+  box-shadow: 
+    0 0 20px rgba(0, 212, 255, 0.5),
+    0 0 40px rgba(139, 92, 246, 0.3),
+    0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-button:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 
+    0 0 30px rgba(0, 212, 255, 0.7),
+    0 0 60px rgba(139, 92, 246, 0.5),
+    0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.neon-button:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.3), 
+    transparent
+  );
+  transition: left 0.6s;
+}
+
+.neon-button:hover:before {
+  left: 100%;
+}
+
+/* 플로팅 애니메이션 */
+.floating-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.floating-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 255, 255, 0.1);
+}
+
+/* 향상된 우주 배경 */
+.animated-background {
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(0, 212, 255, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 60% 60%, rgba(255, 0, 110, 0.1) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 25%, #1a1a2e 50%, #0f0f1a 75%, #0a0a0f 100%);
+  background-size: 400% 400%, 300% 300%, 200% 200%, 150% 150%, 100% 100%;
+  animation: 
+    cosmicGradient 40s ease infinite,
+    pulseGlow 20s ease-in-out infinite;
+}
+
+@keyframes cosmicGradient {
+  0%, 100% { background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%, 0% 50%; }
+  25% { background-position: 100% 50%, 100% 50%, 100% 50%, 100% 50%, 0% 50%; }
+  50% { background-position: 0% 100%, 0% 100%, 0% 100%, 0% 100%, 0% 50%; }
+  75% { background-position: 100% 0%, 100% 0%, 100% 0%, 100% 0%, 0% 50%; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+/* 향상된 플로팅 요소들 */
+.floating-shapes {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.floating-shape {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.1;
+  animation: cosmicFloat 25s ease-in-out infinite;
+}
+
+.floating-shape:nth-child(1) {
+  width: 100px;
+  height: 100px;
+  top: 20%;
+  left: 10%;
+  background: linear-gradient(45deg, #00d4ff, #8b5cf6);
+  animation-delay: 0s;
+  animation-duration: 30s;
+}
+
+.floating-shape:nth-child(2) {
+  width: 150px;
+  height: 150px;
+  top: 60%;
+  right: 15%;
+  background: linear-gradient(45deg, #ff006e, #06ffa5);
+  animation-delay: -10s;
+  animation-duration: 35s;
+}
+
+.floating-shape:nth-child(3) {
+  width: 80px;
+  height: 80px;
+  bottom: 20%;
+  left: 20%;
+  background: linear-gradient(45deg, #ffbe0b, #8338ec);
+  animation-delay: -20s;
+  animation-duration: 25s;
+}
+
+@keyframes cosmicFloat {
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px) rotate(0deg) scale(1);
+  }
+  25% { 
+    transform: translateY(-30px) translateX(20px) rotate(90deg) scale(1.1);
+  }
+  50% { 
+    transform: translateY(-10px) translateX(-15px) rotate(180deg) scale(0.9);
+  }
+  75% { 
+    transform: translateY(-40px) translateX(10px) rotate(270deg) scale(1.05);
+  }
+}
+
+/* 반응형 디자인 향상 */
+@media (max-width: 768px) {
+  .holographic-text {
+    font-size: 3rem;
+  }
+  
+  .glass-card {
+    backdrop-filter: blur(15px);
+    padding: 1.5rem;
+  }
+  
+  .floating-card:hover {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+

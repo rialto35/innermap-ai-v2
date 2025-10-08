@@ -1,0 +1,102 @@
+{
+  "traits": {
+    "openness": {
+      "name": "개방성",
+      "nameEn": "Openness",
+      "description": "새로운 경험과 아이디어에 대한 개방성",
+      "high": "창의적이고 호기심 많으며 새로운 경험을 즐깁니다",
+      "low": "전통적이고 실용적이며 익숙한 것을 선호합니다"
+    },
+    "conscientiousness": {
+      "name": "성실성",
+      "nameEn": "Conscientiousness",
+      "description": "목표 지향적이고 조직적인 성향",
+      "high": "계획적이고 신중하며 책임감이 강합니다",
+      "low": "즉흥적이고 유연하며 자유로운 편입니다"
+    },
+    "extraversion": {
+      "name": "외향성",
+      "nameEn": "Extraversion",
+      "description": "사회적 상호작용과 활동성",
+      "high": "사교적이고 활동적이며 에너지가 넘칩니다",
+      "low": "조용하고 신중하며 혼자 있는 시간을 즐깁니다"
+    },
+    "agreeableness": {
+      "name": "친화성",
+      "nameEn": "Agreeableness",
+      "description": "타인에 대한 배려와 협조성",
+      "high": "협조적이고 따뜻하며 공감 능력이 뛰어납니다",
+      "low": "독립적이고 분석적이며 객관적입니다"
+    },
+    "neuroticism": {
+      "name": "신경성",
+      "nameEn": "Neuroticism",
+      "description": "정서적 안정성과 스트레스 대처",
+      "high": "민감하고 감정 기복이 있으며 걱정이 많습니다",
+      "low": "차분하고 안정적이며 스트레스에 강합니다"
+    }
+  },
+  "questions": [
+    {
+      "id": 1,
+      "question": "새로운 아이디어와 창의적인 활동을 즐긴다",
+      "trait": "openness",
+      "reverse": false
+    },
+    {
+      "id": 2,
+      "question": "계획을 세우고 체계적으로 일을 처리한다",
+      "trait": "conscientiousness",
+      "reverse": false
+    },
+    {
+      "id": 3,
+      "question": "파티나 모임에서 활기차고 말이 많은 편이다",
+      "trait": "extraversion",
+      "reverse": false
+    },
+    {
+      "id": 4,
+      "question": "다른 사람들에게 친절하고 배려심이 많다",
+      "trait": "agreeableness",
+      "reverse": false
+    },
+    {
+      "id": 5,
+      "question": "걱정이 많고 불안해하는 경향이 있다",
+      "trait": "neuroticism",
+      "reverse": false
+    },
+    {
+      "id": 6,
+      "question": "예술, 음악, 문학 등에 관심이 많다",
+      "trait": "openness",
+      "reverse": false
+    },
+    {
+      "id": 7,
+      "question": "일을 미루거나 게으른 편이다",
+      "trait": "conscientiousness",
+      "reverse": true
+    },
+    {
+      "id": 8,
+      "question": "조용하고 말이 적은 편이다",
+      "trait": "extraversion",
+      "reverse": true
+    },
+    {
+      "id": 9,
+      "question": "다른 사람들과 논쟁하거나 대립하는 경향이 있다",
+      "trait": "agreeableness",
+      "reverse": true
+    },
+    {
+      "id": 10,
+      "question": "감정적으로 안정되어 있고 쉽게 화내지 않는다",
+      "trait": "neuroticism",
+      "reverse": true
+    }
+  ]
+}
+

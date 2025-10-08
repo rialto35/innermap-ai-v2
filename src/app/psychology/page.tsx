@@ -6,6 +6,8 @@ import MBTITest from '@/components/MBTITest';
 import EnneagramTest from '@/components/EnneagramTest';
 import AnalysisResult from '@/components/AnalysisResult';
 import QuickInput from '@/components/QuickInput';
+import Big5Test from '@/components/Big5Test';
+import type { Big5Scores } from '@/lib/calculateBig5';
 
 // 타입 정의
 type TestResults = {
@@ -14,6 +16,13 @@ type TestResults = {
   mbti: string | null;
   enneagram: string | null;
   birthDate: string | null;
+  big5: {
+    O: number;
+    C: number;
+    E: number;
+    A: number;
+    N: number;
+  } | null;
 };
 
 type TestType = keyof TestResults;
@@ -24,7 +33,8 @@ export default function PsychologyPage() {
     colors: null,
     mbti: null,
     enneagram: null,
-    birthDate: null
+    birthDate: null,
+    big5: null
   });
 
   const [showAnalysis, setShowAnalysis] = useState(false);
@@ -43,7 +53,8 @@ export default function PsychologyPage() {
       colors: null,
       mbti: null,
       enneagram: null,
-      birthDate: null
+      birthDate: null,
+      big5: null
     });
     setShowAnalysis(false);
     setActiveTab('quick');
@@ -107,7 +118,7 @@ export default function PsychologyPage() {
               </p>
               
               <p className="text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                MBTI, RETI 검사, 색채심리를 통해 더 깊이 있는 자아를 발견하세요
+                MBTI, RETI 검사, Big5, 색채심리를 통해 더 깊이 있는 자아를 발견하세요
               </p>
               
               {/* 미니멀 장식 요소 */}
@@ -204,7 +215,7 @@ export default function PsychologyPage() {
             <div className="max-w-5xl mx-auto card p-8 mb-16">
               <h3 className="section-title text-gradient">📊 테스트 진행 상황</h3>
                
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
                 {[
                   {
                     key: 'colors',
@@ -226,6 +237,13 @@ export default function PsychologyPage() {
                     title: 'RETI 검사',
                     completed: testResults.enneagram,
                     value: testResults.enneagram ? `유형 ${testResults.enneagram}` : ''
+                  },
+                  {
+                    key: 'big5',
+                    icon: '🧬',
+                    title: 'Big5',
+                    completed: testResults.big5,
+                    value: testResults.big5 ? '완료' : ''
                   },
                   {
                     key: 'mindCard',
@@ -275,10 +293,24 @@ export default function PsychologyPage() {
               </div>
 
               <div className="animate-slide-up" style={{ animationDelay: '0.3s' }}>
-                <MBTITest />
+                <Big5Test onComplete={(scores: Big5Scores) => {
+                  // Big5Scores를 O, C, E, A, N 형식으로 변환
+                  const big5Result = {
+                    O: scores.openness,
+                    C: scores.conscientiousness,
+                    E: scores.extraversion,
+                    A: scores.agreeableness,
+                    N: scores.neuroticism
+                  };
+                  updateTestResult('big5', big5Result);
+                }} />
               </div>
 
               <div className="animate-slide-up" style={{ animationDelay: '0.4s' }}>
+                <MBTITest />
+              </div>
+
+              <div className="animate-slide-up" style={{ animationDelay: '0.5s' }}>
                 <EnneagramTest />
               </div>
             </div>
