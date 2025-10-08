@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -92,19 +94,27 @@ export default function RootLayout({
         <meta name="msapplication-tap-highlight" content="no" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-gradient-to-b from-[#0F1424] via-[#20253A]/20 to-white`}
       >
-        {/* 몽환적 애니메이션 배경 */}
-        <div className="animated-background"></div>
-        <div className="floating-shapes">
-          <div className="floating-shape"></div>
-          <div className="floating-shape"></div>
-          <div className="floating-shape"></div>
-          <div className="floating-shape"></div>
-          <div className="floating-shape"></div>
-          <div className="floating-shape"></div>
+        {/* 은은한 분위기 오버레이 */}
+        <div className="pointer-events-none fixed inset-0 -z-10">
+          {/* 상단: 하늘 빛 */}
+          <div 
+            className="absolute -top-24 left-1/2 -translate-x-1/2 h-[36rem] w-[36rem] rounded-full opacity-30 blur-3xl"
+            style={{ background: 'radial-gradient(circle, rgba(124,58,237,0.6) 0%, rgba(15,20,36,0) 60%)' }}
+          />
+          {/* 하단: 땅의 따뜻함 */}
+          <div 
+            className="absolute bottom-[-8rem] left-1/2 -translate-x-1/2 h-[28rem] w-[28rem] rounded-full opacity-25 blur-2xl"
+            style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 60%)' }}
+          />
         </div>
-        {children}
+
+        <Header />
+        <main className="min-h-screen">
+          {children}
+        </main>
+        <Footer />
         <script
           dangerouslySetInnerHTML={{
             __html: `
