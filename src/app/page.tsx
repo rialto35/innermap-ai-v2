@@ -29,24 +29,28 @@ export default function LandingPage() {
             
             {/* 메인 타이틀 */}
             <div className="mb-8">
-              <h1 className="text-6xl md:text-8xl font-bold mb-4">
-                <span className="holographic-text">🗺️ InnerMap AI</span>
+              <h1 className="text-5xl md:text-7xl font-bold mb-6 text-white">
+                당신은 어떤 영웅인가요?
               </h1>
-              <p className="text-2xl md:text-4xl text-white/90 font-light tracking-wide">
-                나를 찾는 지도
+              <p className="text-xl md:text-2xl text-white/80 font-light max-w-3xl mx-auto leading-relaxed">
+                당신의 내면을 지도화합니다
               </p>
-              <p className="text-lg md:text-xl text-white/70 mt-4 max-w-2xl mx-auto">
-                AI가 그려주는 나만의 성격 지도와 운명의 길잡이
+              <p className="text-base md:text-lg text-white/60 mt-4 max-w-2xl mx-auto">
+                MBTI · RETI · Big5 · 생년월일 기반 AI 해석 리포트<br />
+                5분으로 시작하세요
               </p>
             </div>
             
             {/* 메인 CTA */}
-            <div className="mb-16">
-              <Link href="/psychology">
-                <button className="neon-button text-xl px-12 py-4 rounded-full font-bold">
-                  🎯 무료로 나의 영웅 찾기
+            <div className="mb-16 space-y-4">
+              <Link href="/test">
+                <button className="neon-button text-xl px-12 py-4 rounded-full font-bold hover:scale-105 transition-transform">
+                  검사 시작하기 →
                 </button>
               </Link>
+              <div className="text-white/50 text-sm">
+                ✓ 무료 · 5분 소요 · 즉시 결과 확인
+              </div>
             </div>
             
           </div>
