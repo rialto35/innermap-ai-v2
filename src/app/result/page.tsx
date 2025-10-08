@@ -56,7 +56,7 @@ export default function ResultPage() {
             
             <div className="text-5xl mb-4">{result.heroEmoji}</div>
             <h3 className="text-2xl font-bold text-purple-300 mb-4">{result.heroType}</h3>
-            <p className="text-xl italic text-yellow-300">"{result.definition}"</p>
+            <p className="text-xl italic text-yellow-300">&ldquo;{result.definition}&rdquo;</p>
           </div>
 
           {/* CTA */}

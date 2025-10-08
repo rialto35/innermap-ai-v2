@@ -58,13 +58,13 @@ export default function StrengthsSection({ content }: StrengthsSectionProps) {
               {/* 컨텐츠 */}
               <div className="relative z-10">
                 <div className="text-4xl mb-4 transform group-hover:scale-110 transition-transform duration-300">
-                  {strength.emoji}
+                  {strength?.emoji}
                 </div>
                 <h4 className="text-xl font-bold text-green-300 mb-3">
-                  {strength.title}
+                  {strength?.title}
                 </h4>
                 <p className="text-gray-300 leading-relaxed">
-                  {strength.description}
+                  {strength?.description}
                 </p>
               </div>
 

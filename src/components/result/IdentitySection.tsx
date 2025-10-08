@@ -20,7 +20,7 @@ export default function IdentitySection({ content }: IdentitySectionProps) {
   const quote = quoteMatch?.[1] || '';
   
   // 메인 컨텐츠에서 키워드와 대표 문장 제거
-  let mainContent = content
+  const mainContent = content
     .replace(/\*\*핵심 키워드:\*\*[\s\S]*?(?=\*\*대표 문장|\n\n|$)/, '')
     .replace(/\*\*대표 문장:\*\*[\s\S]*$/, '')
     .trim();
@@ -74,7 +74,7 @@ export default function IdentitySection({ content }: IdentitySectionProps) {
         {quote && (
           <div className="mt-8 p-6 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-l-4 border-purple-500 rounded-r-lg">
             <div className="text-sm text-purple-400 font-bold mb-2">대표 문장</div>
-            <p className="text-xl italic text-purple-200 leading-relaxed">"{quote}"</p>
+            <p className="text-xl italic text-purple-200 leading-relaxed">&ldquo;{quote}&rdquo;</p>
           </div>
         )}
       </div>

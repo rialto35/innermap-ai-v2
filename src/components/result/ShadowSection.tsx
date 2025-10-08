@@ -65,17 +65,17 @@ export default function ShadowSection({ content }: ShadowSectionProps) {
                   <span className="text-2xl mt-1">⚠️</span>
                   <div className="flex-1">
                     <h4 className="text-xl font-bold text-orange-300 mb-2">
-                      {shadow.warning}
+                      {shadow?.warning}
                     </h4>
                     <p className="text-gray-300 leading-relaxed">
-                      {shadow.description}
+                      {shadow?.description}
                     </p>
                   </div>
                 </div>
               </div>
 
               {/* 성장 팁 */}
-              {shadow.tip && (
+              {shadow?.tip && (
                 <div className="pl-12 pr-6">
                   <div className="p-4 rounded-lg bg-blue-500/10 border-l-4 border-blue-500">
                     <div className="flex items-start gap-2">
@@ -83,7 +83,7 @@ export default function ShadowSection({ content }: ShadowSectionProps) {
                       <div>
                         <div className="text-sm font-bold text-blue-400 mb-1">성장 팁</div>
                         <p className="text-blue-200 italic leading-relaxed">
-                          "{shadow.tip}"
+                          &ldquo;{shadow.tip}&rdquo;
                         </p>
                       </div>
                     </div>

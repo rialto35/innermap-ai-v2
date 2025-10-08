@@ -77,10 +77,10 @@ export default function QuestsSection({ content }: QuestsSectionProps) {
                   </div>
                   <div className="flex-1">
                     <h5 className="text-lg font-bold text-yellow-200 mb-2">
-                      {quest.title}
+                      {quest?.title}
                     </h5>
                     <p className="text-gray-300 leading-relaxed">
-                      {quest.action}
+                      {quest?.action}
                     </p>
                   </div>
                 </div>

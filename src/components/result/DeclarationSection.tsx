@@ -55,7 +55,7 @@ export default function DeclarationSection({ content }: DeclarationSectionProps)
               <div className="relative py-8 px-6">
                 <div className="text-4xl md:text-5xl font-bold mb-4">
                   <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-                    "{heroType}"
+                    &ldquo;{heroType}&rdquo;
                   </span>
                 </div>
               </div>

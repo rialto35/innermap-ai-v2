@@ -18,18 +18,19 @@ import QuestsSection from './result/QuestsSection';
 import DeclarationSection from './result/DeclarationSection';
 
 interface TestResults {
-  mbti?: string;
-  enneagram?: number;
+  mbti?: string | null;
+  enneagram?: number | string | null;
   big5?: {
     O: number;
     C: number;
     E: number;
     A: number;
     N: number;
-  };
-  colors?: Array<{ name: string; hex: string; ability?: string }>;
-  birthDate?: string;
-  colorPreference?: string;
+  } | null;
+  colors?: Array<{ name: string; hex: string; ability?: string }> | string[] | null;
+  birthDate?: string | null;
+  colorPreference?: string | null;
+  mindCard?: any;
 }
 
 interface AnalysisResultProps {
@@ -147,14 +148,18 @@ export default function AnalysisResult({ testResults, onReset }: AnalysisResultP
               <div className="text-center p-4 rounded-lg bg-pink-500/10 border border-pink-500/30">
                 <div className="text-sm text-pink-400 font-bold mb-2">색채심리</div>
                 <div className="flex justify-center gap-1">
-                  {(testResults?.colors || []).slice(0, 3).map((color, index) => (
-                    <div
-                      key={index}
-                      className="w-6 h-6 rounded-full border border-white/30"
-                      style={{ backgroundColor: color?.hex || '#ccc' }}
-                      title={color?.name || `색상 ${index + 1}`}
-                    ></div>
-                  ))}
+                  {(testResults?.colors || []).slice(0, 3).map((color, index) => {
+                    const colorHex = typeof color === 'string' ? color : color?.hex || '#ccc';
+                    const colorName = typeof color === 'string' ? color : color?.name || `색상 ${index + 1}`;
+                    return (
+                      <div
+                        key={index}
+                        className="w-6 h-6 rounded-full border border-white/30"
+                        style={{ backgroundColor: colorHex }}
+                        title={colorName}
+                      ></div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

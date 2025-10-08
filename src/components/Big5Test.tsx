@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import big5Data from '@/data/big5.json';
-import { calculateBig5Scores, getScoreLevel, Big5Scores, Big5Answers } from '@/lib/calculateBig5';
+import { calculateBig5Scores, getScoreLevel, Big5Scores, Big5Answers, Big5Question } from '@/lib/calculateBig5';
 
 interface Big5TestProps {
   onComplete?: (scores: Big5Scores) => void;
@@ -14,7 +14,7 @@ export default function Big5Test({ onComplete }: Big5TestProps) {
   const [testStarted, setTestStarted] = useState(false);
   const [scores, setScores] = useState<Big5Scores | null>(null);
 
-  const questions = big5Data.questions;
+  const questions = big5Data.questions as Big5Question[];
   const traits = big5Data.traits;
   const currentQuestion = questions[currentQuestionIndex];
 
