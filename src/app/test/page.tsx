@@ -1,205 +1,252 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { ProgressBar } from '@/components/ProgressBar';
-import { ModeSelector } from '@/components/ModeSelector';
-import { Question, TestMode } from '@/types/question';
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ProgressBar } from '@/components/ProgressBar'
+import QuestionCard from '@/components/QuestionCard'
+
+// Mock 질문 데이터
+const MOCK_QUESTIONS = [
+  {
+    id: 'q1',
+    text: '새로운 사람들을 만나는 것이 즐겁다.',
+    scale: '5' as const
+  },
+  {
+    id: 'q2',
+    text: '계획을 세우기보다 즉흥적으로 행동하는 편이다.',
+    scale: '5' as const
+  },
+  {
+    id: 'q3',
+    text: '논리적 분석을 중시한다.',
+    scale: '5' as const
+  },
+  {
+    id: 'q4',
+    text: '완벽을 추구하는 편이다.',
+    scale: '7' as const
+  },
+  {
+    id: 'q5',
+    text: '다른 사람을 돕는 것이 행복하다.',
+    scale: '7' as const
+  },
+]
+
+type Step = 'start' | 'basic' | 'questions' | 'loading'
 
 export default function TestPage() {
-  const router = useRouter();
-  const [stage, setStage] = useState<'birth' | 'mode' | 'test'>('birth');
-  const [birthDate, setBirthDate] = useState({ year: '', month: '', day: '' });
-  const [mode, setMode] = useState<TestMode | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const router = useRouter()
+  const [step, setStep] = useState<Step>('start')
+  const [name, setName] = useState('')
+  const [birthDate, setBirthDate] = useState('')
+  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [answers, setAnswers] = useState<Record<string, number>>({})
 
-  // 모드 선택 시 문항 로드
-  const handleModeSelect = async (selectedMode: TestMode) => {
-    setMode(selectedMode);
-    
-    try {
-      const res = await fetch('/api/test/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mode: selectedMode })
-      });
-      
-      const data = await res.json();
-      if (data.success) {
-        setQuestions(data.plan.questions);
-        setStage('test');
-      }
-    } catch (error) {
-      console.error('문항 로드 실패:', error);
-    }
-  };
+  function formatBirthInput(value: string) {
+    const raw = value.replace(/\D/g, "")
+    if (raw.length <= 4) return raw
+    if (raw.length <= 6) return raw.replace(/(\d{4})(\d{1,2})/, "$1-$2")
+    return raw.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")
+  }
 
-  const handleBirthSubmit = () => {
-    if (birthDate.year && birthDate.month && birthDate.day) {
-      localStorage.setItem('birthDate', JSON.stringify(birthDate));
-      setStage('mode');
-    }
-  };
+  // Step: Start
+  if (step === 'start') {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="max-w-2xl w-full text-center">
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-12">
+            <h1 className="text-4xl font-bold text-white mb-6">
+              영웅 분석 검사
+            </h1>
+            <p className="text-white/80 text-lg mb-8">
+              당신의 내면을 탐험할 준비가 되셨나요?<br/>
+              간단한 질문으로 당신만의 영웅 유형을 발견하세요
+            </p>
 
-  const handleAnswer = (value: number) => {
-    const currentQ = questions[currentQuestion];
-    setAnswers({ ...answers, [currentQ.id]: value });
-    
-    // 마지막 문항이면 제출
-    if (currentQuestion === questions.length - 1) {
-      handleSubmit({ ...answers, [currentQ.id]: value });
-    } else {
-      setCurrentQuestion(currentQuestion + 1);
-    }
-  };
-
-  const handleSubmit = async (finalAnswers: Record<string, number>) => {
-    // 로컬스토리지에 저장
-    localStorage.setItem('testAnswers', JSON.stringify(finalAnswers));
-    localStorage.setItem('testMode', mode || 'simple');
-    
-    // 로딩 페이지로 이동
-    router.push('/loading-analysis');
-  };
-
-  const currentQ = questions[currentQuestion];
-
-  return (
-    <div className="min-h-screen px-4 py-12">
-      <div className="max-w-2xl mx-auto">
-        {/* Stage 1: 생년월일 */}
-        {stage === 'birth' && (
-          <div className="space-y-6">
-            <h1 className="text-3xl font-bold text-white mb-4">생년월일을 입력해주세요</h1>
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-8">
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="text-white/80 text-sm mb-2 block">년</label>
-                  <input
-                    type="number"
-                    placeholder="1990"
-                    value={birthDate.year}
-                    onChange={(e) => setBirthDate({ ...birthDate, year: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-white/80 text-sm mb-2 block">월</label>
-                  <input
-                    type="number"
-                    placeholder="01"
-                    value={birthDate.month}
-                    onChange={(e) => setBirthDate({ ...birthDate, month: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  />
-                </div>
-                <div>
-                  <label className="text-white/80 text-sm mb-2 block">일</label>
-                  <input
-                    type="number"
-                    placeholder="15"
-                    value={birthDate.day}
-                    onChange={(e) => setBirthDate({ ...birthDate, day: e.target.value })}
-                    className="w-full px-4 py-3 rounded-lg bg-white/10 text-white border border-white/20 focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                  />
-                </div>
+            <div className="space-y-4 mb-8">
+              <div className="flex items-center justify-center gap-3 text-white/70">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                </svg>
+                <span>소요 시간: 약 5분</span>
               </div>
-              <button
-                onClick={handleBirthSubmit}
-                disabled={!birthDate.year || !birthDate.month || !birthDate.day}
-                className="mt-6 w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                다음 단계
-              </button>
+              <div className="flex items-center justify-center gap-3 text-white/70">
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                  <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                </svg>
+                <span>문항 수: {MOCK_QUESTIONS.length}개</span>
+              </div>
             </div>
+
+            <button
+              onClick={() => setStep('basic')}
+              className="btn-primary w-full md:w-auto"
+            >
+              시작하기 →
+            </button>
           </div>
-        )}
+        </div>
+      </div>
+    )
+  }
 
-        {/* Stage 2: 모드 선택 */}
-        {stage === 'mode' && (
-          <ModeSelector onSelect={handleModeSelect} />
-        )}
+  // Step: Basic Info
+  if (step === 'basic') {
+    return (
+      <div className="min-h-screen px-4 py-12">
+        <div className="max-w-2xl mx-auto">
+          <ProgressBar step={1} total={MOCK_QUESTIONS.length + 2} />
 
-        {/* Stage 3: 통합 문항 */}
-        {stage === 'test' && currentQ && (
-          <div className="space-y-6">
-            {/* Progress Bar */}
-            <div className="mb-8">
-              <ProgressBar step={currentQuestion + 1} total={questions.length} />
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-8">
+            <h2 className="text-3xl font-bold text-white mb-8">
+              기본 정보
+            </h2>
+
+            <div className="space-y-6">
+              {/* 이름 */}
+              <div>
+                <label className="block text-white mb-2">
+                  이름 (선택)
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="홍길동"
+                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+
+              {/* 생년월일 */}
+              <div>
+                <label className="block text-white mb-2">
+                  생년월일 (필수) <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d*"
+                  value={birthDate}
+                  onChange={e => setBirthDate(formatBirthInput(e.target.value))}
+                  placeholder="YYYY-MM-DD"
+                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  maxLength={10}
+                  required
+                />
+              </div>
+
+              {/* 안내 문구 */}
+              <p className="text-white/60 text-sm">
+                💡 생년월일은 분석의 정확도를 높이는 데 사용됩니다
+              </p>
             </div>
 
-            {/* 질문 카드 */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur p-8 text-white">
-              <p className="mb-6 text-xl leading-relaxed">{currentQ.text}</p>
-
-              {/* 5점 척도 */}
-              {currentQ.scale === '5' && (
-                <div className="grid grid-cols-5 gap-3">
-                  {['전혀 아니다', '아니다', '보통', '그렇다', '매우 그렇다'].map((label, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleAnswer(i + 1)}
-                      className="rounded-xl px-3 py-4 min-h-[60px] bg-white/10 hover:bg-indigo-500/30 text-center text-sm transition-all hover:scale-105"
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* 7점 척도 */}
-              {currentQ.scale === '7' && (
-                <div className="grid grid-cols-7 gap-2">
-                  {[1, 2, 3, 4, 5, 6, 7].map((val) => (
-                    <button
-                      key={val}
-                      onClick={() => handleAnswer(val)}
-                      className="rounded-xl px-3 py-4 min-h-[60px] bg-white/10 hover:bg-indigo-500/30 text-center transition-all hover:scale-105"
-                    >
-                      {val}
-                    </button>
-                  ))}
-                </div>
-              )}
-
-              {/* 2지선다 */}
-              {currentQ.scale === '2' && currentQ.options && (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {currentQ.options.map((opt, i) => (
-                    <button
-                      key={i}
-                      onClick={() => handleAnswer(i)}
-                      className="rounded-xl px-4 py-4 min-h-[60px] bg-white/10 hover:bg-white/20 text-left transition-all hover:scale-105"
-                    >
-                      {opt}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* 일시 저장 */}
-            <div className="flex justify-between items-center text-white/60 text-sm">
+            <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => setStep('start')}
+                className="px-6 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition"
+              >
+                ← 이전
+              </button>
               <button
                 onClick={() => {
-                  localStorage.setItem('testProgress', JSON.stringify({
-                    mode,
-                    currentQuestion,
-                    answers,
-                    questions
-                  }));
+                  if (!/^\d{4}-\d{2}-\d{2}$/.test(birthDate)) {
+                    alert('생년월일을 YYYY-MM-DD 형식으로 입력해주세요')
+                    return
+                  }
+                  setStep('questions')
                 }}
-                className="hover:text-white transition"
+                className="btn-primary flex-1"
               >
-                💾 일시 저장
+                다음 →
               </button>
-              <span>{currentQuestion + 1} / {questions.length}</span>
             </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
-  );
+    )
+  }
+
+  // Step: Questions
+  if (step === 'questions') {
+    const question = MOCK_QUESTIONS[currentQuestion]
+
+    const handleAnswer = (value: number) => {
+      const newAnswers = { ...answers, [question.id]: value }
+      setAnswers(newAnswers)
+
+      // 다음 질문으로
+      if (currentQuestion < MOCK_QUESTIONS.length - 1) {
+        setTimeout(() => {
+          setCurrentQuestion(currentQuestion + 1)
+        }, 300)
+      } else {
+        // 마지막 질문 완료
+        setTimeout(() => {
+          setStep('loading')
+          // 3초 후 결과 페이지로
+          setTimeout(() => {
+            router.push('/result')
+          }, 3000)
+        }, 300)
+      }
+    }
+
+    return (
+      <div className="min-h-screen px-4 py-12">
+        <div className="max-w-2xl mx-auto">
+          <ProgressBar 
+            step={currentQuestion + 3} 
+            total={MOCK_QUESTIONS.length + 2} 
+          />
+
+          <QuestionCard 
+            question={question}
+            onAnswer={handleAnswer}
+          />
+
+          {/* 이전 버튼 */}
+          {currentQuestion > 0 && (
+            <button
+              onClick={() => setCurrentQuestion(currentQuestion - 1)}
+              className="mt-6 text-white/60 hover:text-white text-sm transition flex items-center gap-1"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              이전 질문
+            </button>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // Step: Loading
+  if (step === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-4">
+        <div className="text-center">
+          {/* 로딩 애니메이션 */}
+          <div className="w-24 h-24 mx-auto mb-8 relative">
+            <div className="absolute inset-0 rounded-full border-4 border-white/10"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-t-purple-500 animate-spin"></div>
+          </div>
+
+          {/* 텍스트 */}
+          <h2 className="text-2xl font-bold text-white mb-3">
+            당신의 영웅을 찾고 있습니다...
+          </h2>
+          <p className="text-white/60">
+            AI가 당신의 답변을 분석하고 있어요
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  return null
 }

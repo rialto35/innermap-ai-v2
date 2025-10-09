@@ -14,7 +14,7 @@ export default function LoadingPage() {
         const birthDate = JSON.parse(localStorage.getItem('birthDate') || '{}');
         const testAnswers = JSON.parse(localStorage.getItem('testAnswers') || '{}');
         const testMode = localStorage.getItem('testMode') || 'simple';
-        const testProgress = JSON.parse(localStorage.getItem('testProgress') || '{}');
+        const testQuestions = JSON.parse(localStorage.getItem('testQuestions') || '[]'); // 👈 수정
 
         // 1. 점수 계산
         setStatus('점수 계산 중...');
@@ -23,7 +23,7 @@ export default function LoadingPage() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             answers: testAnswers,
-            questions: testProgress.questions,
+            questions: testQuestions, // 👈 수정
             birth: { 
               y: parseInt(birthDate.year), 
               m: parseInt(birthDate.month), 
