@@ -12,7 +12,7 @@ const SEASON_BADGE: Record<string, { label: string; className: string }> = {
 interface TribeDetail {
   id: string
   nameKor: string
-  nameEng: string
+  nameEn: string
   branch: string
   branchKor: string
   season: string
@@ -23,7 +23,7 @@ interface TribeDetail {
     iconEng: string
     color: {
       name: string
-      nameEng: string
+      nameEn: string
       hex: string
     }
   }
@@ -33,6 +33,7 @@ interface TribeDetail {
     opposition?: string
     philosophy: string
   }
+  // 기타 JSON 구조대로 필요한 필드 추가 가능
 }
 
 const orderedTribes = [...(tribesData as TribeDetail[])].sort(
