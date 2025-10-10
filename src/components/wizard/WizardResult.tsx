@@ -1,12 +1,11 @@
 import innermapTribes from '@/data/innermapTribes.json'
-import type { Tribe } from '@/lib/data/tribesAndStones'
 import { WizardResultState } from '@/app/wizard/page'
 
 interface WizardResultProps {
   state: WizardResultState
 }
 
-const TRIBES = innermapTribes as Tribe[]
+type TribeData = (typeof innermapTribes)[number]
 
 export default function WizardResult({ state }: WizardResultProps) {
   if (state.status === 'idle') {
@@ -17,7 +16,7 @@ export default function WizardResult({ state }: WizardResultProps) {
     )
   }
 
-  const tribe = TRIBES.find(t => t.id === state.tribeId)
+  const tribe = (innermapTribes as TribeData[]).find(t => t.id === state.tribeId)
 
   if (!tribe) {
     return (
