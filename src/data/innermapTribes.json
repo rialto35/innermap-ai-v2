@@ -15,7 +15,7 @@
       "iconEng": "Stone of Endurance",
       "color": {
         "name": "암청색",
-        "nameEng": "Deep Navy",
+        "nameEn": "Deep Navy",
         "hex": "#0A1628",
         "rgb": [10, 22, 40]
       }
@@ -86,7 +86,7 @@
       "iconEng": "Pillar of Root",
       "color": {
         "name": "황토색",
-        "nameEng": "Earth Brown",
+        "nameEn": "Earth Brown",
         "hex": "#8B6F47",
         "rgb": [139, 111, 71]
       }
@@ -157,7 +157,7 @@
       "iconEng": "Leaf of Growth",
       "color": {
         "name": "포레스트 그린",
-        "nameEng": "Forest Green",
+        "nameEn": "Forest Green",
         "hex": "#228B22",
         "rgb": [34, 139, 34]
       }
@@ -228,7 +228,7 @@
       "iconEng": "Heart of Unity",
       "color": {
         "name": "오팔 무지개",
-        "nameEng": "Opal Rainbow",
+        "nameEn": "Opal Rainbow",
         "hex": "#E0BBE4",
         "rgb": [224, 187, 228]
       }
@@ -299,7 +299,7 @@
       "iconEng": "Scale of Wisdom",
       "color": {
         "name": "백금색",
-        "nameEng": "Platinum",
+        "nameEn": "Platinum",
         "hex": "#E5E4E2",
         "rgb": [229, 228, 226]
       }
@@ -369,7 +369,7 @@
       "iconEng": "Ring of Creation",
       "color": {
         "name": "주황 불꽃",
-        "nameEng": "Flame Orange",
+        "nameEn": "Flame Orange",
         "hex": "#FF6B35",
         "rgb": [255, 107, 53]
       }
@@ -440,7 +440,7 @@
       "iconEng": "Core of Insight",
       "color": {
         "name": "보랏빛 별",
-        "nameEng": "Violet Nova",
+        "nameEn": "Violet Nova",
         "hex": "#8B5CF6",
         "rgb": [139, 92, 246]
       }
@@ -511,7 +511,7 @@
       "iconEng": "Orb of Motion",
       "color": {
         "name": "하늘색",
-        "nameEng": "Sky Blue",
+        "nameEn": "Sky Blue",
         "hex": "#87CEEB",
         "rgb": [135, 206, 235]
       }
@@ -582,7 +582,7 @@
       "iconEng": "Cog of Logic",
       "color": {
         "name": "은철색",
-        "nameEng": "Steel Gray",
+        "nameEn": "Steel Gray",
         "hex": "#71797E",
         "rgb": [113, 121, 126]
       }
@@ -653,7 +653,7 @@
       "iconEng": "Seal of Order",
       "color": {
         "name": "남색",
-        "nameEng": "Navy Blue",
+        "nameEn": "Navy Blue",
         "hex": "#000080",
         "rgb": [0, 0, 128]
       }
@@ -724,7 +724,7 @@
       "iconEng": "Crystal of Harmony",
       "color": {
         "name": "아이보리 은빛",
-        "nameEng": "Ivory Silver",
+        "nameEn": "Ivory Silver",
         "hex": "#F5F5DC",
         "rgb": [245, 245, 220]
       }
@@ -795,7 +795,7 @@
       "iconEng": "Crystal of Depth",
       "color": {
         "name": "남보라색",
-        "nameEng": "Deep Purple",
+        "nameEn": "Deep Purple",
         "hex": "#6A0DAD",
         "rgb": [106, 13, 173]
       }
