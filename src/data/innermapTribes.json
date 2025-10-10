@@ -2,7 +2,7 @@
   {
     "id": "tenbra",
     "nameKor": "텐브라 부족",
-    "nameEng": "Tenbra Tribe",
+    "nameEn": "Tenbra Tribe",
     "branch": "子",
     "branchKor": "자",
     "element": "水",
@@ -73,7 +73,7 @@
   {
     "id": "verma",
     "nameKor": "베르마 부족",
-    "nameEng": "Verma Tribe",
+    "nameEn": "Verma Tribe",
     "branch": "丑",
     "branchKor": "축",
     "element": "土",
@@ -144,7 +144,7 @@
   {
     "id": "silva",
     "nameKor": "실바 부족",
-    "nameEng": "Silva Tribe",
+    "nameEn": "Silva Tribe",
     "branch": "寅",
     "branchKor": "인",
     "element": "木",
@@ -215,7 +215,7 @@
   {
     "id": "sera",
     "nameKor": "세라 부족",
-    "nameEng": "Sera Tribe",
+    "nameEn": "Sera Tribe",
     "branch": "卯",
     "branchKor": "묘",
     "element": "木",
@@ -286,7 +286,7 @@
   {
     "id": "eira",
     "nameKor": "에이라 부족",
-    "nameEng": "Eira Tribe",
+    "nameEn": "Eira Tribe",
     "branch": "辰",
     "branchKor": "진",
     "element": "土",
@@ -356,7 +356,7 @@
   {
     "id": "aurin",
     "nameKor": "아우린 부족",
-    "nameEng": "Aurin Tribe",
+    "nameEn": "Aurin Tribe",
     "branch": "巳",
     "branchKor": "사",
     "element": "火",
@@ -427,7 +427,7 @@
   {
     "id": "nova",
     "nameKor": "노바 부족",
-    "nameEng": "Nova Tribe",
+    "nameEn": "Nova Tribe",
     "branch": "午",
     "branchKor": "오",
     "element": "火",
@@ -498,7 +498,7 @@
   {
     "id": "soran",
     "nameKor": "소란 부족",
-    "nameEng": "Soran Tribe",
+    "nameEn": "Soran Tribe",
     "branch": "未",
     "branchKor": "미",
     "element": "土",
@@ -569,7 +569,7 @@
   {
     "id": "dras",
     "nameKor": "드라스 부족",
-    "nameEng": "Dras Tribe",
+    "nameEn": "Dras Tribe",
     "branch": "申",
     "branchKor": "신",
     "element": "金",
@@ -640,7 +640,7 @@
   {
     "id": "varno",
     "nameKor": "바르노 부족",
-    "nameEng": "Varno Tribe",
+    "nameEn": "Varno Tribe",
     "branch": "酉",
     "branchKor": "유",
     "element": "金",
@@ -711,7 +711,7 @@
   {
     "id": "lumin",
     "nameKor": "루민 부족",
-    "nameEng": "Lumin Tribe",
+    "nameEn": "Lumin Tribe",
     "branch": "戌",
     "branchKor": "술",
     "element": "土",
@@ -782,7 +782,7 @@
   {
     "id": "neva",
     "nameKor": "네바 부족",
-    "nameEng": "Neva Tribe",
+    "nameEn": "Neva Tribe",
     "branch": "亥",
     "branchKor": "해",
     "element": "水",
