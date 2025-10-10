@@ -25,6 +25,7 @@ interface TribeDetail {
       name: string
       nameEn: string
       hex: string
+      rgb: number[]
     }
   }
   essence: {
