@@ -77,7 +77,7 @@ export default function TribeTimeline() {
 
                   <div className="mt-6">
                     <div className="text-2xl font-bold text-white">{tribe.nameKor}</div>
-                    <div className="text-sm uppercase tracking-[0.2em] text-slate-400">{tribe.nameEng}</div>
+                    <div className="text-sm uppercase tracking-[0.2em] text-slate-400">{tribe.nameEn}</div>
                   </div>
 
                   <div className="mt-6 flex items-center gap-4">

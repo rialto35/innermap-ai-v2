@@ -36,7 +36,7 @@ export default function WizardResult({ state }: WizardResultProps) {
       <div className="mt-6 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div>
           <h2 className="text-3xl font-bold text-white">{tribe.nameKor}</h2>
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{tribe.nameEng}</p>
+          <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{tribe.nameEn}</p>
           <p className="mt-4 text-base text-slate-200/80">{tribe.essence.philosophy}</p>
 
           <div className="mt-6 space-y-3 text-sm text-slate-200/70">

@@ -70,7 +70,7 @@ export default function StoneShowcase() {
             <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent p-8 backdrop-blur">
               <div className="text-sm uppercase tracking-[0.25em] text-slate-300">Recommended Stone</div>
               <h3 className="mt-4 text-3xl font-bold text-white">{recommended.nameKo}</h3>
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{recommended.nameEng}</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{recommended.nameEn}</p>
 
               <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-slate-200/80">
                 <div className="text-slate-100">핵심 가치</div>
@@ -116,7 +116,7 @@ export default function StoneShowcase() {
                 {stone.id === recommended.id && <span className="text-sky-300">추천</span>}
               </div>
               <h3 className="mt-3 text-xl font-semibold text-white">{stone.nameKo}</h3>
-              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{stone.nameEng}</p>
+              <p className="text-sm uppercase tracking-[0.2em] text-slate-400">{stone.nameEn}</p>
 
               <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-xs text-slate-200/70">
                 <span className="font-medium text-white/80">핵심 가치 · </span>
