@@ -60,7 +60,7 @@ InnerMap은 다양한 심리학 이론을 통합하여 당신의 성격을 다�
   }
 }
 
-export default async function InsightDetailPage({ params }: { params: { slug: string } }) {
+export default function InsightDetailPage({ params }: { params: { slug: string } }) {
   const { slug } = params
   const insight = INSIGHT_DATA[slug]
 
