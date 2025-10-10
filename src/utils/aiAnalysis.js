@@ -1,6 +1,6 @@
 // AI 통합 분석 시스템
 export async function analyzePersonality(data) {
-    const { mbti, enneagram, colors, mindCard } = data;
+    // const { mbti, enneagram, colors, mindCard } = data;
     
     try {
       // OpenAI 1차 분석

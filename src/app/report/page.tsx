@@ -113,7 +113,7 @@ export default function ReportPage() {
             영웅의 선언
           </h2>
           <p className="text-2xl text-white/90 italic leading-relaxed">
-            "나는 가능성의 탐험가로서, 끊임없이 배우고 성장하며, 세상에 긍정적인 변화를 만들어갑니다."
+            &ldquo;나는 가능성의 탐험가로서, 끊임없이 배우고 성장하며, 세상에 긍정적인 변화를 만들어갑니다.&rdquo;
           </p>
         </section>
       </div>

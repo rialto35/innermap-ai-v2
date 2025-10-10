@@ -6,7 +6,7 @@
   html {
     @apply scroll-smooth;
   }
-  body {
+body {
     @apply min-h-screen text-white;
     background: linear-gradient(to bottom, 
       #0F1424 0%, 

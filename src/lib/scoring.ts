@@ -11,7 +11,7 @@ interface MBTIScores {
   P: number  // 인식
 }
 
-export function calculateMBTI(answers: Record<string, number>): string {
+export function calculateMBTI(_answers: Record<string, number>): string {
   // Mock 계산 (실제로는 문항별 가중치 적용)
   const scores: MBTIScores = {
     E: 0, I: 0,
@@ -30,12 +30,12 @@ export function calculateMBTI(answers: Record<string, number>): string {
   return result
 }
 
-export function calculateRETI(answers: Record<string, number>): { primary: number; secondary: number } {
+export function calculateRETI(_answers: Record<string, number>): { primary: number; secondary: number } {
   // 9가지 유형별 점수
   const typeScores = Array(9).fill(0)
 
   // Mock 계산
-  Object.values(answers).forEach((value, index) => {
+  Object.values(_answers).forEach((value, index) => {
     const typeIndex = index % 9
     typeScores[typeIndex] += value
   })
@@ -51,7 +51,7 @@ export function calculateRETI(answers: Record<string, number>): { primary: numbe
   }
 }
 
-export function calculateBig5(answers: Record<string, number>): Record<string, number> {
+export function calculateBig5(_answers: Record<string, number>): Record<string, number> {
   // Big5 5요인
   const factors = {
     O: 0,  // 개방성

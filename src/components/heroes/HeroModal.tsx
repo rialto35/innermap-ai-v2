@@ -1,6 +1,5 @@
 'use client'
 
-import { Fragment } from 'react'
 import { Hero } from '@/lib/data/heroes144'
 
 interface HeroModalProps {

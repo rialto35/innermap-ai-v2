@@ -252,7 +252,7 @@ export default function PsychologyPage() {
                     completed: testResults.mindCard,
                     value: '선택사항'
                   }
-                ].map((test, index) => (
+                ].map(test => (
                   <div
                     key={test.key}
                     className={`text-center p-6 rounded-2xl transition-all duration-300 transform hover:scale-102 border ${
