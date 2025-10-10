@@ -35,34 +35,48 @@ export default function InsightCard({
   status = 'default',
   accent = 'blue'
 }: InsightCardProps) {
-  const Wrapper = status === 'coming' || !href ? 'div' : Link
-  const wrapperProps =
-    status === 'coming' || !href
-      ? {}
-      : { href, prefetch: false }
-
   const accentClass = accentStyles[accent]
   const baseCardClass = `group flex flex-col justify-between rounded-3xl border px-8 py-10 text-left transition-all duration-300 ${accentClass.card}`
-  const stateClass =
-    status === 'coming' || !href
-      ? 'cursor-default opacity-70 hover:translate-y-0 hover:shadow-none'
-      : `cursor-pointer hover:-translate-y-1 hover:shadow-2xl ${accentClass.shadow}`
+
+  if (status === 'coming' || !href) {
+    return (
+      <div className={`${baseCardClass} cursor-default opacity-70 hover:translate-y-0 hover:shadow-none`}>
+        <div>
+          <div className="flex items-center justify-between">
+            <span className="text-4xl" aria-hidden>
+              {icon}
+            </span>
+            {status === 'coming' && (
+              <span className={`rounded-full border px-3 py-1 text-xs font-medium ${accentClass.badge}`}>
+                Coming Soon
+              </span>
+            )}
+          </div>
+
+          <h3 className="mt-6 text-2xl font-semibold text-white">{title}</h3>
+          <p className="mt-3 text-base leading-relaxed text-slate-200/80">
+            {description}
+          </p>
+        </div>
+
+        <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-200/60">
+          준비 중입니다
+        </span>
+      </div>
+    )
+  }
 
   return (
-    <Wrapper
-      {...wrapperProps}
-      className={`${baseCardClass} ${stateClass}`}
+    <Link
+      href={href}
+      prefetch={false}
+      className={`${baseCardClass} cursor-pointer hover:-translate-y-1 hover:shadow-2xl ${accentClass.shadow}`}
     >
       <div>
         <div className="flex items-center justify-between">
           <span className="text-4xl" aria-hidden>
             {icon}
           </span>
-          {status === 'coming' && (
-            <span className={`rounded-full border px-3 py-1 text-xs font-medium ${accentClass.badge}`}>
-              Coming Soon
-            </span>
-          )}
         </div>
 
         <h3 className="mt-6 text-2xl font-semibold text-white">{title}</h3>
@@ -71,20 +85,12 @@ export default function InsightCard({
         </p>
       </div>
 
-      {status !== 'coming' && (
-        <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-100 transition group-hover:translate-x-2">
-          시작하기
-          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </span>
-      )}
-
-      {status === 'coming' && (
-        <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-200/60">
-          준비 중입니다
-        </span>
-      )}
-    </Wrapper>
+      <span className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-100 transition group-hover:translate-x-2">
+        시작하기
+        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </span>
+    </Link>
   )
 }
