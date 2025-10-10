@@ -62,7 +62,7 @@ export function getTribeFromBirthDate(dateString: string): TribeResult {
   const tribeId = BRANCH_TO_TRIBE_ID[branch];
   
   // 8. 부족 데이터 찾기
-  const tribe = innermapTribes.tribes.find(t => t.id === tribeId);
+  const tribe = innermapTribes.find(t => t.id === tribeId);
   
   if (!tribe) {
     throw new Error(`부족을 찾을 수 없습니다: ${tribeId}`);
