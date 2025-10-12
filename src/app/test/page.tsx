@@ -1,38 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { questions } from '@/lib/questions'
 import { ProgressBar } from '@/components/ProgressBar'
 import QuestionCard from '@/components/QuestionCard'
-
-// Mock 질문 데이터
-const MOCK_QUESTIONS = [
-  {
-    id: 'q1',
-    text: '새로운 사람들을 만나는 것이 즐겁다.',
-    scale: '5' as const
-  },
-  {
-    id: 'q2',
-    text: '계획을 세우기보다 즉흥적으로 행동하는 편이다.',
-    scale: '5' as const
-  },
-  {
-    id: 'q3',
-    text: '논리적 분석을 중시한다.',
-    scale: '5' as const
-  },
-  {
-    id: 'q4',
-    text: '완벽을 추구하는 편이다.',
-    scale: '7' as const
-  },
-  {
-    id: 'q5',
-    text: '다른 사람을 돕는 것이 행복하다.',
-    scale: '7' as const
-  },
-]
+import { score, mbtiFromScores, retiTop2, big5Scaled, type Answers } from '@/lib/scoring'
+import { matchHero } from '@/lib/data/heroes144'
+import { getTribeFromBirthDate } from '@/lib/innermapLogic'
+import { recommendStone } from '@/lib/data/tribesAndStones'
 
 type Step = 'start' | 'basic' | 'questions' | 'loading'
 
@@ -42,49 +18,91 @@ export default function TestPage() {
   const [name, setName] = useState('')
   const [birthDate, setBirthDate] = useState('')
   const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, number>>({})
+  const [answers, setAnswers] = useState<Answers>({})
+  const [genderPreference, setGenderPreference] = useState<'male' | 'female'>('male')
 
-  function formatBirthInput(value: string) {
-    const raw = value.replace(/\D/g, "")
+  const totalSteps = questions.length + 2
+
+  const handleBirthInput = useCallback((value: string) => {
+    const raw = value.replace(/\D/g, '')
     if (raw.length <= 4) return raw
-    if (raw.length <= 6) return raw.replace(/(\d{4})(\d{1,2})/, "$1-$2")
-    return raw.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3")
+    if (raw.length <= 6) return raw.replace(/(\d{4})(\d{1,2})/, '$1-$2')
+    return raw.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3')
+  }, [])
+
+  const handleAnswer = (value: number | 'A' | 'B') => {
+    const question = questions[currentQuestion]
+    setAnswers(prev => ({ ...prev, [question.id]: value }))
+
+    if (currentQuestion < questions.length - 1) {
+      setTimeout(() => {
+        setCurrentQuestion(prev => prev + 1)
+      }, 200)
+    } else {
+      setTimeout(() => {
+        setStep('loading')
+        finalizeResult({ name, birthDate, answers: { ...answers, [question.id]: value }, genderPreference })
+          .then(() => router.push('/result'))
+      }, 300)
+    }
   }
 
-  // Step: Start
+  const finalizeResult = async ({
+    name,
+    birthDate,
+    answers,
+    genderPreference,
+  }: {
+    name: string
+    birthDate: string
+    answers: Answers
+    genderPreference: 'male' | 'female'
+  }) => {
+    const scores = score(questions, answers)
+    const mbti = mbtiFromScores(scores)
+    const reti = retiTop2(scores)
+    const big5 = big5Scaled(scores)
+    const hero = matchHero(mbti.type, reti.top1?.[0] ?? '')
+    const tribe = birthDate ? getTribeFromBirthDate(birthDate) : null
+    const stone = recommendStone(big5)
+
+    const payload = {
+      name,
+      birthDate,
+      answers,
+      genderPreference,
+      scores,
+      mbti,
+      reti,
+      big5,
+      hero,
+      tribe,
+      stone,
+    }
+
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('result', JSON.stringify(payload))
+    }
+  }
+
   if (step === 'start') {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="max-w-2xl w-full text-center">
+        <div className="max-w-2xl w-full text-center space-y-6">
           <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-12">
-            <h1 className="text-4xl font-bold text-white mb-6">
-              영웅 분석 검사
-            </h1>
-            <p className="text-white/80 text-lg mb-8">
-              당신의 내면을 탐험할 준비가 되셨나요?<br/>
-              간단한 질문으로 당신만의 영웅 유형을 발견하세요
+            <h1 className="text-4xl font-bold text-white mb-6">InnerMap 영웅분석 검사</h1>
+            <p className="text-white/70 leading-relaxed">
+              35개의 문항을 통해 MBTI, RETI, Big5, 성장 벡터를 종합 분석하여<br />
+              당신의 영웅 타입과 12 부족·결정석 인사이트를 안내합니다.
             </p>
 
-            <div className="space-y-4 mb-8">
-              <div className="flex items-center justify-center gap-3 text-white/70">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                </svg>
-                <span>소요 시간: 약 5분</span>
-              </div>
-              <div className="flex items-center justify-center gap-3 text-white/70">
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
-                  <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
-                </svg>
-                <span>문항 수: {MOCK_QUESTIONS.length}개</span>
-              </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-white/60 mt-6">
+              <Stat label="문항 수" value="슬라이더 30 + 강요선택 5" />
+              <Stat label="소요 시간" value="약 7-8분" />
+              <Stat label="결과 구성" value="MBTI·RETI·Big5·부족·결정석·영웅" />
             </div>
 
-            <button
-              onClick={() => setStep('basic')}
-              className="btn-primary w-full md:w-auto"
-            >
+            <button onClick={() => setStep('basic')} className="btn-primary mt-10 px-8 py-3">
               시작하기 →
             </button>
           </div>
@@ -93,62 +111,67 @@ export default function TestPage() {
     )
   }
 
-  // Step: Basic Info
   if (step === 'basic') {
     return (
       <div className="min-h-screen px-4 py-12">
         <div className="max-w-2xl mx-auto">
-          <ProgressBar step={1} total={MOCK_QUESTIONS.length + 2} />
+          <ProgressBar step={1} total={totalSteps} />
 
-          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-8">
-            <h2 className="text-3xl font-bold text-white mb-8">
-              기본 정보
-            </h2>
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-8 space-y-8">
+            <h2 className="text-3xl font-bold text-white">기본 정보</h2>
 
             <div className="space-y-6">
-              {/* 이름 */}
               <div>
-                <label className="block text-white mb-2">
-                  이름 (선택)
-                </label>
+                <label className="block text-white/70 mb-2">이름 (선택)</label>
                 <input
                   type="text"
                   value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  onChange={e => setName(e.target.value)}
                   placeholder="홍길동"
                   className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
               </div>
 
-              {/* 생년월일 */}
               <div>
-                <label className="block text-white mb-2">
-                  생년월일 (필수) <span className="text-red-400">*</span>
+                <label className="block text-white/70 mb-2">
+                  생년월일 <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
                   inputMode="numeric"
-                  pattern="\d*"
                   value={birthDate}
-                  onChange={e => setBirthDate(formatBirthInput(e.target.value))}
+                  onChange={e => setBirthDate(handleBirthInput(e.target.value))}
                   placeholder="YYYY-MM-DD"
-                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
                   maxLength={10}
-                  required
+                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
+                <p className="text-xs text-white/50 mt-2">생년월일은 12 부족 매핑에 사용되며 저장되지 않습니다.</p>
               </div>
 
-              {/* 안내 문구 */}
-              <p className="text-white/60 text-sm">
-                💡 생년월일은 분석의 정확도를 높이는 데 사용됩니다
-              </p>
+              <div>
+                <label className="block text-white/70 mb-2">영웅 이미지 성별</label>
+                <div className="flex gap-3">
+                  {(['male', 'female'] as const).map(option => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setGenderPreference(option)}
+                      className={[
+                        'flex-1 px-4 py-3 rounded-xl border transition',
+                        genderPreference === option
+                          ? 'border-sky-400 bg-sky-500/20 text-white'
+                          : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10',
+                      ].join(' ')}
+                    >
+                      {option === 'male' ? '남성' : '여성'}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            <div className="flex gap-4 mt-8">
-              <button
-                onClick={() => setStep('start')}
-                className="px-6 py-3 rounded-xl bg-white/10 text-white hover:bg-white/20 transition"
-              >
+            <div className="flex gap-4">
+              <button onClick={() => setStep('start')} className="px-6 py-3 rounded-xl bg-white/10 text-white hover:bg-white/15">
                 ← 이전
               </button>
               <button
@@ -170,79 +193,29 @@ export default function TestPage() {
     )
   }
 
-  // Step: Questions
   if (step === 'questions') {
-    const question = MOCK_QUESTIONS[currentQuestion]
-
-    const handleAnswer = (value: number) => {
-      const newAnswers = { ...answers, [question.id]: value }
-      setAnswers(newAnswers)
-
-      // 다음 질문으로
-      if (currentQuestion < MOCK_QUESTIONS.length - 1) {
-        setTimeout(() => {
-          setCurrentQuestion(currentQuestion + 1)
-        }, 300)
-      } else {
-        // 마지막 질문 완료
-        setTimeout(() => {
-          setStep('loading')
-          // 3초 후 결과 페이지로
-          setTimeout(() => {
-            router.push('/result')
-          }, 3000)
-        }, 300)
-      }
-    }
+    const question = questions[currentQuestion]
 
     return (
       <div className="min-h-screen px-4 py-12">
-        <div className="max-w-2xl mx-auto">
-          <ProgressBar 
-            step={currentQuestion + 3} 
-            total={MOCK_QUESTIONS.length + 2} 
-          />
-
-          <QuestionCard 
-            question={question}
-            onAnswer={handleAnswer}
-          />
-
-          {/* 이전 버튼 */}
-          {currentQuestion > 0 && (
-            <button
-              onClick={() => setCurrentQuestion(currentQuestion - 1)}
-              className="mt-6 text-white/60 hover:text-white text-sm transition flex items-center gap-1"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              이전 질문
-            </button>
-          )}
+        <div className="max-w-3xl mx-auto space-y-6">
+          <ProgressBar step={currentQuestion + 2} total={totalSteps} />
+          <QuestionCard question={question} onAnswer={handleAnswer} value={answers[question.id]} />
+          <div className="text-right text-sm text-white/60">
+            {currentQuestion + 1} / {questions.length}
+          </div>
         </div>
       </div>
     )
   }
 
-  // Step: Loading
   if (step === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="text-center">
-          {/* 로딩 애니메이션 */}
-          <div className="w-24 h-24 mx-auto mb-8 relative">
-            <div className="absolute inset-0 rounded-full border-4 border-white/10"></div>
-            <div className="absolute inset-0 rounded-full border-4 border-t-purple-500 animate-spin"></div>
-          </div>
-
-          {/* 텍스트 */}
-          <h2 className="text-2xl font-bold text-white mb-3">
-            당신의 영웅을 찾고 있습니다...
-          </h2>
-          <p className="text-white/60">
-            AI가 당신의 답변을 분석하고 있어요
-          </p>
+        <div className="text-center space-y-4">
+          <div className="w-24 h-24 mx-auto border-4 border-white/10 border-t-sky-400 rounded-full animate-spin" />
+          <h2 className="text-2xl font-semibold text-white">결과를 생성하는 중입니다...</h2>
+          <p className="text-white/60 text-sm">AI가 답변을 분석하고 영웅 인사이트를 준비하고 있습니다.</p>
         </div>
       </div>
     )
@@ -250,3 +223,13 @@ export default function TestPage() {
 
   return null
 }
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl bg-white/10 border border-white/10 p-4">
+      <div className="text-xs uppercase tracking-[0.25em] text-white/50 mb-1">{label}</div>
+      <div className="text-sm text-white/80">{value}</div>
+    </div>
+  )
+}
+

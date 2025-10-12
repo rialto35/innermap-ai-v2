@@ -1993,167 +1993,167 @@ export const HEROES_144: Hero[] = [
     }
   },
 
-  // ENTP × RETI (136-144) - 마지막 9개
+  // ESFJ × RETI (136-144) - 마지막 9개
   {
-    id: 'entp-1-alt',
+    id: 'esfj-1',
     number: 136,
-    mbti: 'ENTP',
+    mbti: 'ESFJ',
     reti: '1',
     retiType: '완벽형',
-    name: '논리의 혁명가',
-    nameEn: 'Revolutionary of Logic',
-    tagline: '완벽한 구조를 뒤집어 새로운 질서를 설계하는 창조자',
-    description: '완벽한 구조를 뒤집어 새로운 질서를 설계하는 창조자. 기존의 논리를 재해석하고, 효율을 혁신으로 바꾼다. 체계적 반란의 설계자.',
+    name: '공동체의 조율자',
+    nameEn: 'Coordinator of Community',
+    tagline: '공동체의 기준과 질서를 세우는 섬세한 리더',
+    description: '공동체를 세밀하게 조직하는 질서의 리더. 그는 작은 예절에도 의미를 부여하고, 모두가 안전하게 머물 틀을 만든다. 완벽한 배려와 현실감을 기반으로 조화로운 환경을 구축한다.',
     abilities: {
-      openness: 97,
+      openness: 68,
+      conscientiousness: 92,
+      extraversion: 82,
+      agreeableness: 90,
+      neuroticism: 20
+    }
+  },
+  {
+    id: 'esfj-2',
+    number: 137,
+    mbti: 'ESFJ',
+    reti: '2',
+    retiType: '도우미형',
+    name: '공감의 수호자',
+    nameEn: 'Guardian of Empathy',
+    tagline: '공감과 헌신으로 사람을 보살피는 따뜻한 보호자',
+    description: '공감과 헌신으로 사람을 보살피는 따뜻한 보호자. 상대의 감정을 빠르게 읽어내며, 실제적인 도움으로 사랑을 표현한다. 그의 말 한마디는 누군가의 하루를 바꾼다.',
+    abilities: {
+      openness: 70,
       conscientiousness: 88,
-      extraversion: 87,
-      agreeableness: 76,
+      extraversion: 85,
+      agreeableness: 95,
+      neuroticism: 22
+    }
+  },
+  {
+    id: 'esfj-3',
+    number: 138,
+    mbti: 'ESFJ',
+    reti: '3',
+    retiType: '성취형',
+    name: '무대의 연출가',
+    nameEn: 'Producer of the Stage',
+    tagline: '사람과 결과를 모두 세심하게 챙기는 무대 뒤 리더',
+    description: '사람과 결과를 동시에 챙기는 무대 뒤 리더. 그는 모두가 빛나도록 세팅하고, 완성도 높은 공동 목표를 만든다. 성취와 관계를 양손에 쥔 조율자.',
+    abilities: {
+      openness: 72,
+      conscientiousness: 93,
+      extraversion: 88,
+      agreeableness: 89,
+      neuroticism: 18
+    }
+  },
+  {
+    id: 'esfj-4',
+    number: 139,
+    mbti: 'ESFJ',
+    reti: '4',
+    retiType: '개성형',
+    name: '감성의 기록가',
+    nameEn: 'Archivist of Sentiments',
+    tagline: '사람의 마음을 기억하고 이야기로 남기는 감성 큐레이터',
+    description: '사람들의 마음을 기억하고 이야기로 남기는 감성 큐레이터. 그는 공동체의 역사와 감정을 잇는 다리 역할을 하며, 진심 어린 표현으로 모두를 연결한다.',
+    abilities: {
+      openness: 75,
+      conscientiousness: 85,
+      extraversion: 83,
+      agreeableness: 92,
+      neuroticism: 19
+    }
+  },
+  {
+    id: 'esfj-5',
+    number: 140,
+    mbti: 'ESFJ',
+    reti: '5',
+    retiType: '탐구형',
+    name: '관계의 분석가',
+    nameEn: 'Analyst of Relationships',
+    tagline: '관계 속 데이터를 읽어내는 현실적 전략가',
+    description: '관계 속 데이터를 읽어내는 현실적 전략가. 감정의 흐름을 세밀하게 기록하고, 협력의 패턴을 분석해 더 나은 결속을 설계한다. 배려의 전략가이자 인간 관계의 플래너.',
+    abilities: {
+      openness: 70,
+      conscientiousness: 94,
+      extraversion: 80,
+      agreeableness: 88,
+      neuroticism: 21
+    }
+  },
+  {
+    id: 'esfj-6',
+    number: 141,
+    mbti: 'ESFJ',
+    reti: '6',
+    retiType: '충성형',
+    name: '신뢰의 중개자',
+    nameEn: 'Broker of Trust',
+    tagline: '신뢰와 일관성으로 관계를 지키는 공동체 수호자',
+    description: '신뢰와 일관성으로 관계를 지키는 공동체 수호자. 그는 약속을 철저히 지키며, 주변 사람들의 안전과 안정감을 확보한다. “당신은 혼자가 아니다”를 체화한 존재.',
+    abilities: {
+      openness: 66,
+      conscientiousness: 96,
+      extraversion: 82,
+      agreeableness: 93,
+      neuroticism: 17
+    }
+  },
+  {
+    id: 'esfj-7',
+    number: 142,
+    mbti: 'ESFJ',
+    reti: '7',
+    retiType: '열정형',
+    name: '축제의 기획자',
+    nameEn: 'Planner of Festivals',
+    tagline: '에너지와 긍정으로 공동체를 밝히는 즐거움의 매니저',
+    description: '에너지와 긍정으로 공동체를 밝히는 즐거움의 매니저. 그는 작은 이벤트도 의미 있게 만들고, 모두가 웃는 순간을 디자인한다. 활력과 따뜻함의 중심.',
+    abilities: {
+      openness: 76,
+      conscientiousness: 90,
+      extraversion: 91,
+      agreeableness: 94,
       neuroticism: 16
     }
   },
   {
-    id: 'entp-2-alt',
-    number: 137,
-    mbti: 'ENTP',
-    reti: '2',
-    retiType: '도우미형',
-    name: '유머의 촉진자',
-    nameEn: 'Facilitator of Humor',
-    tagline: '즐겁게 사람을 연결하고 생각을 확장시키는 발상가',
-    description: '즐겁게 사람을 연결하고 생각을 확장시키는 발상가. 농담 속에 통찰이 숨어 있고, 웃음 뒤엔 전략이 있다. "유머는 가장 지적인 무기."',
+    id: 'esfj-8',
+    number: 143,
+    mbti: 'ESFJ',
+    reti: '8',
+    retiType: '도전형',
+    name: '방패의 리더',
+    nameEn: 'Leader of the Shield',
+    tagline: '공동체를 지키기 위해 앞장서는 정의의 보호자',
+    description: '공동체를 지키기 위해 앞장서는 정의의 보호자. 그는 약자를 대신해 목소리를 내고, 잘못된 시스템을 바로잡는다. 강인한 배려이자 따뜻한 권위.',
     abilities: {
-      openness: 92,
-      conscientiousness: 80,
-      extraversion: 94,
+      openness: 69,
+      conscientiousness: 95,
+      extraversion: 87,
       agreeableness: 88,
       neuroticism: 18
     }
   },
   {
-    id: 'entp-3-alt',
-    number: 138,
-    mbti: 'ENTP',
-    reti: '3',
-    retiType: '성취형',
-    name: '실험의 발명가',
-    nameEn: 'Inventor of Experiment',
-    tagline: '혁신적 아이디어를 현실화하는 행동형 창조자',
-    description: '혁신적 아이디어를 현실화하는 행동형 창조자. 시도와 실패를 두려워하지 않는다. 그의 삶은 끊임없는 프로토타입이다.',
-    abilities: {
-      openness: 96,
-      conscientiousness: 85,
-      extraversion: 91,
-      agreeableness: 78,
-      neuroticism: 17
-    }
-  },
-  {
-    id: 'entp-4-alt',
-    number: 139,
-    mbti: 'ENTP',
-    reti: '4',
-    retiType: '개성형',
-    name: '상상의 조율자',
-    nameEn: 'Coordinator of Imagination',
-    tagline: '자기다움으로 시스템을 비틀며 조화시키는 철학가',
-    description: '자기다움으로 시스템을 비틀며 조화시키는 철학가. 파괴와 창조의 균형을 이해하며, 혼돈 속 질서를 즐긴다.',
-    abilities: {
-      openness: 99,
-      conscientiousness: 77,
-      extraversion: 89,
-      agreeableness: 83,
-      neuroticism: 19
-    }
-  },
-  {
-    id: 'entp-5-alt',
-    number: 140,
-    mbti: 'ENTP',
-    reti: '5',
-    retiType: '탐구형',
-    name: '지식의 모험가',
-    nameEn: 'Adventurer of Knowledge',
-    tagline: '논리의 경계를 시험하며 성장하는 탐구자',
-    description: '논리의 경계를 시험하며 성장하는 탐구자. \'왜?\'라는 질문으로 세상을 열고, 답보다 과정에 몰두한다. 끊임없이 생각하는 실험가.',
-    abilities: {
-      openness: 98,
-      conscientiousness: 82,
-      extraversion: 86,
-      agreeableness: 74,
-      neuroticism: 14
-    }
-  },
-  {
-    id: 'entp-6-alt',
-    number: 141,
-    mbti: 'ENTP',
-    reti: '6',
-    retiType: '충성형',
-    name: '진리의 수호자',
-    nameEn: 'Guardian of Truth',
-    tagline: '자유 속에서도 원칙을 지키는 사상가',
-    description: '자유 속에서도 원칙을 지키는 사상가. 혁신 속에도 기준이 있고, 창조에도 윤리가 있다. 그는 "반항의 중심에서 질서를 설계한다."',
-    abilities: {
-      openness: 90,
-      conscientiousness: 90,
-      extraversion: 83,
-      agreeableness: 81,
-      neuroticism: 12
-    }
-  },
-  {
-    id: 'entp-7-alt',
-    number: 142,
-    mbti: 'ENTP',
-    reti: '7',
-    retiType: '열정형',
-    name: '변화의 점화자',
-    nameEn: 'Igniter of Change',
-    tagline: '세상을 새로운 방향으로 끌어가는 발화자',
-    description: '세상을 새로운 방향으로 끌어가는 발화자. 불가능을 논리로 설득하고, 창조로 실현한다. "논리는 차갑지만, 비전은 뜨겁다."',
-    abilities: {
-      openness: 96,
-      conscientiousness: 84,
-      extraversion: 95,
-      agreeableness: 77,
-      neuroticism: 15
-    }
-  },
-  {
-    id: 'entp-8-alt',
-    number: 143,
-    mbti: 'ENTP',
-    reti: '8',
-    retiType: '도전형',
-    name: '혁신의 전사',
-    nameEn: 'Warrior of Innovation',
-    tagline: '논리와 창조성으로 미래를 개척하는 개혁자',
-    description: '논리와 창조성으로 미래를 개척하는 개혁자. 두려움보다 변화를 선택하고, 안정보다 진보를 믿는다. "멈춤은 가장 큰 실패다."',
-    abilities: {
-      openness: 95,
-      conscientiousness: 86,
-      extraversion: 92,
-      agreeableness: 72,
-      neuroticism: 11
-    }
-  },
-  {
-    id: 'entp-9-alt',
+    id: 'esfj-9',
     number: 144,
-    mbti: 'ENTP',
+    mbti: 'ESFJ',
     reti: '9',
     retiType: '평화형',
-    name: '대화의 연금술사',
-    nameEn: 'Alchemist of Dialogue',
-    tagline: '논리로 분열을 해소하고 통찰로 조화를 만드는 협상가',
-    description: '논리로 분열을 해소하고 통찰로 조화를 만드는 협상가. 그는 말로 세상을 엮고, 사유로 균형을 만든다. "언어는 가장 강력한 마법이다."',
+    name: '조화의 중재자',
+    nameEn: 'Mediator of Harmony',
+    tagline: '갈등을 완만히 조절하며 모두를 포용하는 조율자',
+    description: '갈등을 완만히 조절하며 모두를 포용하는 조율자. 그는 충돌을 부드럽게 풀어내고, 집단의 감정을 평온하게 만든다. "무사함이야말로 최고의 결말"이라 믿는 사람.',
     abilities: {
-      openness: 93,
-      conscientiousness: 83,
-      extraversion: 90,
-      agreeableness: 90,
-      neuroticism: 13
+      openness: 71,
+      conscientiousness: 93,
+      extraversion: 84,
+      agreeableness: 96,
+      neuroticism: 15
     }
   },
 
@@ -2649,6 +2649,29 @@ export const HEROES_144: Hero[] = [
     }
   },
 ]
+
+const HEROES_BY_MB_TI_AND_RETI: Record<string, Hero> = HEROES_144.reduce((acc, hero) => {
+  const key = `${hero.mbti}_${hero.reti}`.toUpperCase()
+  acc[key] = hero
+  return acc
+}, {} as Record<string, Hero>)
+
+export function matchHero(mbti: string, reti: string | number) {
+  const retiKey = typeof reti === 'string' ? reti.replace(/^r/i, '').replace(/^type/i, '') : String(reti)
+  const key = `${mbti.toUpperCase()}_${retiKey}`
+  return HEROES_BY_MB_TI_AND_RETI[key] ?? {
+    id: 'default',
+    number: -1,
+    mbti,
+    reti: retiKey,
+    retiType: '',
+    name: '기본 영웅',
+    nameEn: 'Default Hero',
+    tagline: '매칭되는 영웅 정보를 찾을 수 없습니다.',
+    description: '',
+    abilities: { openness: 0, conscientiousness: 0, extraversion: 0, agreeableness: 0, neuroticism: 0 },
+  }
+}
 
 // 헬퍼 함수들
 export function getHeroById(id: string): Hero | undefined {
