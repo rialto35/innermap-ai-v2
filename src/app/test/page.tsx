@@ -23,6 +23,11 @@ export default function TestPage() {
 
   const totalSteps = questions.length + 2
 
+  const clampIndex = (index: number) => {
+    if (questions.length === 0) return 0
+    return Math.min(Math.max(index, 0), questions.length - 1)
+  }
+
   const handleBirthInput = useCallback((value: string) => {
     const raw = value.replace(/\D/g, '')
     if (raw.length <= 4) return raw
@@ -31,17 +36,18 @@ export default function TestPage() {
   }, [])
 
   const handleAnswer = (value: number | 'A' | 'B') => {
-    const question = questions[currentQuestion]
-    setAnswers(prev => ({ ...prev, [question.id]: value }))
+    const idx = clampIndex(currentQuestion)
+    const q = questions[idx]
+    setAnswers(prev => ({ ...prev, [q.id]: value }))
 
-    if (currentQuestion < questions.length - 1) {
+    if (idx < questions.length - 1) {
       setTimeout(() => {
-        setCurrentQuestion(prev => prev + 1)
+        setCurrentQuestion(prev => clampIndex(prev + 1))
       }, 200)
     } else {
       setTimeout(() => {
         setStep('loading')
-        finalizeResult({ name, birthDate, answers: { ...answers, [question.id]: value }, genderPreference })
+        finalizeResult({ name, birthDate, answers: { ...answers, [q.id]: value }, genderPreference })
           .then(() => router.push('/result'))
       }, 300)
     }
@@ -64,7 +70,13 @@ export default function TestPage() {
     const big5 = big5Scaled(scores)
     const hero = matchHero(mbti.type, reti.top1?.[0] ?? '')
     const tribe = birthDate ? getTribeFromBirthDate(birthDate) : null
-    const stone = recommendStone(big5)
+    const stone = recommendStone({
+      openness: big5.O,
+      conscientiousness: big5.C,
+      extraversion: big5.E,
+      agreeableness: big5.A,
+      neuroticism: big5.N,
+    })
 
     const payload = {
       name,
@@ -194,15 +206,24 @@ export default function TestPage() {
   }
 
   if (step === 'questions') {
-    const question = questions[currentQuestion]
+    const safeIndex = clampIndex(currentQuestion)
+    const question = questions[safeIndex]
 
     return (
       <div className="min-h-screen px-4 py-12">
         <div className="max-w-3xl mx-auto space-y-6">
-          <ProgressBar step={currentQuestion + 2} total={totalSteps} />
+          <ProgressBar step={safeIndex + 2} total={totalSteps} />
           <QuestionCard question={question} onAnswer={handleAnswer} value={answers[question.id]} />
-          <div className="text-right text-sm text-white/60">
-            {currentQuestion + 1} / {questions.length}
+          <div className="flex justify-between items-center mt-4">
+            <button
+              type="button"
+              className="px-6 py-2 bg-white/10 rounded-xl text-white/70 hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed"
+              onClick={() => setCurrentQuestion(prev => clampIndex(prev - 1))}
+              disabled={safeIndex === 0}
+            >
+              ← 이전
+            </button>
+            <div className="text-right text-sm text-white/60">{safeIndex + 1} / {questions.length}</div>
           </div>
         </div>
       </div>

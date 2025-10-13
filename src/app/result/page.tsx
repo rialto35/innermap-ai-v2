@@ -6,8 +6,8 @@ import HeroImage from '@/components/HeroImage'
 import ZoomableImage from '@/components/ZoomableImage'
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, ResponsiveContainer, Tooltip } from 'recharts'
 import { matchHero } from '@/lib/data/heroes144'
-import { getTribeFromBirthDate } from '@/lib/innermapLogic'
-import { recommendStone, type TribeBranchResult } from '@/lib/data/tribesAndStones'
+import { getTribeFromBirthDate, type TribeResult } from '@/lib/innermapLogic'
+import { recommendStone } from '@/lib/data/tribesAndStones'
 
 interface StoredResult {
   name: string
@@ -18,7 +18,7 @@ interface StoredResult {
   reti: { top1: [string, number]; top2: [string, number] }
   big5: { O: number; C: number; E: number; A: number; N: number }
   hero: ReturnType<typeof matchHero>
-  tribe: TribeBranchResult | null
+  tribe: TribeResult | null
   stone: ReturnType<typeof recommendStone>
 }
 
@@ -43,7 +43,16 @@ export default function ResultPage() {
 
   const recommendedStone = useMemo(() => {
     if (!result) return null
-    return result.stone ?? recommendStone(result.big5)
+    const stoneBase = result.stone
+    if (stoneBase) return stoneBase
+    const { O, C, E, A, N } = result.big5
+    return recommendStone({
+      openness: O,
+      conscientiousness: C,
+      extraversion: E,
+      agreeableness: A,
+      neuroticism: N,
+    })
   }, [result])
 
   const big5Data = useMemo(() => {
@@ -97,14 +106,18 @@ export default function ResultPage() {
             {tribeInfo ? (
               <div className="space-y-4 text-white/80">
                 <div className="flex items-center gap-4">
-                  <ZoomableImage src={tribeInfo.tribe.imageUrl ?? '/assets/tribes/default.png'} alt={tribeInfo.tribe.nameKol ?? tribeInfo.tribe.nameKo} size={120} />
+                  <ZoomableImage
+                    src={`/assets/tribes/${tribeInfo.tribe.nameEn?.replace(/\s*tribe$/i, '').replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || 'default'}.png`}
+                    alt={tribeInfo.tribe.nameKo}
+                    size={120}
+                  />
                   <div>
                     <div className="text-sm uppercase tracking-[0.3em] text-white/40">{tribeInfo.branchKor}</div>
                     <div className="text-2xl font-bold text-white">{tribeInfo.tribe.nameKo}</div>
-                    <div className="text-white/60 text-sm">{tribeInfo.tribe.essence.coreValue}</div>
+                    <div className="text-white/60 text-sm">{tribeInfo.tribe.essence?.coreValue || tribeInfo.tribe.coreValue}</div>
                   </div>
                 </div>
-                <p className="text-sm text-white/60 whitespace-pre-line">{tribeInfo.tribe.essence.philosophy}</p>
+                <p className="text-sm text-white/60 whitespace-pre-line">{tribeInfo.tribe.essence?.philosophy || tribeInfo.tribe.description}</p>
               </div>
             ) : (
               <p className="text-white/60">생년월일 정보가 부족합니다.</p>
@@ -116,7 +129,11 @@ export default function ResultPage() {
             {recommendedStone ? (
               <div className="space-y-4 text-white/80">
                 <div className="flex items-center gap-4">
-                  <ZoomableImage src={recommendedStone.imageUrl ?? '/assets/stones/default.png'} alt={recommendedStone.nameKo} size={120} />
+                  <ZoomableImage
+                    src={`/assets/stones/${recommendedStone.nameEn?.toLowerCase() || 'default'}.png`}
+                    alt={recommendedStone.nameKo}
+                    size={120}
+                  />
                   <div>
                     <div className="text-sm uppercase tracking-[0.3em] text-white/40">추천 결정석</div>
                     <div className="text-2xl font-bold text-white">{recommendedStone.nameKo}</div>
@@ -175,7 +192,7 @@ export default function ResultPage() {
             {Object.entries(scores.Growth).map(([key, value]) => (
               <div key={key} className="flex items-center justify-between border border-white/10 rounded-xl px-4 py-3">
                 <span className="capitalize">{key}</span>
-                <span className="text-white/90 font-semibold">{value.toFixed(2)}</span>
+                <span className="text-white/90 font-semibold">{Number(value).toFixed(2)}</span>
               </div>
             ))}
           </div>

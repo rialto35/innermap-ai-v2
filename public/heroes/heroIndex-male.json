@@ -1,0 +1,47 @@
+{
+  "ESFJ_type1": {
+    "fileName": "ESFJ_type1.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type1.png"
+  },
+  "ESFJ_type2": {
+    "fileName": "ESFJ_type2.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type2.png"
+  },
+  "ESFJ_type3": {
+    "fileName": "ESFJ_type3.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type3.png"
+  },
+  "ESFJ_type4": {
+    "fileName": "ESFJ_type4.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type4.png"
+  },
+  "ESFJ_type5": {
+    "fileName": "ESFJ_type5.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type5.png"
+  },
+  "ESFJ_type6": {
+    "fileName": "ESFJ_type6.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type6.png"
+  },
+  "ESFJ_type7": {
+    "fileName": "ESFJ_type7.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type7.png"
+  },
+  "ESFJ_type8": {
+    "fileName": "ESFJ_type8.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type8.png"
+  },
+  "ESFJ_type9": {
+    "fileName": "ESFJ_type9.png",
+    "exists": true,
+    "path": "/heroes/male/ESFJ_type9.png"
+  }
+}
