@@ -32,22 +32,29 @@ function extractStrengthsWeaknesses(abilities: { openness: number; conscientious
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // 사용자 조회 또는 생성
-    const user = await findOrCreateUser({
+    // 임시: Supabase 테이블이 없어서 fallback 사용
+    console.log('Using fallback user for:', session.user.email)
+    const user = {
+      id: 'fallback-user-id',
       email: session.user.email,
       name: session.user.name,
       image: session.user.image,
-      provider: 'google' // TODO: session에서 provider 가져오기
-    })
+      level: 1,
+      exp_current: 0,
+      exp_next: 100
+    }
 
     if (!user) {
+      console.error('Failed to create/find user for:', session.user.email)
       return NextResponse.json({ error: 'Failed to get user' }, { status: 500 })
     }
+    
+    console.log('User found/created:', user.id)
 
     // 최신 검사 결과 조회
     const latestResult = await getLatestTestResult(user.id, 'imcore')
@@ -70,47 +77,20 @@ export async function GET() {
           id: user.id,
           name: user.name || session.user.name,
           email: user.email,
-          image: user.image || session.user.image,
-          level: user.level,
-          exp: {
-            current: user.exp_current,
-            next: user.exp_next
-          }
+          image: user.image || session.user.image
         },
         hero: {
-          id: defaultHero.id,
           name: defaultHero.name,
           mbti: defaultHero.mbti,
           reti: defaultHero.reti,
-          tagline: defaultHero.tagline,
+          tagline: defaultHero.tagline || defaultHero.description,
           level: user.level,
           exp: { current: user.exp_current, next: user.exp_next }
         },
-        mbti: {
-          type: 'ENFP',
-          confidence: { EI: 0.75, SN: 0.80, TF: 0.85, JP: 0.70 }
-        },
-        reti: {
-          top1: ['r7', 0.85],
-          top2: ['r3', 0.72]
-        },
-        big5: {
-          O: 70,
-          C: 50,
-          E: 80,
-          A: 90,
-          N: 20
-        },
-        growth: {
-          innate: 60,
-          acquired: 70,
-          conscious: 50,
-          unconscious: 80,
-          growth: 75,
-          stability: 65,
-          harmony: 85,
-          individual: 55
-        },
+        mbti: { type: defaultHero.mbti, confidence: { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 } },
+        reti: { top1: [`r${defaultHero.reti}`, 0.5], top2: [`r${defaultHero.reti}`, 0.5] },
+        big5: { O: 70, C: 50, E: 80, A: 90, N: 20 },
+        growth: { innate: 50, acquired: 50, conscious: 50, unconscious: 50, growth: 50, stability: 50, harmony: 50, individual: 50 },
         gem: {
           name: defaultStone.name,
           icon: defaultStone.icon || '💎',
@@ -127,10 +107,10 @@ export async function GET() {
             philosophy: defaultTribe.tribe.description
           }
         },
-      ...extractStrengthsWeaknesses(defaultHero.abilities),
-      genderPreference: 'male',
-      hasTestResult: false
-    })
+        ...extractStrengthsWeaknesses(defaultHero.abilities),
+        genderPreference: 'male',
+        hasTestResult: false
+      })
     }
 
     // 검사 결과가 있는 경우 DB 데이터 반환
@@ -149,19 +129,13 @@ export async function GET() {
         id: user.id,
         name: user.name || session.user.name,
         email: user.email,
-        image: user.image || session.user.image,
-        level: user.level,
-        exp: {
-          current: user.exp_current,
-          next: user.exp_next
-        }
+        image: user.image || session.user.image
       },
       hero: {
-        id: hero.id,
         name: hero.name,
         mbti: hero.mbti,
         reti: hero.reti,
-        tagline: hero.tagline,
+        tagline: hero.tagline || hero.description,
         level: user.level,
         exp: { current: user.exp_current, next: user.exp_next }
       },
@@ -170,8 +144,8 @@ export async function GET() {
         confidence: latestResult.mbti_confidence
       },
       reti: {
-        top1: [latestResult.reti_top1, latestResult.reti_scores?.[latestResult.reti_top1] || 0],
-        top2: latestResult.reti_top2 ? [latestResult.reti_top2, latestResult.reti_scores?.[latestResult.reti_top2] || 0] : null
+        top1: [latestResult.reti_top1, latestResult.reti_scores[latestResult.reti_top1]],
+        top2: latestResult.reti_top2 ? [latestResult.reti_top2, latestResult.reti_scores[latestResult.reti_top2]] : null
       },
       big5: {
         O: latestResult.big5_openness,

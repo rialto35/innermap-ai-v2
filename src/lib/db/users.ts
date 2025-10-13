@@ -15,12 +15,18 @@ export async function findOrCreateUser(data: {
   providerId?: string
 }): Promise<User | null> {
   try {
+    console.log('findOrCreateUser called with:', { email: data.email, provider: data.provider })
     // 기존 사용자 조회
+    console.log('Querying existing user...')
     const { data: existingUser, error: findError } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('email', data.email)
       .single()
+    
+    if (findError && findError.code !== 'PGRST116') {
+      console.error('Error finding user:', findError)
+    }
 
     if (existingUser) {
       // 기존 사용자 정보 업데이트 (이름/이미지가 변경되었을 수 있음)
