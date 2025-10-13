@@ -9,6 +9,7 @@ const handler = NextAuth({
     }),
   ],
   session: { strategy: 'jwt' },
+  trustHost: true,
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account) {
