@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     }));
 
     // 점수 계산
-    const scores = calculateAllScores(answerArray, questions as Question[], birth);
+    const scores = calculateAllScores(answerArray, questions as Big5Question[], birth);
 
     // 신뢰도 레벨 결정 (심층검사일 때 더 높음)
     const confidenceLevel = mode === 'deep' ? '높음' : '보통';

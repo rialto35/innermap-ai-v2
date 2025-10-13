@@ -23,7 +23,7 @@ export interface TestState {
 
 export interface TestPlan {
   mode: TestMode;
-  questions: Question[];
+  questions: Big5Question[];
   total: number;
 }
 
