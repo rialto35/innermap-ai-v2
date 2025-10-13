@@ -2768,3 +2768,50 @@ export function validateHeroesData(): {
   }
 }
 
+/**
+ * v1.1 엔진용 영웅 선택 함수
+ * MBTI × RETI 타이브레이커 적용 후 최종 영웅 매칭
+ */
+export function selectHero(mbti: string, retiTop: number, scores: any): Hero {
+  let finalReti = retiTop
+  
+  // ENFJ 경계 케이스: 7↔8 분기
+  if (mbti === 'ENFJ') {
+    const E = scores.Big5?.E_b5 || 0
+    const C = scores.Big5?.C || 0
+    const N = scores.Big5?.N_b5 || 0
+    
+    // 도전형(8) 특성: 주도권, 압박 내성, 결단력
+    if (retiTop === 7 && E > 0.8 && C > 0.4 && N < 0.2) {
+      finalReti = 8
+    }
+  }
+  
+  // 최종 매칭
+  const hero = matchHero(mbti, `r${finalReti}`)
+  
+  // 매칭 실패 시 기본 영웅 반환
+  if (!hero) {
+    return {
+      id: `${mbti.toLowerCase()}-${finalReti}`,
+      number: 0,
+      mbti,
+      reti: String(finalReti),
+      retiType: '탐험가형',
+      name: '내면의 탐험가',
+      nameEn: 'Inner Explorer',
+      tagline: '당신만의 고유한 여정을 시작하는 영웅',
+      description: '아직 정의되지 않은 새로운 영웅 타입입니다.',
+      abilities: {
+        openness: 70,
+        conscientiousness: 60,
+        extraversion: 50,
+        agreeableness: 60,
+        neuroticism: 40
+      }
+    }
+  }
+  
+  return hero
+}
+
