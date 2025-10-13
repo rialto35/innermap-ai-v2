@@ -79,8 +79,21 @@ export default function LoginPage() {
           >
             Google로 계속하기
           </button>
-          <button className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/15">
-            (준비중) GitHub로 계속하기
+          <button 
+            onClick={() => {
+              // 임시 세션 생성 (개발용)
+              localStorage.setItem('dev-session', JSON.stringify({
+                user: {
+                  name: '개발자',
+                  email: 'dev@example.com',
+                  image: 'https://via.placeholder.com/150'
+                }
+              }))
+              window.location.href = '/dashboard'
+            }}
+            className="w-full rounded-xl border border-blue-500/50 bg-blue-600/20 px-4 py-3 text-sm font-medium text-blue-300 transition hover:bg-blue-600/30"
+          >
+            🧪 개발용 로그인 (임시)
           </button>
         </div>
 

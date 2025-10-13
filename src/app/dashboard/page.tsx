@@ -12,17 +12,6 @@ export default function DashboardPage() {
   const [heroData, setHeroData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login')
-      return
-    }
-
-    if (status === 'authenticated') {
-      fetchHeroData()
-    }
-  }, [status, router, fetchHeroData])
-
   const fetchHeroData = useCallback(async () => {
     try {
       setLoading(true)
@@ -75,6 +64,17 @@ export default function DashboardPage() {
       setLoading(false)
     }
   }, [session])
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login')
+      return
+    }
+
+    if (status === 'authenticated') {
+      fetchHeroData()
+    }
+  }, [status, router, fetchHeroData])
 
   if (status === 'loading' || loading) {
     return (
