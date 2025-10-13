@@ -13,7 +13,7 @@ export default function LoginPage() {
   const router = useRouter()
 
   useEffect(() => {
-    if (status === 'authenticated') router.replace('/')
+    if (status === 'authenticated') router.replace('/mypage')
   }, [status, router])
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -74,7 +74,7 @@ export default function LoginPage() {
 
         <div className="grid grid-cols-1 gap-3">
           <button
-            onClick={() => signIn('google', { callbackUrl: '/' })}
+            onClick={() => signIn('google', { callbackUrl: '/mypage' })}
             className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/15"
           >
             Google로 계속하기

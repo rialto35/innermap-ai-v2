@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 interface NavLink {
   href: string
@@ -25,6 +26,7 @@ const secondaryLinks: NavLink[] = [
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   const isActive = (path: string) => pathname === path
 
@@ -69,12 +71,21 @@ export default function Header() {
 
         {/* CTA 버튼 */}
         <div className="hidden md:flex items-center gap-3">
-          <Link
-            href="/login"
-            className="rounded-full border border-white/15 px-5 py-2 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
-          >
-            로그인
-          </Link>
+          {session ? (
+            <Link
+              href="/mypage"
+              className="rounded-full border border-white/15 px-5 py-2 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
+            >
+              마이페이지
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="rounded-full border border-white/15 px-5 py-2 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
+            >
+              로그인
+            </Link>
+          )}
           <Link
             href="/test"
             className="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:scale-[1.02]"
@@ -97,7 +108,7 @@ export default function Header() {
 
       {/* 모바일 메뉴 */}
       {isMenuOpen && (
-        <div className="md:hidden border-t border-white/10 bg-[#0B1220]/95 backdrop-blur-xl">
+        <div className="md:hidden border-top border-white/10 bg-[#0B1220]/95 backdrop-blur-xl">
           <nav className="flex flex-col gap-1 px-4 py-4 text-white/90">
             {[...primaryLinks, ...secondaryLinks].map(link => (
               <Link
@@ -112,11 +123,11 @@ export default function Header() {
 
             <div className="mt-3 flex flex-col gap-2">
               <Link
-                href="/login"
+                href={session ? '/mypage' : '/login'}
                 className="rounded-xl border border-white/10 px-4 py-3 text-center text-sm font-medium text-white/80 transition hover:border-white/20 hover:text-white"
                 onClick={() => setIsMenuOpen(false)}
               >
-                로그인
+                {session ? '마이페이지' : '로그인'}
               </Link>
               <Link
                 href="/test"
