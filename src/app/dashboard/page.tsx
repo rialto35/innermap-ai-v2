@@ -25,15 +25,8 @@ export default function DashboardPage() {
     try {
       setLoading(true)
       
-      // sessionStorage에서 검사 결과 가져오기
-      const storedResult = typeof window !== 'undefined' ? sessionStorage.getItem('result') : null
-      
-      let resultParam = ''
-      if (storedResult) {
-        resultParam = `?result=${encodeURIComponent(storedResult)}`
-      }
-
-      const response = await fetch(`/api/imcore/me${resultParam}`)
+      // DB에서 최신 검사 결과 가져오기
+      const response = await fetch('/api/imcore/me')
       
       if (!response.ok) {
         throw new Error('Failed to fetch hero data')

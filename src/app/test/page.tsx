@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation'
 import { questions } from '@/lib/questions'
 import { ProgressBar } from '@/components/ProgressBar'
 import QuestionCard from '@/components/QuestionCard'
-import { score, mbtiFromScores, retiTop2, big5Scaled, type Answers } from '@/lib/scoring'
-import { matchHero } from '@/lib/data/heroes144'
+import { score, mbtiFromScores, retiTop2, retiTieBreak, big5Scaled, type Answers } from '@/lib/scoring'
+import { selectHero } from '@/lib/data/heroes144'
 import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
 
@@ -69,8 +69,10 @@ export default function TestPage() {
     const scores = score(questions, answers)
     const mbti = mbtiFromScores(scores)
     const reti = retiTop2(scores)
+    const baseR = Number(reti.top1[0].slice(1))
+    const tiebroken = retiTieBreak(mbti.type, scores, baseR)
     const big5 = big5Scaled(scores)
-    const hero = matchHero(mbti.type, reti.top1?.[0] ?? '')
+    const hero = selectHero(mbti.type, tiebroken, scores)
     const tribe = birthDate ? getTribeFromBirthDate(birthDate) : null
     const stone = recommendStone({
       openness: big5.O,
@@ -94,8 +96,67 @@ export default function TestPage() {
       stone,
     }
 
+    // sessionStorage에 임시 저장 (결과 페이지 표시용)
     if (typeof window !== 'undefined') {
       sessionStorage.setItem('result', JSON.stringify(payload))
+    }
+
+    // DB에 저장 (로그인한 경우)
+    try {
+      const response = await fetch('/api/imcore/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name || '익명',
+          birthDate,
+          genderPreference,
+          mbtiType: mbti.type,
+          mbtiConfidence: mbti.conf,
+          retiTop1: reti.top1[0],
+          retiTop2: reti.top2?.[0] || null,
+          retiScores: scores.RETI,
+          big5: {
+            openness: big5.O,
+            conscientiousness: big5.C,
+            extraversion: big5.E,
+            agreeableness: big5.A,
+            neuroticism: big5.N
+          },
+          growth: {
+            innate: Math.round(scores.Growth.innate || 0),
+            acquired: Math.round(scores.Growth.acquired || 0),
+            conscious: Math.round(scores.Growth.conscious || 0),
+            unconscious: Math.round(scores.Growth.unconscious || 0),
+            growth: Math.round(scores.Growth.growth || 0),
+            stability: Math.round(scores.Growth.stability || 0),
+            harmony: Math.round(scores.Growth.harmony || 0),
+            individual: Math.round(scores.Growth.individual || 0)
+          },
+          hero: {
+            id: `${hero.mbti.toLowerCase()}-${hero.reti}`,
+            name: hero.name
+          },
+          tribe: tribe ? {
+            name: tribe.tribe.nameKo,
+            nameEn: tribe.tribe.nameEn
+          } : null,
+          stone: {
+            name: stone.name
+          },
+          rawScores: scores
+        })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log('검사 결과 저장 완료:', result)
+        if (result.levelUp) {
+          console.log(`🎉 레벨업! 새로운 레벨: ${result.newLevel}`)
+        }
+      }
+    } catch (error) {
+      console.error('검사 결과 저장 실패:', error)
+      // 저장 실패해도 결과 페이지는 표시
     }
   }
 

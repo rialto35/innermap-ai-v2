@@ -13,6 +13,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",
     "@notionhq/client": "^4.0.2",
+    "@supabase/supabase-js": "^2.75.0",
     "@tailwindcss/typography": "^0.5.19",
     "html2canvas": "^1.4.1",
     "jspdf": "^3.0.1",
