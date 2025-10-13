@@ -37,17 +37,14 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    // 임시: Supabase 테이블이 없어서 fallback 사용
-    console.log('Using fallback user for:', session.user.email)
-    const user = {
-      id: 'fallback-user-id',
+    // 사용자 조회 또는 생성
+    console.log('Creating/finding user for:', session.user.email)
+    const user = await findOrCreateUser({
       email: session.user.email,
       name: session.user.name,
       image: session.user.image,
-      level: 1,
-      exp_current: 0,
-      exp_next: 100
-    }
+      provider: 'google'
+    })
 
     if (!user) {
       console.error('Failed to create/find user for:', session.user.email)
