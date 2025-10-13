@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import HeroGrowthCard from "@/components/HeroGrowthCard"
@@ -21,9 +21,9 @@ export default function DashboardPage() {
     if (status === 'authenticated') {
       fetchHeroData()
     }
-  }, [status, router])
+  }, [status, router, fetchHeroData])
 
-  const fetchHeroData = async () => {
+  const fetchHeroData = useCallback(async () => {
     try {
       setLoading(true)
       
@@ -31,7 +31,8 @@ export default function DashboardPage() {
       const response = await fetch('/api/imcore/me')
       
       if (!response.ok) {
-        throw new Error('Failed to fetch hero data')
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to fetch hero data')
       }
 
       const data = await response.json()
@@ -73,7 +74,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [session])
 
   if (status === 'loading' || loading) {
     return (
@@ -162,8 +163,8 @@ export default function DashboardPage() {
       
       {/* 하단: 차트 섹션 */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <Big5RadarChart big5={heroData.big5} />
-        <GrowthVectorChart growth={heroData.growth} />
+        {heroData.big5 && <Big5RadarChart big5={heroData.big5} />}
+        {heroData.growth && <GrowthVectorChart growth={heroData.growth} />}
       </div>
     </div>
   )
