@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { findOrCreateUser } from '@/lib/db/users'
 import { getLatestTestResult } from '@/lib/db/testResults'
-import { selectHero } from '@/lib/data/heroes144'
+import { selectHero, HEROES_144 } from '@/lib/data/heroes144'
 import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
 
