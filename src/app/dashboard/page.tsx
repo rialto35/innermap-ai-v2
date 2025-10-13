@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import HeroGrowthCard from "@/components/HeroGrowthCard"
+import Big5RadarChart from "@/components/Big5RadarChart"
+import GrowthVectorChart from "@/components/GrowthVectorChart"
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
@@ -101,30 +103,67 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6 grid gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2">
-        <HeroGrowthCard 
-          hero={heroData.hero}
-          gem={heroData.gem}
-          tribe={heroData.tribe}
-          growth={heroData.growth}
-          strengths={heroData.strengths}
-          weaknesses={heroData.weaknesses}
-        />
-      </div>
-      {/* 우측 사이드: 최근 리포트, 추천 루틴 등 추가 */}
-      <div className="rounded-2xl bg-zinc-900/80 border border-zinc-800 p-5">
-        <h3 className="text-lg font-semibold text-white mb-4">최근 활동</h3>
-        <div className="space-y-3 text-sm text-white/70">
-          <div className="p-3 rounded-lg bg-white/5">
-            <div className="font-medium">검사 완료</div>
-            <div className="text-xs text-white/50">방금 전</div>
+    <div className="max-w-7xl mx-auto p-6 space-y-6">
+      {/* 상단: 영웅 카드 */}
+      <div className="grid gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <HeroGrowthCard 
+            hero={heroData.hero}
+            gem={heroData.gem}
+            tribe={heroData.tribe}
+            growth={heroData.growth}
+            strengths={heroData.strengths}
+            weaknesses={heroData.weaknesses}
+            genderPreference={heroData.genderPreference || 'male'}
+          />
+        </div>
+        
+        {/* 우측 사이드: 최근 활동 */}
+        <div className="rounded-2xl bg-zinc-900/80 border border-zinc-800 p-5">
+          <h3 className="text-lg font-semibold text-white mb-4">최근 활동</h3>
+          <div className="space-y-3 text-sm text-white/70">
+            {heroData.hasTestResult ? (
+              <>
+                <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                  <div className="font-medium text-emerald-300">✓ 검사 완료</div>
+                  <div className="text-xs text-white/50 mt-1">
+                    {heroData.testDate ? new Date(heroData.testDate).toLocaleDateString('ko-KR') : '최근'}
+                  </div>
+                </div>
+                <div className="p-3 rounded-lg bg-sky-500/10 border border-sky-500/20">
+                  <div className="font-medium text-sky-300">🎯 레벨 {heroData.hero.level}</div>
+                  <div className="text-xs text-white/50 mt-1">경험치 {heroData.hero.exp.current}/{heroData.hero.exp.next}</div>
+                </div>
+              </>
+            ) : (
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <div className="font-medium text-amber-300">검사를 시작하세요</div>
+                <div className="text-xs text-white/50 mt-1">나만의 영웅을 발견하세요</div>
+              </div>
+            )}
           </div>
-          <div className="p-3 rounded-lg bg-white/5">
-            <div className="font-medium">레벨 업!</div>
-            <div className="text-xs text-white/50">2시간 전</div>
+          
+          {/* 추천 루틴 */}
+          <div className="mt-6">
+            <h4 className="text-sm font-semibold text-white mb-3">오늘의 추천</h4>
+            <div className="space-y-2 text-xs">
+              <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                <div className="text-white/80">💭 마음 질문 카드</div>
+                <div className="text-white/50">오늘의 질문 확인하기</div>
+              </div>
+              <div className="p-2 rounded-lg bg-white/5 hover:bg-white/10 transition cursor-pointer">
+                <div className="text-white/80">📊 성장 리포트</div>
+                <div className="text-white/50">AI 분석 보기</div>
+              </div>
+            </div>
           </div>
         </div>
+      </div>
+      
+      {/* 하단: 차트 섹션 */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Big5RadarChart big5={heroData.big5} />
+        <GrowthVectorChart growth={heroData.growth} />
       </div>
     </div>
   )

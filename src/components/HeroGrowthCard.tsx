@@ -1,6 +1,6 @@
 "use client"
-import Image from "next/image"
 import Link from "next/link"
+import HeroImage from "./HeroImage"
 
 export default function HeroGrowthCard({ 
   hero, 
@@ -8,7 +8,8 @@ export default function HeroGrowthCard({
   tribe, 
   growth, 
   strengths, 
-  weaknesses 
+  weaknesses,
+  genderPreference = 'male'
 }: { 
   hero: any
   gem?: any
@@ -16,6 +17,7 @@ export default function HeroGrowthCard({
   growth?: any
   strengths?: string[]
   weaknesses?: string[]
+  genderPreference?: 'male' | 'female'
 }) {
   const expPct = Math.min(100, Math.round((hero.exp.current / hero.exp.next) * 100))
 
@@ -23,10 +25,15 @@ export default function HeroGrowthCard({
     <div className="rounded-2xl bg-zinc-900/80 border border-zinc-800 p-5 shadow-xl flex flex-col gap-4">
       {/* 헤더 */}
       <div className="flex items-center gap-4">
-        <div className="relative h-20 w-20 overflow-hidden rounded-2xl ring-1 ring-zinc-700">
-          <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
-            🦸
-          </div>
+        <div className="relative h-24 w-24 flex-shrink-0">
+          <HeroImage 
+            mbti={hero.mbti} 
+            reti={hero.reti} 
+            gender={genderPreference}
+            width={96}
+            height={96}
+            alt={hero.name}
+          />
         </div>
         <div className="flex-1">
           <div className="text-xl font-semibold">{hero.name}</div>

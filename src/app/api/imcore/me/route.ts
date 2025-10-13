@@ -127,9 +127,10 @@ export async function GET() {
             philosophy: defaultTribe.tribe.description
           }
         },
-        ...extractStrengthsWeaknesses(defaultHero.abilities),
-        hasTestResult: false
-      })
+      ...extractStrengthsWeaknesses(defaultHero.abilities),
+      genderPreference: 'male',
+      hasTestResult: false
+    })
     }
 
     // 검사 결과가 있는 경우 DB 데이터 반환
@@ -206,6 +207,7 @@ export async function GET() {
         }
       },
       ...extractStrengthsWeaknesses(hero.abilities),
+      genderPreference: latestResult.gender_preference || 'male',
       hasTestResult: true,
       testResultId: latestResult.id,
       testDate: latestResult.created_at
