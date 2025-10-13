@@ -24,6 +24,10 @@ export interface User {
   name: string | null
   image: string | null
   provider: string
+  provider_id?: string
+  level: number
+  exp_current: number
+  exp_next: number
   created_at: string
   updated_at: string
 }
