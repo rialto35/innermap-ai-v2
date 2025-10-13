@@ -1,6 +1,6 @@
-import { Question } from '@/types/question';
+import { Big5Question } from '@/types/question';
 
-export const questionBank: Question[] = [
+export const questionBank: Big5Question[] = [
   // ========== MBTI 문항 ==========
   // E/I (외향-내향)
   { id: 'mbti_ei_1', text: '새로운 사람들과 어울리는 것이 즐겁고 에너지를 얻는다', scale: '5', tag: 'MBTI', dimension: 'EI', reverse: false },
@@ -89,7 +89,7 @@ export const questionBank: Question[] = [
 ];
 
 // 모드별 문항 샘플링
-export function buildTestPlan(mode: 'simple' | 'deep'): Question[] {
+export function buildTestPlan(mode: 'simple' | 'deep'): Big5Question[] {
   const pick = (tag: 'MBTI' | 'RETI' | 'BIG5', n: number) => {
     const filtered = questionBank.filter(q => q.tag === tag);
     return filtered.sort(() => Math.random() - 0.5).slice(0, n);

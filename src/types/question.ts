@@ -1,7 +1,7 @@
 export type QuestionScale = '2' | '5' | '7';
 export type QuestionTag = 'MBTI' | 'RETI' | 'BIG5';
 
-export interface Question {
+export interface Big5Question {
   id: string;
   text: string;
   scale: QuestionScale;

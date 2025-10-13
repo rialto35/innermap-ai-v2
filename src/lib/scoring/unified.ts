@@ -1,4 +1,4 @@
-import { Question } from '@/types/question';
+import { Big5Question } from '@/types/question';
 import { TestScores } from '@/types/question';
 
 interface Answer {
@@ -7,7 +7,7 @@ interface Answer {
 }
 
 // MBTI 점수화
-export function calculateMBTI(answers: Answer[], questions: Question[]): TestScores['mbti'] {
+export function calculateMBTI(answers: Answer[], questions: Big5Question[]): TestScores['mbti'] {
   const scores = { EI: 0, SN: 0, TF: 0, JP: 0 };
   const counts = { EI: 0, SN: 0, TF: 0, JP: 0 };
 
@@ -53,7 +53,7 @@ export function calculateMBTI(answers: Answer[], questions: Question[]): TestSco
 }
 
 // RETI (에니어그램) 점수화
-export function calculateRETI(answers: Answer[], questions: Question[]): TestScores['reti'] {
+export function calculateRETI(answers: Answer[], questions: Big5Question[]): TestScores['reti'] {
   const scores: Record<string, number> = {
     '1': 0, '2': 0, '3': 0, '4': 0, '5': 0,
     '6': 0, '7': 0, '8': 0, '9': 0
@@ -91,7 +91,7 @@ export function calculateRETI(answers: Answer[], questions: Question[]): TestSco
 }
 
 // Big5 점수화
-export function calculateBig5(answers: Answer[], questions: Question[]): TestScores['big5'] {
+export function calculateBig5(answers: Answer[], questions: Big5Question[]): TestScores['big5'] {
   const scores = { O: 0, C: 0, E: 0, A: 0, N: 0 };
   const counts = { O: 0, C: 0, E: 0, A: 0, N: 0 };
 
@@ -144,7 +144,7 @@ export function calculateBirthProfile(birth: { y: number; m: number; d: number }
 // 통합 점수화
 export function calculateAllScores(
   answers: Answer[],
-  questions: Question[],
+  questions: Big5Question[],
   birth: { y: number; m: number; d: number }
 ): TestScores {
   return {

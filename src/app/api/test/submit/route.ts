@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { calculateAllScores } from '@/lib/scoring/unified';
-import { Question } from '@/types/question';
+import { Big5Question } from '@/types/question';
 
 export async function POST(request: Request) {
   try {
