@@ -1,15 +1,35 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { findOrCreateUser } from '@/lib/db/users'
 import { getLatestTestResult } from '@/lib/db/testResults'
-import { selectHero, HEROES_144 } from '@/lib/data/heroes144'
+import { selectHero } from '@/lib/data/heroes144'
 import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
 
 export const dynamic = 'force-dynamic'
 
-export async function GET(request: NextRequest) {
+// abilities 기반으로 strengths/weaknesses 추출
+function extractStrengthsWeaknesses(abilities: { openness: number; conscientiousness: number; extraversion: number; agreeableness: number; neuroticism: number }) {
+  const abilityMap = {
+    openness: '개방성',
+    conscientiousness: '성실성',
+    extraversion: '외향성',
+    agreeableness: '친화성',
+    neuroticism: '신경성'
+  }
+  
+  const entries = Object.entries(abilities)
+  const strengths = entries.filter(([_, v]) => v >= 70).map(([k]) => abilityMap[k as keyof typeof abilityMap])
+  const weaknesses = entries.filter(([_, v]) => v <= 30).map(([k]) => abilityMap[k as keyof typeof abilityMap])
+  
+  return {
+    strengths: strengths.length > 0 ? strengths : ['균형잡힌 성향'],
+    weaknesses: weaknesses.length > 0 ? weaknesses : ['특별한 약점 없음']
+  }
+}
+
+export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
@@ -107,8 +127,7 @@ export async function GET(request: NextRequest) {
             philosophy: defaultTribe.tribe.description
           }
         },
-        strengths: defaultHero.strengths || ['영감 전파', '공감 리더십', '창의적 시도'],
-        weaknesses: defaultHero.weaknesses || ['지속성 저하', '우선순위 분산', '감정 과몰입'],
+        ...extractStrengthsWeaknesses(defaultHero.abilities),
         hasTestResult: false
       })
     }
@@ -186,8 +205,7 @@ export async function GET(request: NextRequest) {
           philosophy: tribe.tribe.description
         }
       },
-      strengths: hero.strengths || ['영감 전파', '공감 리더십', '창의적 시도'],
-      weaknesses: hero.weaknesses || ['지속성 저하', '우선순위 분산', '감정 과몰입'],
+      ...extractStrengthsWeaknesses(hero.abilities),
       hasTestResult: true,
       testResultId: latestResult.id,
       testDate: latestResult.created_at

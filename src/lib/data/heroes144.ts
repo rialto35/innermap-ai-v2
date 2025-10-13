@@ -19,6 +19,8 @@ export interface Hero {
     agreeableness: number
     neuroticism: number
   }
+  strengths?: string[]
+  weaknesses?: string[]
 }
 
 export const HEROES_144: Hero[] = [
