@@ -9,7 +9,6 @@ const handler = NextAuth({
     }),
   ],
   session: { strategy: 'jwt' },
-  trustHost: true,
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   debug: true,
   callbacks: {
