@@ -14,6 +14,10 @@ export interface Tribe {
   coreValue: string     // 핵심 가치
   archetype: string     // 성향 코드
   keywords: string[]    // 키워드들
+  essence?: {           // 본질 정보
+    coreValue: string
+    philosophy: string
+  }
   // 설명
   description: string
   // 대립 관계
@@ -26,6 +30,10 @@ export interface Stone {
   nameKo: string        // 한글 이름
   nameEn: string        // 영문 이름
   symbol: string        // 상징
+  icon?: string         // 아이콘
+  color?: string        // 색상
+  keywords?: string[]   // 키워드들
+  summary?: string      // 요약
   // Big5 대응
   big5Mapping: {
     openness?: 'high' | 'low' | 'avg'
@@ -239,6 +247,10 @@ export const STONES_12: Stone[] = [
     nameKo: '아르케',
     nameEn: 'Arche',
     symbol: '기원의 빛',
+    icon: '💎',
+    color: '#8B5CF6',
+    keywords: ['자기이해', '정체성', '자각'],
+    summary: '자기 자신을 이해하는 기초 결정석',
     big5Mapping: {
       openness: 'high',
       neuroticism: 'low'

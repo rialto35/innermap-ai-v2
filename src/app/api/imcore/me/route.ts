@@ -93,16 +93,19 @@ export async function GET(request: NextRequest) {
         },
         gem: {
           name: defaultStone.name,
-          icon: defaultStone.icon,
-          keywords: defaultStone.keywords,
-          summary: defaultStone.summary,
-          color: defaultStone.color
+          icon: defaultStone.icon || '💎',
+          keywords: defaultStone.keywords || ['성장', '발전'],
+          summary: defaultStone.summary || defaultStone.description,
+          color: defaultStone.color || '#8B5CF6'
         },
         tribe: {
           name: defaultTribe.tribe.nameKo,
           nameEn: defaultTribe.tribe.nameEn,
           color: defaultTribe.tribe.color,
-          essence: defaultTribe.tribe.essence
+          essence: defaultTribe.tribe.essence || {
+            coreValue: defaultTribe.tribe.coreValue,
+            philosophy: defaultTribe.tribe.description
+          }
         },
         strengths: defaultHero.strengths || ['영감 전파', '공감 리더십', '창의적 시도'],
         weaknesses: defaultHero.weaknesses || ['지속성 저하', '우선순위 분산', '감정 과몰입'],
@@ -169,16 +172,19 @@ export async function GET(request: NextRequest) {
       },
       gem: {
         name: stone.name,
-        icon: stone.icon,
-        keywords: stone.keywords,
-        summary: stone.summary,
-        color: stone.color
+        icon: stone.icon || '💎',
+        keywords: stone.keywords || ['성장', '발전'],
+        summary: stone.summary || stone.description,
+        color: stone.color || '#8B5CF6'
       },
       tribe: {
         name: tribe.tribe.nameKo,
         nameEn: tribe.tribe.nameEn,
         color: tribe.tribe.color,
-        essence: tribe.tribe.essence
+        essence: tribe.tribe.essence || {
+          coreValue: tribe.tribe.coreValue,
+          philosophy: tribe.tribe.description
+        }
       },
       strengths: hero.strengths || ['영감 전파', '공감 리더십', '창의적 시도'],
       weaknesses: hero.weaknesses || ['지속성 저하', '우선순위 분산', '감정 과몰입'],
