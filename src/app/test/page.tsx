@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import { useCallback, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { questions } from '@/lib/questions'

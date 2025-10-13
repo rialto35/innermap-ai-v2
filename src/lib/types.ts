@@ -18,6 +18,12 @@ export type WeightMap = {
   Growth?: Partial<Record<AxisGrowth, number>>
 }
 
+export type ItemMeta = {
+  reliability?: number // 0.5~1.5
+  clip?: number // 허버 클리핑 δ (기본 0.8)
+  group?: 'MBTI' | 'RETI' | 'Big5' | 'Growth'
+}
+
 export type SliderItem = {
   id: number
   kind: 'slider'
@@ -25,6 +31,7 @@ export type SliderItem = {
   leftLabel?: string
   rightLabel?: string
   weights: WeightMap
+  meta?: ItemMeta
 }
 
 export type PairItem = {
@@ -34,6 +41,7 @@ export type PairItem = {
   b: string
   weightsA: WeightMap
   weightsB: WeightMap
+  meta?: ItemMeta
 }
 
 export type Question = SliderItem | PairItem

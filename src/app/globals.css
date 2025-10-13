@@ -6,12 +6,12 @@
   html {
     @apply scroll-smooth;
   }
-body {
+  body {
     @apply min-h-screen text-white;
     background: linear-gradient(to bottom, 
       #0F1424 0%, 
-      #20253A 85%,
-      #6D28D9 100%
+      #0B1220 80%,
+      #0B1220 100%
     );
     background-attachment: fixed;
   }

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
+import AuthProvider from '@/components/AuthProvider'
 
 export const metadata: Metadata = {
   title: 'InnerMap AI - 당신의 내면 지도',
@@ -11,10 +12,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body style={{ background: '#070C18', color: '#fff' }}>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+      <body className="min-h-screen text-white">
+        <AuthProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+        </AuthProvider>
       </body>
     </html>
   )
