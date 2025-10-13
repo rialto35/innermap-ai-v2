@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/app/api/auth/[...nextauth]/route'
+import { authOptions } from '@/lib/auth'
 import { findOrCreateUser } from '@/lib/db/users'
 import { getLatestTestResult } from '@/lib/db/testResults'
 import { selectHero, HEROES_144 } from '@/lib/data/heroes144'
