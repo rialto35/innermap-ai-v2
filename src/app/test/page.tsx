@@ -1,9 +1,13 @@
+import StartTestCTA from '@/components/StartTestCTA'
+
 export default function TestIndex() {
   return (
     <main className="max-w-2xl mx-auto py-10">
       <h1 className="text-2xl font-semibold">분석 모드 선택</h1>
       <p className="text-sm text-gray-500 mt-2">QuickMap 또는 DeepMap을 선택해 진행하세요.</p>
-      {/* 필요 시 여기에도 StartTestCTA를 넣어도 됨 */}
+      <div className="mt-8">
+        <StartTestCTA />
+      </div>
     </main>
   );
 }

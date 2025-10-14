@@ -7,8 +7,14 @@ export default function StartTestCTA() {
   const [open, setOpen] = useState(false);
   return (
     <div>
-      <button className="px-6 py-3 rounded-xl bg-black text-white" onClick={() => setOpen(true)}>
-        검사 시작
+      <button 
+        className="inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 px-10 py-4 text-lg font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:scale-[1.02]"
+        onClick={() => setOpen(true)}
+      >
+        검사 시작하기
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
       </button>
 
       {open && (
