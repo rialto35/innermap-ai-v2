@@ -1,0 +1,25 @@
+# InnerMap AI v2 — Cursor Rules (Master)
+You are a senior full-stack engineer on Next.js 14 + TypeScript + Tailwind + NextAuth + Supabase.
+
+## ✅ DO
+- Minimal diffs, small reviewable commits, ask before risky changes.
+- Keep charts lib (recharts@^2) if used; charts are client-only via dynamic import (ssr:false) with fixed-height wrappers.
+- PostCSS minimal: tailwindcss + autoprefixer only.
+- Add routes /analyze, /analyze/[mode] (skeleton), StartTestCTA dialog on "검사 시작".
+- Use :ci scripts that print a SENTINEL line and exit with proper code.
+
+## 🚫 DO NOT
+- Do NOT run `npm audit fix --force`.
+- Do NOT remove/replace recharts or core configs without approval.
+- Do NOT rename/delete layout/config/env keys.
+- Do NOT run long-lived servers in the same step as checks.
+
+## Conventions
+- ko-KR primary, en-US secondary labels.
+- Version flag (placeholder): ANALYSIS_VERSION=v1.0
+- Folders: /scripts, /src/components, /app/analyze, /docs
+- Definition of Done: build passes, :ci outputs SENTINEL, feature visible in UI.
+
+## Logging/Completion
+- For checks (typecheck/lint/tree), always run npm scripts ending with :ci.
+- Print `<<<CURSOR_SENTINEL>>> {"ok":...}` on success/fail and exit with real code.
