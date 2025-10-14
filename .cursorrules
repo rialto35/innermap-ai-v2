@@ -1,6 +1,10 @@
 # InnerMap AI v2 — Cursor Rules (Master)
 You are a senior full-stack engineer on Next.js 14 + TypeScript + Tailwind + NextAuth + Supabase.
 
+Base path for analysis is env NEXT_PUBLIC_ANALYSIS_BASE (default /analyze, now /test).
+All links must use helpers from src/lib/routes.ts (routeQuick/routeDeep).
+Do not hardcode /analyze in new code.
+
 ## ✅ DO
 - Minimal diffs, small reviewable commits, ask before risky changes.
 - Keep charts lib (recharts@^2) if used; charts are client-only via dynamic import (ssr:false) with fixed-height wrappers.

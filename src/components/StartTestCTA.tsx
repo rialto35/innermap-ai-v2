@@ -1,20 +1,16 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { routeQuick, routeDeep } from "@/lib/routes";
 
 export default function StartTestCTA() {
-  const [open,setOpen]=useState(false);
+  const [open, setOpen] = useState(false);
   return (
-    <div className="flex items-center">
-      <button 
-        className="inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 px-10 py-4 text-lg font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:scale-[1.02]"
-        onClick={()=>setOpen(true)}
-      >
-        검사 시작하기
-        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-        </svg>
+    <div>
+      <button className="px-6 py-3 rounded-xl bg-black text-white" onClick={() => setOpen(true)}>
+        검사 시작
       </button>
+
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
           <div className="bg-white rounded-2xl p-6 w-[420px] shadow-xl">
@@ -24,14 +20,14 @@ export default function StartTestCTA() {
               DeepMap(딥맵) — 내면의 지도를 정밀하게 완성하다
             </p>
             <div className="mt-4 space-y-2">
-              <Link href="/analyze/quick" className="block">
+              <Link href={routeQuick} onClick={() => setOpen(false)} className="block">
                 <button className="w-full border rounded-xl py-2">QuickMap (퀵맵)</button>
               </Link>
-              <Link href="/analyze/deep" className="block">
+              <Link href={routeDeep} onClick={() => setOpen(false)} className="block">
                 <button className="w-full bg-black text-white rounded-xl py-2">DeepMap (딥맵)</button>
               </Link>
             </div>
-            <button className="mt-3 text-xs text-gray-500" onClick={()=>setOpen(false)}>닫기</button>
+            <button className="mt-3 text-xs text-gray-500" onClick={() => setOpen(false)}>닫기</button>
           </div>
         </div>
       )}
