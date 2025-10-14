@@ -9,6 +9,10 @@ import { recommendStone } from '@/lib/data/tribesAndStones'
 
 export const dynamic = 'force-dynamic'
 
+// 메모리 캐시 (개발용 - 프로덕션에서는 Redis 등 사용 권장)
+const cache = new Map<string, { data: any; timestamp: number }>()
+const CACHE_DURATION = 30000 // 30초 캐시
+
 // abilities 기반으로 strengths/weaknesses 추출
 function extractStrengthsWeaknesses(abilities: { openness: number; conscientiousness: number; extraversion: number; agreeableness: number; neuroticism: number }) {
   const abilityMap = {
@@ -35,6 +39,16 @@ export async function GET() {
 
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // 캐시 확인
+    const cacheKey = `user_${session.user.email}`
+    const cached = cache.get(cacheKey)
+    const now = Date.now()
+    
+    if (cached && (now - cached.timestamp) < CACHE_DURATION) {
+      console.log('Returning cached data for:', session.user.email)
+      return NextResponse.json(cached.data)
     }
 
     // 사용자 조회 또는 생성
@@ -71,7 +85,7 @@ export async function GET() {
         neuroticism: 20
       })
 
-      return NextResponse.json({
+      const responseData = {
         user: {
           id: user.id,
           name: user.name || session.user.name,
@@ -109,7 +123,11 @@ export async function GET() {
         ...extractStrengthsWeaknesses(defaultHero.abilities),
         genderPreference: 'male',
         hasTestResult: false
-      })
+      }
+
+      // 캐시에 저장
+      cache.set(cacheKey, { data: responseData, timestamp: now })
+      return NextResponse.json(responseData)
     }
 
     // 검사 결과가 있는 경우 DB 데이터 반환
@@ -141,7 +159,7 @@ export async function GET() {
       neuroticism: latestResult.big5_neuroticism
     })
 
-    return NextResponse.json({
+    const responseData = {
       user: {
         id: user.id,
         name: user.name || session.user.name,
@@ -202,7 +220,11 @@ export async function GET() {
       hasTestResult: true,
       testResultId: latestResult.id,
       testDate: latestResult.created_at
-    })
+    }
+
+    // 캐시에 저장
+    cache.set(cacheKey, { data: responseData, timestamp: now })
+    return NextResponse.json(responseData)
 
   } catch (error) {
     console.error('API Error:', error)

@@ -14,6 +14,8 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     try {
+      // 로그아웃 시 캐시 초기화
+      sessionStorage.removeItem('hero_data_cache')
       await signOut({ redirect: false })
       router.push('/')
     } catch (error) {
@@ -22,6 +24,29 @@ export default function DashboardPage() {
   }
 
   const fetchHeroData = useCallback(async () => {
+    // 이미 데이터가 있으면 중복 호출 방지
+    if (heroData) return
+    
+    // sessionStorage에서 캐시된 데이터 확인 (5분 유효)
+    const cacheKey = 'hero_data_cache'
+    const cached = sessionStorage.getItem(cacheKey)
+    if (cached) {
+      try {
+        const { data: cachedData, timestamp } = JSON.parse(cached)
+        const now = Date.now()
+        const CACHE_DURATION = 5 * 60 * 1000 // 5분
+        
+        if (now - timestamp < CACHE_DURATION) {
+          console.log('Using cached hero data')
+          setHeroData(cachedData)
+          setLoading(false)
+          return
+        }
+      } catch (e) {
+        // 캐시 파싱 실패 시 무시하고 새로 요청
+      }
+    }
+    
     try {
       setLoading(true)
       
@@ -34,6 +59,12 @@ export default function DashboardPage() {
       }
 
       const data = await response.json()
+      
+      // sessionStorage에 캐시 저장
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        data,
+        timestamp: Date.now()
+      }))
       setHeroData(data)
     } catch (error) {
       console.error('Error fetching hero data:', error)
@@ -72,7 +103,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false)
     }
-  }, [session])
+  }, [session, heroData])
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -80,10 +111,36 @@ export default function DashboardPage() {
       return
     }
 
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && !heroData) {
       fetchHeroData()
     }
-  }, [status, router, fetchHeroData])
+  }, [status, router, fetchHeroData, heroData])
+
+  // 페이지 포커스 시 불필요한 재요청 방지
+  useEffect(() => {
+    const handleFocus = () => {
+      // 이미 데이터가 있으면 재요청하지 않음
+      if (heroData) {
+        console.log('Page focused, but data already exists - skipping fetch')
+        return
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && heroData) {
+        console.log('Page became visible, but data already exists - skipping fetch')
+        return
+      }
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [heroData])
 
   if (status === 'loading' || loading) {
     return (

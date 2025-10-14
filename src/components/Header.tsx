@@ -32,6 +32,8 @@ export default function Header() {
 
   const handleLogout = async () => {
     try {
+      // 로그아웃 시 캐시 초기화
+      sessionStorage.removeItem('hero_data_cache')
       await signOut({ redirect: false })
       window.location.href = '/'
     } catch (error) {
