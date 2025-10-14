@@ -6,21 +6,7 @@ export default function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        {/* 상단 CTA - /test 페이지에서는 숨김 */}
-        <div className="text-center mb-8 hidden">
-          <h3 className="text-2xl font-bold text-slate-900 mb-2">
-            5분 만에 시작하세요
-          </h3>
-          <p className="text-slate-600 mb-4">
-            지금 바로 무료로 당신의 영웅을 발견하세요
-          </p>
-          <Link 
-            href="/test" 
-            className="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-500 transition font-medium"
-          >
-            검사 시작하기 →
-          </Link>
-        </div>
+        {/* 상단 CTA 제거됨 - StartTestCTA로 대체 */}
 
         {/* 하단 링크 그리드 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-slate-200">
