@@ -10,7 +10,13 @@ export const authOptions: AuthOptions = {
   ],
   session: { strategy: 'jwt' },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  debug: false,
+  debug: process.env.NODE_ENV === 'development',
+  // 로컬 개발 시 강제로 3000 포트 사용
+  url: 'http://localhost:3000',
+  pages: {
+    signIn: '/login',
+    error: '/login',
+  },
   callbacks: {
     async jwt({ token, account, profile }) {
       if (account) {

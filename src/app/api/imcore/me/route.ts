@@ -54,7 +54,9 @@ export async function GET() {
     console.log('User found/created:', user.id)
 
     // 최신 검사 결과 조회
+    console.log('Fetching latest test result for user:', user.id)
     const latestResult = await getLatestTestResult(user.id, 'imcore')
+    console.log('Latest test result:', latestResult ? 'Found' : 'Not found')
 
     // 검사 결과가 없는 경우 기본값 반환
     if (!latestResult) {
@@ -111,7 +113,25 @@ export async function GET() {
     }
 
     // 검사 결과가 있는 경우 DB 데이터 반환
-    const hero = HEROES_144.find(h => h.id === latestResult.hero_id) || HEROES_144[0]
+    console.log('Using saved test result:', {
+      mbti: latestResult.mbti_type,
+      reti: latestResult.reti_top1,
+      hero: latestResult.hero_name,
+      birthDate: latestResult.birth_date
+    })
+    
+    // 영웅 매칭 (MBTI + RETI 조합으로 정확한 매칭)
+    const hero = HEROES_144.find(h => 
+      h.mbti === latestResult.mbti_type && 
+      h.reti === latestResult.reti_top1.replace('r', '')
+    ) || HEROES_144[0]
+    
+    console.log('Hero matching:', {
+      savedMBTI: latestResult.mbti_type,
+      savedRETI: latestResult.reti_top1,
+      foundHero: hero ? `${hero.mbti}-${hero.reti}` : 'Not found',
+      heroName: hero?.name
+    })
     const tribe = getTribeFromBirthDate(latestResult.birth_date || '1990-01-01')
     const stone = recommendStone({
       openness: latestResult.big5_openness,

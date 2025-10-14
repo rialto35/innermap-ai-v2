@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 
 interface NavLink {
   href: string
@@ -29,6 +29,15 @@ export default function Header() {
   const { data: session } = useSession()
 
   const isActive = (path: string) => pathname === path
+
+  const handleLogout = async () => {
+    try {
+      await signOut({ redirect: false })
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
 
   const renderLinks = (links: NavLink[], variant: 'primary' | 'secondary' = 'primary') => (
     links.map(link => (
@@ -72,12 +81,20 @@ export default function Header() {
         {/* CTA 버튼 */}
         <div className="hidden md:flex items-center gap-3">
           {session ? (
-            <Link
-              href="/mypage"
-              className="rounded-full border border-white/15 px-5 py-2 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
-            >
-              마이페이지
-            </Link>
+            <>
+              <Link
+                href="/mypage"
+                className="rounded-full border border-white/15 px-5 py-2 text-sm font-medium text-white/80 transition hover:border-white/25 hover:text-white"
+              >
+                마이페이지
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="rounded-full border border-red-400/30 px-4 py-2 text-sm font-medium text-red-400 transition hover:border-red-300/50 hover:text-red-300"
+              >
+                로그아웃
+              </button>
+            </>
           ) : (
             <Link
               href="/login"
@@ -122,13 +139,34 @@ export default function Header() {
             ))}
 
             <div className="mt-3 flex flex-col gap-2">
-              <Link
-                href={session ? '/mypage' : '/login'}
-                className="rounded-xl border border-white/10 px-4 py-3 text-center text-sm font-medium text-white/80 transition hover:border-white/20 hover:text-white"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {session ? '마이페이지' : '로그인'}
-              </Link>
+              {session ? (
+                <>
+                  <Link
+                    href="/mypage"
+                    className="rounded-xl border border-white/10 px-4 py-3 text-center text-sm font-medium text-white/80 transition hover:border-white/20 hover:text-white"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    마이페이지
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false)
+                      handleLogout()
+                    }}
+                    className="rounded-xl border border-red-400/30 px-4 py-3 text-center text-sm font-medium text-red-400 transition hover:border-red-300/50 hover:text-red-300"
+                  >
+                    로그아웃
+                  </button>
+                </>
+              ) : (
+                <Link
+                  href="/login"
+                  className="rounded-xl border border-white/10 px-4 py-3 text-center text-sm font-medium text-white/80 transition hover:border-white/20 hover:text-white"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  로그인
+                </Link>
+              )}
               <Link
                 href="/test"
                 className="rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:scale-[1.01]"

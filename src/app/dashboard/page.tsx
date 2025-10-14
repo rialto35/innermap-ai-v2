@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import HeroGrowthCard from "@/components/HeroGrowthCard"
 import Big5RadarChart from "@/components/Big5RadarChart"
@@ -11,6 +11,15 @@ export default function DashboardPage() {
   const router = useRouter()
   const [heroData, setHeroData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+
+  const handleLogout = async () => {
+    try {
+      await signOut({ redirect: false })
+      router.push('/')
+    } catch (error) {
+      console.error('Logout error:', error)
+    }
+  }
 
   const fetchHeroData = useCallback(async () => {
     try {
@@ -121,7 +130,15 @@ export default function DashboardPage() {
         
         {/* 우측 사이드: 최근 활동 */}
         <div className="rounded-2xl bg-zinc-900/80 border border-zinc-800 p-5">
-          <h3 className="text-lg font-semibold text-white mb-4">최근 활동</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">최근 활동</h3>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 text-xs text-red-400 hover:text-red-300 border border-red-400/30 hover:border-red-300/50 rounded-lg transition"
+            >
+              로그아웃
+            </button>
+          </div>
           <div className="space-y-3 text-sm text-white/70">
             {heroData.hasTestResult ? (
               <>

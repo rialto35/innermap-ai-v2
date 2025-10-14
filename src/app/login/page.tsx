@@ -3,18 +3,53 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { signIn, useSession } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const { status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // URL 파라미터에서 에러 확인
+  useEffect(() => {
+    const urlError = searchParams.get('error')
+    if (urlError) {
+      switch (urlError) {
+        case 'OAuthCallback':
+          setError('Google 로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.')
+          break
+        case 'Configuration':
+          setError('서버 설정 오류입니다. 관리자에게 문의해주세요.')
+          break
+        case 'AccessDenied':
+          setError('로그인이 취소되었습니다.')
+          break
+        default:
+          setError('로그인 중 오류가 발생했습니다.')
+      }
+    }
+  }, [searchParams])
 
   useEffect(() => {
     if (status === 'authenticated') router.replace('/mypage')
   }, [status, router])
+
+  const handleGoogleLogin = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      await signIn('google', { callbackUrl: '/mypage' })
+    } catch (err) {
+      setError('Google 로그인 중 오류가 발생했습니다.')
+      console.error('Google login error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -72,12 +107,20 @@ export default function LoginPage() {
           <div className="h-px flex-1 bg-white/10" />
         </div>
 
+        {/* 오류 메시지 표시 */}
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-500/50 bg-red-500/10 p-3 text-sm text-red-300">
+            {error}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-3">
           <button
-            onClick={() => signIn('google', { callbackUrl: '/mypage' })}
-            className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/15"
+            onClick={handleGoogleLogin}
+            disabled={loading}
+            className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-sm font-medium text-white/80 transition hover:bg-white/15 disabled:opacity-60"
           >
-            Google로 계속하기
+            {loading ? '로그인 중...' : 'Google로 계속하기'}
           </button>
           <button 
             onClick={() => {

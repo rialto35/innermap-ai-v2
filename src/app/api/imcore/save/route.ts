@@ -51,6 +51,8 @@ export async function POST(request: NextRequest) {
     }
 
     // 검사 결과 저장
+    console.log('Saving test result for user:', user.id)
+    console.log('Test data:', { mbtiType, retiTop1, hero: hero.name })
     const result = await saveTestResult({
       userId: user.id,
       testType: 'imcore',
@@ -71,8 +73,11 @@ export async function POST(request: NextRequest) {
     })
 
     if (!result) {
+      console.error('Failed to save test result - result is null')
       return NextResponse.json({ error: 'Failed to save test result' }, { status: 500 })
     }
+    
+    console.log('Test result saved successfully:', result.id)
 
     // 경험치 추가 (검사 완료 시 100 exp)
     const expResult = await updateUserExp(user.id, 100)
