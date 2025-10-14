@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 const valid = new Set(["quick","deep"]);
-export default function Page({params}:{params:{mode:string}}){
-  if(!valid.has(params.mode)) return notFound();
-  const meta = params.mode==="quick"
+export default async function Page({params}:{params:Promise<{mode:string}>}){
+  const {mode} = await params;
+  if(!valid.has(mode)) return notFound();
+  const meta = mode==="quick"
     ? {title:"QuickMap (퀵맵)", sub:"예상 3–5분 · Fast Insight"}
     : {title:"DeepMap (딥맵)", sub:"예상 10–12분 · Full Spectrum Analysis"};
   return <main className="max-w-3xl mx-auto py-10">
