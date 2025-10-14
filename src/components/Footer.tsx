@@ -6,8 +6,8 @@ export default function Footer() {
   return (
     <footer className="border-t border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
       <div className="mx-auto max-w-6xl px-4 py-8">
-        {/* 상단 CTA */}
-        <div className="text-center mb-8">
+        {/* 상단 CTA - /test 페이지에서는 숨김 */}
+        <div className="text-center mb-8 hidden">
           <h3 className="text-2xl font-bold text-slate-900 mb-2">
             5분 만에 시작하세요
           </h3>
