@@ -1,57 +1,104 @@
+"use client";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useQuestionFlow } from "@/hooks/useQuestionFlow";
+import QuestionFrame from "@/components/analysis/QuestionFrame";
+import ProgressBar from "@/components/analysis/ProgressBar";
+import Likert7 from "@/components/analysis/controls/Likert7";
+import BottomNav from "@/components/analysis/BottomNav";
 import { MODE_COPY } from "@/lib/analysis/copy";
 
-const valid = new Set(["quick","deep"]);
+const valid = new Set(["quick", "deep"]);
 
-export default async function StartPage({ params }: { params: Promise<{ mode: string }> }) {
-  const { mode } = await params;
-  
-  if (!valid.has(mode)) {
+export default function StartPage({ params }: { params: Promise<{ mode: string }> }) {
+  const [mode, setMode] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Always call hooks at the top level
+  const quickFlow = useQuestionFlow("quick");
+  const deepFlow = useQuestionFlow("deep");
+
+  useEffect(() => {
+    params.then(({ mode: resolvedMode }) => {
+      if (!valid.has(resolvedMode)) {
+        setIsLoading(false);
+        return;
+      }
+      setMode(resolvedMode);
+      setIsLoading(false);
+    });
+  }, [params]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 text-white flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!mode || !valid.has(mode)) {
     return notFound();
   }
 
   const copy = MODE_COPY[mode as "quick" | "deep"];
+  const flow = mode === "quick" ? quickFlow : deepFlow;
+
+  if (!flow.currentItem) {
+    return (
+      <QuestionFrame
+        title={copy.title}
+        subtitle="문항을 불러오는 중입니다..."
+      >
+        <div className="text-center py-8">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-sm text-gray-500">
+            잠시만 기다려 주세요...
+          </p>
+        </div>
+      </QuestionFrame>
+    );
+  }
+
+  const currentAnswer = flow.state.answers[flow.currentItem.id]?.value as number | undefined;
 
   return (
-    <div className="min-h-screen bg-white">
-      <div className="max-w-5xl mx-auto px-4 md:px-6 py-10 md:py-14">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">
-            {copy.title} 진행 준비 중입니다.
-          </h1>
-          <p className="text-lg text-gray-600 mb-8">
-            곧 검사를 시작할 수 있습니다.
+    <QuestionFrame
+      title={copy.title}
+      subtitle={copy.subtitle}
+      meta={copy.meta}
+      footer={
+        <BottomNav
+          canPrev={flow.canPrev}
+          canNext={flow.canNext}
+          canSubmit={flow.canSubmit}
+          onPrev={flow.prev}
+          onNext={flow.next}
+          onSubmit={flow.submit}
+        />
+      }
+    >
+      <ProgressBar 
+        percent={flow.percent}
+        label={`문항 ${flow.state.index + 1} / ${flow.state.total}`}
+      />
+
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+            {flow.currentItem.stem}
+          </h2>
+          <p className="text-sm text-gray-500 mb-2">
+            문항 데이터는 추후 연결됩니다.
           </p>
-          
-          <div className="bg-gray-50 rounded-2xl p-8 mb-8">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-sm text-gray-500 mb-4">
-              시스템을 준비하고 있습니다...
-            </p>
-            <p className="text-xs text-gray-400">
-              현재 개발 중인 기능입니다. 곧 출시될 예정입니다.
-            </p>
-          </div>
-          
-          <div className="space-y-4">
-            <Link
-              href={`/test/${mode}`}
-              className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium"
-            >
-              ← {copy.title} 소개로 돌아가기
-            </Link>
-            <div className="pt-4">
-              <Link
-                href="/"
-                className="inline-flex items-center text-gray-500 hover:text-gray-700 text-sm"
-              >
-                ← 홈으로 돌아가기
-              </Link>
-            </div>
-          </div>
         </div>
+
+        <Likert7
+          value={currentAnswer}
+          onChange={flow.answer}
+          labels={flow.currentItem.choices}
+        />
       </div>
-    </div>
+    </QuestionFrame>
   );
 }
