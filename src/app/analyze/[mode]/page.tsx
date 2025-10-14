@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
-export default function OldAnalyzeMode({ params }: { params: { mode: string } }) {
-  redirect(`/test/${params.mode}`);
+export default async function OldAnalyzeMode({ params }: { params: Promise<{ mode: string }> }) {
+  const { mode } = await params;
+  redirect(`/test/${mode}`);
 }
