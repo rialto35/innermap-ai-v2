@@ -76,19 +76,33 @@ export default function ResultPage({ params }: PageProps) {
 
   if (error || !result) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-        <div className="text-center">
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center px-4">
+        <div className="text-center max-w-md">
           <div className="text-6xl mb-4">😕</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
             결과를 찾을 수 없습니다
           </h2>
-          <p className="text-gray-600 mb-6">{error}</p>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
-          >
-            대시보드로 돌아가기
-          </button>
+          <p className="text-gray-600 mb-2">{error}</p>
+          <p className="text-sm text-gray-500 mb-6">
+            검사 ID: {id}
+          </p>
+          <div className="space-y-3">
+            <button
+              onClick={() => router.push('/dashboard')}
+              className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+            >
+              대시보드로 돌아가기
+            </button>
+            <button
+              onClick={() => router.push('/analyze')}
+              className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
+            >
+              새로운 검사 시작하기
+            </button>
+          </div>
+          <p className="text-xs text-gray-400 mt-4">
+            💡 검사를 완료하지 않았거나, 결과가 아직 처리 중일 수 있습니다.
+          </p>
         </div>
       </div>
     );

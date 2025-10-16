@@ -32,19 +32,19 @@ export default function DashboardPage() {
     const cached = sessionStorage.getItem(cacheKey)
     if (cached) {
       try {
-        const { data: cachedData, timestamp } = JSON.parse(cached)
-        const now = Date.now()
-        const CACHE_DURATION = 5 * 60 * 1000 // 5분
-        
-        if (now - timestamp < CACHE_DURATION) {
-          console.log('Using cached hero data')
-          setHeroData(cachedData)
-          setLoading(false)
-          return
-        }
-      } catch {
-        // 캐시 파싱 실패 시 무시하고 새로 요청
+      const { data: cachedData, timestamp } = JSON.parse(cached)
+      const now = Date.now()
+      const CACHE_DURATION = 5 * 60 * 1000 // 5분
+      
+      if (now - timestamp < CACHE_DURATION) {
+        console.log('Using cached hero data, testResultId:', cachedData.testResultId)
+        setHeroData(cachedData)
+        setLoading(false)
+        return
       }
+    } catch {
+      // 캐시 파싱 실패 시 무시하고 새로 요청
+    }
     }
     
     try {
