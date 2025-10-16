@@ -174,13 +174,19 @@ export default function AnalyzePage() {
       }
       
       const result = await response.json();
+      console.log('Save result:', result);
       
       // Mark complete and clear draft
       complete();
       
-      // Redirect to dashboard (결과는 마이페이지에서 확인)
-      alert('검사가 완료되었습니다! 마이페이지에서 결과를 확인하세요.');
-      router.push('/dashboard');
+      // Redirect to result page directly
+      if (result.resultId) {
+        router.push(`/results/${result.resultId}`);
+      } else {
+        // Fallback to dashboard if no resultId
+        alert('검사가 완료되었습니다! 마이페이지에서 결과를 확인하세요.');
+        router.push('/dashboard');
+      }
       
     } catch (error) {
       console.error('Submit error:', error);
