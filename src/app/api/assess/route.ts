@@ -70,15 +70,15 @@ export async function POST(request: NextRequest) {
             userId: existingResult.user_id,
             assessmentId: existingResult.assessment_id,
             engineVersion: existingResult.engine_version,
-            big5: existingResult.big5_scores,
-            mbti: existingResult.mbti_scores,
-            reti: existingResult.reti_scores,
-            tribe: existingResult.tribe,
-            stone: existingResult.stone,
-            hero: existingResult.hero,
+            big5: existingResult.big5_scores as any,
+            mbti: existingResult.mbti_scores as any,
+            reti: existingResult.reti_scores as any,
+            tribe: existingResult.tribe as any,
+            stone: existingResult.stone as any,
+            hero: existingResult.hero as any,
             createdAt: existingResult.created_at
           }
-        } as AssessResponse);
+        });
       }
     }
 
