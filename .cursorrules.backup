@@ -1,0 +1,248 @@
+
+# 🧠 CURSOR_RULES.md — PromptCore Universal Development Standard
+
+## 0. Mission Statement
+모든 PromptCore 산하 프로젝트(예: Blogine, InnerMap, BidWatch)는 다음 세 가지 원칙으로 개발한다:
+1. **가독성**: 코드보다 맥락이 먼저, 맥락보다 목적이 먼저.
+2. **안정성**: 기능 추가보다 일관된 규칙 유지.
+3. **자동화**: 사람이 반복하지 않는다 — 규칙과 에이전트가 한다.
+
+---
+
+## 1. Project Manifest
+| 항목 | 값 |
+|------|------|
+| 언어 | TypeScript / Python |
+| 프레임워크 | Next.js 15, Flask 3.x |
+| UI | TailwindCSS 3.4, shadcn/ui, Framer Motion |
+| DB | Supabase / PostgreSQL |
+| AI | GPT-5 / Claude / CrewAI / OpenRouter |
+| Infra | Vercel (Front), Railway (Back), Supabase (DB), Notion (Docs) |
+| 버전관리 | GitHub + Cursor Rules 기반 체계적 Commit |
+| 배포 | CI/CD 자동화 (Vercel Preview → Promote to Production) |
+
+---
+
+## 2. Folder Map (권장 구조)
+project/
+├─ app/ # Next.js app router (routes)
+│ ├─ test/ # InnerMap 검사 흐름
+│ ├─ r/[sessionId]/ # 결과 페이지
+│ ├─ me/ # 마이페이지 / 로그인 필요
+│ └─ api/ # 서버 routes
+├─ components/ # 재사용 UI
+├─ lib/ # core logic (im-core, prompt-engine 등)
+├─ supabase/ # SQL 및 migrations
+├─ scripts/ # CLI / seed / automation
+├─ public/ # 정적 리소스
+├─ styles/ # globals.css, theme.css
+└─ cursor/ # rules, scaffolds, agents
+
+yaml
+코드 복사
+
+---
+
+## 3. Core Development Rules
+### 3.1 코딩 규칙
+- TypeScript strict 모드 유지 (`"strict": true`)
+- any 금지, interface 대신 type alias 우선
+- 파일 하나당 300줄 이하
+- CSS 색상은 **CSS 변수(--pc-*)**만 사용
+- dynamic import 시 반드시 `{ ssr: false }`
+- console.log 금지 (logger 사용)
+- 함수/컴포넌트명: PascalCase, 파일명: kebab-case
+
+### 3.2 UI / UX
+- Tailwind는 class 6줄 이상 시 `cn()`으로 압축
+- a11y: 버튼에는 `role` / `aria-label` 필수
+- prefers-reduced-motion 미디어쿼리 존중
+- OG 이미지: `/r/[id]` 및 `/me` 공유 시 자동 생성
+
+### 3.3 보안 규칙
+- API 키는 `.env` 외 노출 금지
+- 클라이언트 번들 내 secret 노출 금지
+- DB 마이그레이션 시 파괴적 변경 금지
+- RLS (Row Level Security) 무조건 활성화
+- Rate limit 삭제 금지
+- 개인정보(PII) 콘솔 출력 금지
+
+---
+
+## 4. Step Template (작업 단위)
+모든 에이전트/개발자는 아래 구조로 작업한다.
+
+Goal
+한 문장으로 정의된 작업 목표
+
+Tasks
+ 세부 작업 1
+
+ 세부 작업 2
+
+Rules
+반드시 Cursor Rules와 일치
+
+금지 항목 위반 금지
+
+변경 전후 DoD 기록
+
+DoD (Definition of Done)
+npm run typecheck:ci
+
+npm run build
+
+npm run tree:ci
+(SENTINEL 로그 3개 반드시 첨부)
+
+yaml
+코드 복사
+
+---
+
+## 5. Prohibited
+- 라우트 구조 변경 (`/test`, `/r/[id]`, `/me` 유지)
+- 하드코딩된 비밀키, 절대경로
+- 대규모 포맷/패키지 업그레이드
+- any / unknown 남용
+- 파괴적 DB 변경
+- AI 프롬프트 삭제
+- Tailwind 색상 직코딩
+
+---
+
+## 6. Commit & Release
+- Conventional Commits 규칙 적용:
+  - feat: 새로운 기능  
+  - fix: 버그 수정  
+  - chore: 설정, 의존성 변경  
+  - refactor: 리팩터링  
+  - docs: 문서 수정  
+  - test: 테스트 코드 추가  
+- 버전 태그: `vX.Y.Z` (SemVer)
+- 배포: Vercel → Promote to Production
+- 롤백: `git revert <bad>..HEAD`
+
+---
+
+## 7. Verification & QA
+- `npm run lint && npm run typecheck:ci`
+- `npm run build`
+- `npm run preview`
+- e2e 테스트: Playwright / Cypress
+- Lighthouse 접근성 점수 ≥ 90
+- SEO 메타 자동 생성 확인
+
+---
+
+## 8. Data & AI
+- 모든 AI 프롬프트는 `/lib/ai/`에 JSON 스키마로 관리  
+- 예시:
+lib/ai/prompts/
+├─ blogine.json
+├─ innermap.json
+└─ bidwatch.json
+
+diff
+코드 복사
+- CrewAI / LangChain 설정 시 Agent별 역할 정의서 포함:
+agents/
+├─ WriterAgent.ts
+├─ EditorAgent.ts
+├─ ProofreaderAgent.ts
+└─ ComplianceAgent.ts
+
+yaml
+코드 복사
+- 프롬프트 버전은 `prompt_version` 컬럼으로 DB 기록
+
+---
+
+## 9. Documentation & Sync
+- 모든 주요 변경사항은 Notion 자동 기록:
+- Integration Token: `NTN_***`
+- Database ID: `232f66bb196980e6953f000cc89f6fc8`
+- Docs 저장 경로:
+docs/
+├─ rules/
+├─ roadmap/
+├─ changelog/
+└─ release-notes/
+
+yaml
+코드 복사
+- 매 커밋마다 “Change Summary” 자동 푸시
+- 마이그레이션은 SQL + 문서 병행
+
+---
+
+## 10. Rollback & Recovery
+| 상황 | 조치 |
+|------|------|
+| Vercel 오류 | Deployments → Ready → Promote |
+| Git 오류 | `git revert` or `git reset --hard` |
+| DB 오류 | `supabase migration:down` |
+| Env 오염 | `.env` 백업 복원 |
+| 프롬프트 오작동 | `/lib/ai/prompts` 버전 롤백 |
+
+---
+
+## 11. Success Metrics
+| 항목 | 기준 |
+|------|------|
+| 빌드 성공률 | 100% |
+| 접근성 점수 | ≥ 90 |
+| AI 품질 점수 | ≥ 80/100 |
+| 배포 시간 | ≤ 2분 |
+| 오류 복구 | ≤ 5분 |
+| 자동 기록 누락 | 0건 |
+
+---
+
+## 12. Eternal Rules (절대 원칙)
+1. 목표 없는 코드 금지  
+2. 주석보다 명확한 함수명  
+3. 테스트 없는 배포 금지  
+4. 가드레일은 귀찮을수록 필수  
+5. 다롱이는 항상 문서부터 쓴다  
+
+SENTINEL ✅ typecheck passed
+SENTINEL ✅ build passed
+SENTINEL ✅ project tree consistent
+
+yaml
+코드 복사
+
+---
+
+> ✨ 이 문서는 PromptCore, InnerMap, Blogine, BidWatch 등 모든 제품의 **개발憲法(헌법)**이다.
+> 규칙이 모호할 때는 ‘안전성 > 생산성 > 속도’ 순으로 판단한다.
+
+
+
+
+# InnerMap AI v2 — Cursor Rules (Master)
+You are a senior full-stack engineer on Next.js 14 + TypeScript + Tailwind + NextAuth + Supabase.
+
+## ✅ DO
+- Minimal diffs, small reviewable commits, ask before risky changes.
+- Keep charts lib (recharts@^2) if used; charts are client-only via dynamic import (ssr:false) with fixed-height wrappers.
+- PostCSS minimal: tailwindcss + autoprefixer only.
+- Add routes /analyze, /analyze/[mode] (skeleton), StartTestCTA dialog on "검사 시작".
+- Use :ci scripts that print a SENTINEL line and exit with proper code.
+
+## 🚫 DO NOT
+- Do NOT run `npm audit fix --force`.
+- Do NOT remove/replace recharts or core configs without approval.
+- Do NOT rename/delete layout/config/env keys.
+- Do NOT run long-lived servers in the same step as checks.
+
+## Conventions
+- ko-KR primary, en-US secondary labels.
+- Version flag (placeholder): ANALYSIS_VERSION=v1.0
+- Folders: /scripts, /src/components, /app/analyze, /docs
+- Definition of Done: build passes, :ci outputs SENTINEL, feature visible in UI.
+
+## Logging/Completion
+- For checks (typecheck/lint/tree), always run npm scripts ending with :ci.
+- Print `<<<CURSOR_SENTINEL>>> {"ok":...}` on success/fail and exit with real code.

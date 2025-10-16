@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 // 화면 캡처 후 PDF 생성 (한글 지원)
-export async function generatePDF(analysisData, testResults) {
+export async function generatePDF() {
   try {
     // 분석 결과 화면 요소 찾기
     const element = document.querySelector('.max-w-4xl'); // AnalysisResult 메인 컨테이너

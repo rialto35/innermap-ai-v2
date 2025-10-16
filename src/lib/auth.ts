@@ -10,7 +10,7 @@ export const authOptions: AuthOptions = {
   ],
   session: { strategy: 'jwt' },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: false, // 보안상 debug 비활성화 (clientSecret 로그 노출 방지)
   pages: {
     signIn: '/login',
     error: '/login',

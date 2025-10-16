@@ -75,7 +75,7 @@ export default function AnalysisResult({ testResults, onReset }: AnalysisResultP
     try {
       setLoading(true);
       
-      const pdfResult = await generatePDF(analysis, testResults);
+      const pdfResult = await generatePDF();
       
       if (pdfResult.success) {
         console.log('PDF 다운로드 완료:', pdfResult.fileName);

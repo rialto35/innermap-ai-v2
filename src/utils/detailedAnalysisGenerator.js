@@ -21,7 +21,7 @@ function generateHeroName(mbtiData, retiData, color1Data) {
 
 // 고품질 분석 결과 생성 함수
 export function generateDetailedAnalysis(userData) {
-  const { mbti, reti, colors, name = "사용자" } = userData;
+  const { mbti, reti, colors, name: _name = "사용자" } = userData;
   
   // 기본 데이터 가져오기
   const mbtiData = detailedMBTIAnalysis[mbti] || detailedMBTIAnalysis["INFP"];
@@ -176,7 +176,7 @@ function generateColorAnalysis(color1Data, color2Data, color3Data) {
 }
 
 // 5단계: 144영웅 세계관 분석 생성
-function generateHeroWorldView(hero, mbtiData, retiData) {
+function generateHeroWorldView(hero) {
   const continent = heroWorldView.continents[hero.element] || "미지의 대륙";
   const level = "숙련자"; // 기본 레벨
   const powers = hero.powers.slice(0, 3); // 최대 3개 능력
@@ -199,7 +199,7 @@ function generateHeroWorldView(hero, mbtiData, retiData) {
 }
 
 // 6단계: 종합 분석 생성
-function generateComprehensiveAnalysis(name, mbtiData, retiData, color1Data, color2Data, color3Data) {
+function generateComprehensiveAnalysis(name, mbtiData, retiData, color1Data, color2Data) {
   try {
     // 안전한 데이터 처리 (완전한 옵셔널 체이닝)
     const mbtiTrait = Array.isArray(mbtiData?.coreTraits) ? mbtiData.coreTraits[0] : (mbtiData?.koreanName || mbtiData?.name || '기본 MBTI');

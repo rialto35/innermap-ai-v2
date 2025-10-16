@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { findOrCreateUser } from '@/lib/db/users'
 import { getLatestTestResult } from '@/lib/db/testResults'
-import { selectHero, HEROES_144 } from '@/lib/data/heroes144'
+import { HEROES_144 } from '@/lib/data/heroes144'
 import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
 
@@ -24,8 +24,8 @@ function extractStrengthsWeaknesses(abilities: { openness: number; conscientious
   }
   
   const entries = Object.entries(abilities)
-  const strengths = entries.filter(([_, v]) => v >= 70).map(([k]) => abilityMap[k as keyof typeof abilityMap])
-  const weaknesses = entries.filter(([_, v]) => v <= 30).map(([k]) => abilityMap[k as keyof typeof abilityMap])
+  const strengths = entries.filter(([, v]) => v >= 70).map(([k]) => abilityMap[k as keyof typeof abilityMap])
+  const weaknesses = entries.filter(([, v]) => v <= 30).map(([k]) => abilityMap[k as keyof typeof abilityMap])
   
   return {
     strengths: strengths.length > 0 ? strengths : ['균형잡힌 성향'],

@@ -5,7 +5,7 @@ import HeroImage from "./HeroImage"
 export default function HeroGrowthCard({ 
   hero, 
   gem, 
-  tribe, 
+  tribe: _tribe, 
   growth, 
   strengths, 
   weaknesses,
