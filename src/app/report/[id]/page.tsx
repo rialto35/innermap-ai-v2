@@ -1,77 +1,37 @@
 /**
  * /report/[id]
  * 
- * Deep Report Page
- * - Shows report status (queued/running/ready/failed)
- * - Displays narrative + visualizations when ready
- * - Share link & download options
+ * Deep Report Page (Temporary Redirect)
+ * TODO M2: Implement async report generation
  */
 
-import { Suspense } from 'react';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function ReportPage({ params }: PageProps) {
-  const { id } = await params;
-  
-  return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-5xl mx-auto px-4 py-12">
-        <Suspense fallback={<ReportSkeleton />}>
-          <ReportContent reportId={id} />
-        </Suspense>
-      </div>
-    </div>
-  );
-}
+export default function ReportPage({ params }: PageProps) {
+  const router = useRouter();
 
-async function ReportContent({ reportId }: { reportId: string }) {
-  // TODO M2: Fetch report from API
-  // const report = await fetchReport(reportId);
-  
-  return (
-    <div className="space-y-8">
-      <header className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          Deep Report
-        </h1>
-        <p className="text-gray-600">
-          Report ID: {reportId}
-        </p>
-      </header>
-      
-      {/* TODO: Add status badge */}
-      <div className="bg-white rounded-2xl shadow-lg p-8">
-        <div className="flex items-center justify-center space-x-3">
-          <div className="h-3 w-3 bg-yellow-500 rounded-full animate-pulse"></div>
-          <p className="text-gray-700 font-medium">
-            Generating your personalized report...
-          </p>
-        </div>
-        <p className="text-gray-500 text-center mt-4 text-sm">
-          This usually takes 30-60 seconds
-        </p>
-      </div>
-      
-      {/* TODO M2: Add narrative, visuals, share/download */}
-      <div className="bg-white rounded-2xl shadow-lg p-8">
-        <p className="text-gray-500 text-center">
-          Report display coming in M2 (Sprint 2)
-        </p>
-      </div>
-    </div>
-  );
-}
+  useEffect(() => {
+    // 임시로 결과 페이지로 리다이렉트
+    // TODO M2: API로 리포트 상태 확인 후 표시
+    params.then(({ id }) => {
+      router.replace(`/results/${id}`);
+    });
+  }, [router, params]);
 
-function ReportSkeleton() {
   return (
-    <div className="space-y-8 animate-pulse">
-      <div className="h-32 bg-gray-200 rounded-2xl"></div>
-      <div className="h-64 bg-gray-200 rounded-2xl"></div>
-      <div className="h-96 bg-gray-200 rounded-2xl"></div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
+        <p className="text-gray-600">결과 페이지로 이동 중...</p>
+        <p className="text-gray-400 text-sm mt-2">심층 리포트는 M2에서 제공됩니다</p>
+      </div>
     </div>
   );
 }
