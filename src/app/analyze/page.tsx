@@ -118,21 +118,59 @@ export default function AnalyzePage() {
     setIsSubmitting(true);
     
     try {
-      // Transform answers
+      // Transform answers for scoring
       const transformed = transformAnswers(answers);
+      const big5Preview = getBig5Preview(answers);
+      const mbtiPreview = getMBTIPreview(answers);
       
-      // Submit to API
-      const response = await fetch('/api/assess', {
+      // TODO: 실제 RETI, 성장 벡터 계산
+      // 임시로 기본값 사용
+      const payload = {
+        name: session?.user?.name || '사용자',
+        birthDate: null,
+        genderPreference: 'male',
+        mbtiType: mbtiPreview,
+        mbtiConfidence: { EI: 0.7, SN: 0.7, TF: 0.7, JP: 0.7 },
+        retiTop1: 'r7',
+        retiTop2: null,
+        retiScores: { r1: 0, r2: 0, r3: 0, r4: 0, r5: 0, r6: 0, r7: 1.0, r8: 0, r9: 0 },
+        big5: {
+          openness: big5Preview.openness,
+          conscientiousness: big5Preview.conscientiousness,
+          extraversion: big5Preview.extraversion,
+          agreeableness: big5Preview.agreeableness,
+          neuroticism: big5Preview.neuroticism
+        },
+        growth: {
+          innate: 50,
+          acquired: 50,
+          conscious: 50,
+          unconscious: 50,
+          growth: 50,
+          stability: 50,
+          harmony: 50,
+          individual: 50
+        },
+        hero: {
+          name: '탐험가',
+          id: `${mbtiPreview.toLowerCase()}-r7`
+        },
+        tribe: null,
+        stone: null,
+        rawScores: transformed
+      };
+      
+      // Submit to existing API
+      const response = await fetch('/api/imcore/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          answers: transformed.answers,
-          testType: 'full'
-        })
+        body: JSON.stringify(payload)
       });
       
       if (!response.ok) {
-        throw new Error('Failed to submit assessment');
+        const error = await response.json();
+        console.error('API Error:', error);
+        throw new Error(error.error || 'Failed to submit assessment');
       }
       
       const result = await response.json();
@@ -140,8 +178,9 @@ export default function AnalyzePage() {
       // Mark complete and clear draft
       complete();
       
-      // Redirect to result
-      router.push(`/results/${result.resultId}`);
+      // Redirect to dashboard (결과는 마이페이지에서 확인)
+      alert('검사가 완료되었습니다! 마이페이지에서 결과를 확인하세요.');
+      router.push('/dashboard');
       
     } catch (error) {
       console.error('Submit error:', error);
