@@ -187,7 +187,7 @@ export default function AnalyzePage() {
             </AnimatePresence>
             
             {/* Navigation Buttons */}
-            <div className="flex justify-between mt-8">
+            <div className="flex justify-between items-center mt-8">
               <button
                 onClick={prev}
                 disabled={index === 0}
@@ -195,6 +195,23 @@ export default function AnalyzePage() {
               >
                 ← 이전
               </button>
+              
+              {/* 미답변 문항 알림 (마지막 문항이고 완료되지 않았을 때) */}
+              {index === questions.length - 1 && !checkComplete() && (
+                <button
+                  onClick={() => {
+                    // 첫 번째 미답변 문항으로 이동
+                    const firstUnanswered = questions.findIndex(q => !answers[q.id]);
+                    if (firstUnanswered !== -1) {
+                      const store = useAnalyzeStore.getState();
+                      store.jump(firstUnanswered);
+                    }
+                  }}
+                  className="px-6 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 animate-pulse"
+                >
+                  📝 미답변 문항으로 이동 ({answeredCount}/{questions.length})
+                </button>
+              )}
               
               <button
                 onClick={handleNext}
@@ -206,7 +223,7 @@ export default function AnalyzePage() {
                 className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {index === questions.length - 1 ? (
-                  isSubmitting ? '제출 중...' : `제출하기 → (${answeredCount}/${questions.length})`
+                  isSubmitting ? '제출 중...' : `제출하기 →`
                 ) : (
                   '다음 →'
                 )}
