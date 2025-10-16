@@ -51,7 +51,7 @@ export default function StartTestCTA() {
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               <h2 className="text-lg font-semibold">분석 모드를 선택하세요</h2>
               <p className="text-sm text-gray-500 mt-1">

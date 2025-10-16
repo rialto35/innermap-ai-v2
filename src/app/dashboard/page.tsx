@@ -42,7 +42,7 @@ export default function DashboardPage() {
           setLoading(false)
           return
         }
-      } catch (e) {
+      } catch {
         // 캐시 파싱 실패 시 무시하고 새로 요청
       }
     }

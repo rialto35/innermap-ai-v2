@@ -40,17 +40,34 @@ function checkEnvFile() {
 }
 
 function checkEnvVars() {
+  // .env.local 파일 읽기
+  const envFiles = ['.env.local', '.env'];
+  let envContent = '';
+  
+  for (const file of envFiles) {
+    const path = join(process.cwd(), file);
+    if (existsSync(path)) {
+      envContent = readFileSync(path, 'utf-8');
+      break;
+    }
+  }
+  
   const missing = [];
   const warnings = [];
   
   for (const envVar of requiredEnvVars) {
-    if (!process.env[envVar]) {
+    // 파일 내용에서 환경 변수 찾기 (빈 값도 체크)
+    const regex = new RegExp(`^${envVar}=(.+)$`, 'm');
+    const match = envContent.match(regex);
+    if (!match || !match[1] || match[1].trim() === '') {
       missing.push(envVar);
     }
   }
   
   for (const envVar of optionalEnvVars) {
-    if (!process.env[envVar]) {
+    const regex = new RegExp(`^${envVar}=(.+)$`, 'm');
+    const match = envContent.match(regex);
+    if (!match || !match[1] || match[1].trim() === '') {
       warnings.push(envVar);
     }
   }

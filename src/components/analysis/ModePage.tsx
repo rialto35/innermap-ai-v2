@@ -1,5 +1,6 @@
 "use client";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import ModeHero from "./ModeHero";
 import ModeFacts from "./ModeFacts";
 import ModeSteps from "./ModeSteps";
@@ -20,9 +21,9 @@ export default function ModePage({ mode }: ModePageProps) {
       {/* Breadcrumb */}
       <nav className="max-w-5xl mx-auto px-4 md:px-6 pt-6">
         <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <a href="/test" className="hover:text-gray-700">검사하기</a>
+          <Link href="/test" className="hover:text-gray-700">검사하기</Link>
           <span>›</span>
-          <a href="/test" className="hover:text-gray-700">분석 모드 선택</a>
+          <Link href="/test" className="hover:text-gray-700">분석 모드 선택</Link>
           <span>›</span>
           <span className="text-gray-900">{copy.title}</span>
         </div>
@@ -74,12 +75,12 @@ export default function ModePage({ mode }: ModePageProps) {
         <div className="max-w-5xl mx-auto px-4 md:px-6 pb-8">
           <div className="bg-gray-50 border rounded-full px-6 py-3 flex items-center justify-center space-x-4">
             <span className="text-sm text-gray-600">모드 비교:</span>
-            <a
+            <Link
               href={otherRoute}
               className="text-sm text-blue-600 hover:text-blue-800 font-medium"
             >
               {MODE_COPY[otherMode].title} 보기 →
-            </a>
+            </Link>
           </div>
         </div>
       </motion.div>
