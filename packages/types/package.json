@@ -1,0 +1,13 @@
+{
+  "name": "@innermap/types",
+  "version": "1.0.0",
+  "description": "InnerMap shared TypeScript types",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": ["innermap", "types"],
+  "private": true
+}
+
