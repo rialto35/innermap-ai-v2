@@ -15,7 +15,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAnalyzeStore } from '@/lib/analyze/state';
-import { loadQuestions, transformAnswers, validateCompleteness } from '@/lib/analyze/transform';
+import { loadQuestions, transformAnswers, validateCompleteness, getBig5Preview, getMBTIPreview } from '@/lib/analyze/transform';
 import { AutoSaveManager, loadFromLocal } from '@/lib/analyze/autosave';
 import UnifiedQuestion from '@/components/analyze/UnifiedQuestion';
 import UnifiedProgress from '@/components/analyze/UnifiedProgress';
