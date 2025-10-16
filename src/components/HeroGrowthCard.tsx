@@ -9,7 +9,8 @@ export default function HeroGrowthCard({
   growth, 
   strengths, 
   weaknesses,
-  genderPreference = 'male'
+  genderPreference = 'male',
+  testResultId
 }: { 
   hero: any
   gem?: any
@@ -18,6 +19,7 @@ export default function HeroGrowthCard({
   strengths?: string[]
   weaknesses?: string[]
   genderPreference?: 'male' | 'female'
+  testResultId?: string
 }) {
   const expPct = Math.min(100, Math.round((hero.exp.current / hero.exp.next) * 100))
 
@@ -110,7 +112,10 @@ export default function HeroGrowthCard({
 
       {/* CTA */}
       <div className="flex gap-2">
-        <Link href="/result" className="flex-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-center py-2 transition">
+        <Link 
+          href={testResultId ? `/results/${testResultId}` : "/result"} 
+          className="flex-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-center py-2 transition"
+        >
           상세 리포트
         </Link>
         <Link href="/analyze" className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-center py-2 transition">

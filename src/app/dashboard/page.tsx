@@ -182,6 +182,7 @@ export default function DashboardPage() {
             strengths={heroData.strengths}
             weaknesses={heroData.weaknesses}
             genderPreference={heroData.genderPreference || 'male'}
+            testResultId={heroData.testResultId}
           />
         </div>
         
