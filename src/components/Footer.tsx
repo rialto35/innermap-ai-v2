@@ -20,7 +20,7 @@ export default function Footer() {
           <div>
             <h3 className="font-bold text-slate-900 mb-3">바로가기</h3>
             <ul className="space-y-2 text-sm text-slate-600">
-              <li><Link href="/test" className="hover:text-slate-900">검사하기</Link></li>
+              <li><Link href="/analyze" className="hover:text-slate-900">검사하기</Link></li>
               <li><Link href="/about" className="hover:text-slate-900">서비스 소개</Link></li>
               <li><Link href="/pricing" className="hover:text-slate-900">요금제</Link></li>
               <li><Link href="/insight" className="hover:text-slate-900">인사이트</Link></li>

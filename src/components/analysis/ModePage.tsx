@@ -21,9 +21,9 @@ export default function ModePage({ mode }: ModePageProps) {
       {/* Breadcrumb */}
       <nav className="max-w-5xl mx-auto px-4 md:px-6 pt-6">
         <div className="flex items-center space-x-2 text-sm text-gray-500">
-          <Link href="/test" className="hover:text-gray-700">검사하기</Link>
+          <Link href="/analyze" className="hover:text-gray-700">검사하기</Link>
           <span>›</span>
-          <Link href="/test" className="hover:text-gray-700">분석 모드 선택</Link>
+          <Link href="/analyze" className="hover:text-gray-700">분석 모드 선택</Link>
           <span>›</span>
           <span className="text-gray-900">{copy.title}</span>
         </div>

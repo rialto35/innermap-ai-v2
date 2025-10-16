@@ -141,7 +141,7 @@ export default async function InsightDetailPage({ params }: { params: Promise<{ 
               InnerMap으로 나를 탐험해보세요
             </p>
             <Link
-              href="/test"
+              href="/analyze"
               className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white rounded-xl hover:scale-105 transition-transform font-medium"
             >
               무료 검사 시작하기 →

@@ -96,7 +96,13 @@ export default function UnifiedQuestion({
         {Array.from({ length: scale }, (_, i) => i + 1).map((num) => (
           <button
             key={num}
-            onClick={() => onChange(num)}
+            onClick={() => {
+              onChange(num);
+              // 자동으로 다음 문항으로 이동 (0.5초 후)
+              setTimeout(() => {
+                onNext();
+              }, 500);
+            }}
             className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition ${
               value === num
                 ? 'bg-indigo-600 text-white scale-110'

@@ -106,7 +106,7 @@ export default function Header() {
             </Link>
           )}
           <Link
-            href="/test"
+            href="/analyze"
             className="rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:scale-[1.02]"
           >
             무료로 시작하기
@@ -170,7 +170,7 @@ export default function Header() {
                 </Link>
               )}
               <Link
-                href="/test"
+                href="/analyze"
                 className="rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:scale-[1.01]"
                 onClick={() => setIsMenuOpen(false)}
               >

@@ -113,7 +113,7 @@ export default function HeroGrowthCard({
         <Link href="/result" className="flex-1 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-center py-2 transition">
           상세 리포트
         </Link>
-        <Link href="/test" className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-center py-2 transition">
+        <Link href="/analyze" className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-center py-2 transition">
           재검사하기
         </Link>
       </div>
