@@ -59,6 +59,7 @@ export default function DashboardPage() {
       }
 
       const data = await response.json()
+      console.log('Fresh hero data fetched, testResultId:', data.testResultId)
       
       // sessionStorage에 캐시 저장
       sessionStorage.setItem(cacheKey, JSON.stringify({
