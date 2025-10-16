@@ -40,7 +40,42 @@ function checkEnvFile() {
 }
 
 function checkEnvVars() {
-  // .env.local 파일 읽기
+  // CI 환경(Vercel 등)에서는 process.env 직접 체크
+  const isCI = process.env.CI || process.env.VERCEL;
+  
+  if (isCI) {
+    console.log('✓ CI environment detected, checking process.env');
+    const missing = [];
+    const warnings = [];
+    
+    for (const envVar of requiredEnvVars) {
+      if (!process.env[envVar]) {
+        missing.push(envVar);
+      }
+    }
+    
+    for (const envVar of optionalEnvVars) {
+      if (!process.env[envVar]) {
+        warnings.push(envVar);
+      }
+    }
+    
+    if (missing.length > 0) {
+      console.error('❌ Missing required environment variables:');
+      missing.forEach(envVar => console.error(`   - ${envVar}`));
+      return false;
+    }
+    
+    if (warnings.length > 0) {
+      console.warn('⚠️  Missing optional environment variables:');
+      warnings.forEach(envVar => console.warn(`   - ${envVar}`));
+    }
+    
+    console.log('✓ All required environment variables are set');
+    return true;
+  }
+  
+  // 로컬 환경: .env.local 파일 읽기
   const envFiles = ['.env.local', '.env'];
   let envContent = '';
   
@@ -90,15 +125,27 @@ function checkEnvVars() {
 function main() {
   console.log('🔍 Verifying environment configuration...\n');
   
-  const envFileExists = checkEnvFile();
-  const envVarsValid = checkEnvVars();
+  const isCI = process.env.CI || process.env.VERCEL;
   
-  if (!envFileExists || !envVarsValid) {
-    console.log('\n📝 To fix this:');
-    console.log('1. Copy .env.example to .env.local');
-    console.log('2. Fill in the required values');
-    console.log('3. Run this script again\n');
-    process.exit(1);
+  if (isCI) {
+    // CI 환경: env 변수만 체크
+    const envVarsValid = checkEnvVars();
+    if (!envVarsValid) {
+      console.log('\n📝 Please configure environment variables in your CI/CD platform\n');
+      process.exit(1);
+    }
+  } else {
+    // 로컬 환경: 파일과 env 변수 모두 체크
+    const envFileExists = checkEnvFile();
+    const envVarsValid = checkEnvVars();
+    
+    if (!envFileExists || !envVarsValid) {
+      console.log('\n📝 To fix this:');
+      console.log('1. Copy .env.example to .env.local');
+      console.log('2. Fill in the required values');
+      console.log('3. Run this script again\n');
+      process.exit(1);
+    }
   }
   
   console.log('\n✅ Environment configuration is valid');
