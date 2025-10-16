@@ -198,11 +198,15 @@ export default function AnalyzePage() {
               
               <button
                 onClick={handleNext}
-                disabled={!answers[currentQuestion.id]}
+                disabled={
+                  index === questions.length - 1 
+                    ? !checkComplete()  // 마지막 문항: 모든 문항 답변 체크
+                    : !answers[currentQuestion.id]  // 중간 문항: 현재 문항만 체크
+                }
                 className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {index === questions.length - 1 ? (
-                  isSubmitting ? '제출 중...' : '제출하기 →'
+                  isSubmitting ? '제출 중...' : `제출하기 → (${answeredCount}/${questions.length})`
                 ) : (
                   '다음 →'
                 )}
