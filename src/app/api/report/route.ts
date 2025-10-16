@@ -81,8 +81,7 @@ export async function POST(request: NextRequest) {
       },
       mbti: {
         type: testResult.mbti_type,
-        confidence: testResult.mbti_confidence || { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 },
-        raw: {} // Placeholder
+        confidence: testResult.mbti_confidence || { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 }
       },
       reti: {
         primaryType: testResult.reti_top1?.replace('r', '') || '7',

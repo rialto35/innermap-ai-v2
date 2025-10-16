@@ -45,6 +45,23 @@ export interface MBTIScores {
   confidence: number; // 0-1
 }
 
+// MBTI Result (for report generation)
+export interface MbtiResult {
+  type: string;
+  confidence: {
+    EI: number; // 0-1
+    SN: number;
+    TF: number;
+    JP: number;
+  };
+  raw?: {
+    EI: { letter: 'E' | 'I'; prob: number; pairProb: [number, number] };
+    SN: { letter: 'S' | 'N'; prob: number; pairProb: [number, number] };
+    TF: { letter: 'T' | 'F'; prob: number; pairProb: [number, number] };
+    JP: { letter: 'J' | 'P'; prob: number; pairProb: [number, number] };
+  };
+}
+
 // ===== RETI (Enneagram) =====
 export type RETIType = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9';
 
@@ -53,6 +70,14 @@ export interface RETIScores {
   wing?: RETIType;
   scores: Record<RETIType, number>; // 0-100 for each type
   confidence: number;
+}
+
+// RETI Result (for report generation)
+export interface RetiResult {
+  primaryType: string;
+  secondaryType?: string;
+  confidence: number; // 0-1
+  rawScores: Record<string, number>;
 }
 
 // ===== Tribes (12 Innate) =====

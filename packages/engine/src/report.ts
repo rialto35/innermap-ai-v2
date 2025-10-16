@@ -8,26 +8,7 @@
  * @version v1.1.0
  */
 
-import type { Big5Scores } from './types';
-
-// Temporary type definitions (TODO: move to types.ts)
-interface MbtiResult {
-  type: string;
-  confidence: {
-    EI: number;
-    SN: number;
-    TF: number;
-    JP: number;
-  };
-  raw?: any;
-}
-
-interface RetiResult {
-  primaryType: string;
-  secondaryType?: string;
-  confidence: number;
-  rawScores: Record<string, number>;
-}
+import type { Big5Scores, MbtiResult, RetiResult } from './types';
 
 export interface ReportInput {
   // 핵심 점수
