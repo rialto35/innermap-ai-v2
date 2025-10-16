@@ -2,77 +2,208 @@
  * /results/[id]
  * 
  * Result Snapshot Page
- * - Displays Big5, MBTI, RETI scores
- * - Shows tribe, stone, hero matching
- * - Instant summary (no async wait)
- * - Link to generate deep report
+ * PR #4 Implementation
  */
 
-import { Suspense } from 'react';
+'use client';
+
+import { use, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import dynamic from 'next/dynamic';
+import { motion } from 'framer-motion';
+import ResultSkeleton from '@/components/ui/ResultSkeleton';
+import type { ResultSnapshot } from '@innermap/engine';
+
+// Dynamic imports for charts (client-only)
+const Big5RadarChart = dynamic(() => import('@/components/Big5RadarChart'), { ssr: false });
+const GrowthVectorChart = dynamic(() => import('@/components/GrowthVectorChart'), { ssr: false });
 
 interface PageProps {
   params: Promise<{ id: string }>;
-  searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
-export default async function ResultPage({ params }: PageProps) {
-  const { id } = await params;
-  
+export default function ResultPage({ params }: PageProps) {
+  const { id } = use(params);
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [result, setResult] = useState<ResultSnapshot | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Auth guard
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+    }
+  }, [status, router]);
+
+  // Fetch result
+  useEffect(() => {
+    if (!session) return;
+
+    const fetchResult = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/results/${id}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch result');
+        }
+
+        const data = await response.json();
+        setResult(data);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResult();
+  }, [id, session]);
+
+  if (loading || status === 'loading') {
+    return <ResultSkeleton />;
+  }
+
+  if (error || !result) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-6xl mb-4">😕</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            결과를 찾을 수 없습니다
+          </h2>
+          <p className="text-gray-600 mb-6">{error}</p>
+          <button
+            onClick={() => router.push('/dashboard')}
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700"
+          >
+            대시보드로 돌아가기
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-5xl mx-auto px-4 py-12">
-        <Suspense fallback={<ResultSkeleton />}>
-          <ResultContent resultId={id} />
-        </Suspense>
-      </div>
-    </div>
-  );
-}
+      <div className="max-w-5xl mx-auto px-4 py-12 space-y-8">
+        {/* Header */}
+        <motion.header
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center"
+        >
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {result.hero.name}
+          </h1>
+          <div className="flex items-center justify-center space-x-3 text-sm">
+            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
+              {result.tribe.type}
+            </span>
+            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full">
+              {result.stone.type}
+            </span>
+            <span className="text-gray-500">
+              {new Date(result.createdAt).toLocaleDateString('ko-KR')}
+            </span>
+          </div>
+        </motion.header>
 
-async function ResultContent({ resultId }: { resultId: string }) {
-  // TODO PR #3: Fetch result from API
-  // const result = await fetchResult(resultId);
-  
-  return (
-    <div className="space-y-8">
-      <header className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 mb-2">
-          Your InnerMap Result
-        </h1>
-        <p className="text-gray-600">
-          Result ID: {resultId}
-        </p>
-      </header>
-      
-      {/* TODO: Add result sections */}
-      <div className="bg-white rounded-2xl shadow-lg p-8">
-        <p className="text-gray-500 text-center">
-          Result snapshot display coming in PR #3
-        </p>
-      </div>
-      
-      {/* Generate Report CTA */}
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white text-center">
-        <h2 className="text-2xl font-bold mb-4">
-          Want a Deep Report?
-        </h2>
-        <p className="mb-6">
-          Get narrative insights and detailed visualizations
-        </p>
-        <button className="bg-white text-indigo-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
-          Generate Report
-        </button>
-      </div>
-    </div>
-  );
-}
+        {/* Hero Profile */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white rounded-2xl shadow-lg p-8"
+        >
+          <div className="flex items-center justify-center mb-6">
+            <div className="w-32 h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-5xl">
+              {result.hero.name.charAt(0)}
+            </div>
+          </div>
+          <div className="text-center">
+            <p className="text-gray-600">{result.hero.description}</p>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {result.hero.traits.map((trait, i) => (
+                <span key={i} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                  {trait}
+                </span>
+              ))}
+            </div>
+          </div>
+        </motion.div>
 
-function ResultSkeleton() {
-  return (
-    <div className="space-y-8 animate-pulse">
-      <div className="h-32 bg-gray-200 rounded-2xl"></div>
-      <div className="h-96 bg-gray-200 rounded-2xl"></div>
-      <div className="h-48 bg-gray-200 rounded-2xl"></div>
+        {/* Stats Grid */}
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* Big5 Radar */}
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-lg p-6"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Big5 Personality</h3>
+            <div className="h-64">
+              <Big5RadarChart big5={{
+                O: result.big5.openness,
+                C: result.big5.conscientiousness,
+                E: result.big5.extraversion,
+                A: result.big5.agreeableness,
+                N: result.big5.neuroticism
+              }} />
+            </div>
+          </motion.div>
+
+          {/* MBTI/RETI */}
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="bg-white rounded-2xl shadow-lg p-6"
+          >
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Personality Types</h3>
+            <div className="space-y-6">
+              <div>
+                <div className="text-sm text-gray-600 mb-2">MBTI</div>
+                <div className="text-3xl font-bold text-indigo-600">{result.mbti.type}</div>
+                <div className="text-sm text-gray-500 mt-1">
+                  Confidence: {Math.round(result.mbti.confidence * 100)}%
+                </div>
+              </div>
+              <div>
+                <div className="text-sm text-gray-600 mb-2">RETI (Enneagram)</div>
+                <div className="text-3xl font-bold text-purple-600">Type {result.reti.primaryType}</div>
+                {result.reti.wing && (
+                  <div className="text-sm text-gray-500 mt-1">Wing: {result.reti.wing}</div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white text-center"
+        >
+          <h2 className="text-2xl font-bold mb-4">심층 리포트가 필요하신가요?</h2>
+          <p className="mb-6 text-indigo-100">
+            AI 기반 내러티브 분석과 상세한 인사이트를 확인하세요
+          </p>
+          <button
+            onClick={() => router.push(`/report/${result.id}`)}
+            className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition"
+          >
+            리포트 생성하기 →
+          </button>
+        </motion.div>
+      </div>
     </div>
   );
 }
