@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 import type { ErrorResponse } from '@innermap/types';
 
 export async function GET(
@@ -32,8 +32,8 @@ export async function GET(
     console.log('[GET /api/results/:id] Fetching result for ID:', id);
     console.log('[GET /api/results/:id] User email:', session.user.email);
 
-    // Fetch from Supabase (using test_results table)
-    const { data: result, error } = await supabase
+    // Fetch from Supabase (using test_results table with Service Role Key)
+    const { data: result, error } = await supabaseAdmin
       .from('test_results')
       .select('*')
       .eq('id', id)
