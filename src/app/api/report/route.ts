@@ -12,8 +12,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { generateReportPrompt, createReportMetadata } from '@innermap/engine/report';
-import type { ReportInput, ReportOutput } from '@innermap/engine/report';
+import { generateReportPrompt, createReportMetadata } from '@innermap/engine';
+import type { ReportInput, ReportOutput } from '@innermap/engine';
 
 export async function POST(request: NextRequest) {
   try {
