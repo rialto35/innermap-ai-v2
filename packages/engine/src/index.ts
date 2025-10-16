@@ -10,4 +10,5 @@ export * from './version';
 export * from './types';
 export * from './scoring';
 export * from './mapping';
+export * from './report';
 

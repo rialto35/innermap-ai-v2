@@ -205,24 +205,45 @@ export default function ResultPage({ params }: PageProps) {
           </motion.div>
         </div>
 
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white text-center"
+      {/* CTA */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white text-center"
+      >
+        <h2 className="text-2xl font-bold mb-4">심층 리포트가 필요하신가요?</h2>
+        <p className="mb-6 text-indigo-100">
+          AI 기반 내러티브 분석과 상세한 인사이트를 확인하세요
+        </p>
+        <button
+          onClick={async () => {
+            try {
+              // 리포트 생성 요청
+              const response = await fetch('/api/report', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ resultId: result.id })
+              });
+              
+              if (!response.ok) {
+                throw new Error('리포트 생성 실패');
+              }
+              
+              const data = await response.json();
+              
+              // 리포트 페이지로 이동
+              router.push(`/report/${data.reportId}`);
+            } catch (error) {
+              console.error('Report generation error:', error);
+              alert('리포트 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
+            }
+          }}
+          className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition"
         >
-          <h2 className="text-2xl font-bold mb-4">심층 리포트가 필요하신가요?</h2>
-          <p className="mb-6 text-indigo-100">
-            AI 기반 내러티브 분석과 상세한 인사이트를 확인하세요
-          </p>
-          <button
-            onClick={() => router.push(`/report/${result.id}`)}
-            className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition"
-          >
-            리포트 생성하기 →
-          </button>
-        </motion.div>
+          리포트 생성하기 →
+        </button>
+      </motion.div>
       </div>
     </div>
   );
