@@ -72,7 +72,7 @@ export default function ResultPage() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-6 text-white/70">
         <p>결과가 없습니다. 설문을 먼저 진행해주세요.</p>
-        <button onClick={() => router.push('/test')} className="btn-primary px-6 py-2">
+        <button onClick={() => router.push('/analyze')} className="btn-primary px-6 py-2">
           설문 시작하기
         </button>
       </div>
