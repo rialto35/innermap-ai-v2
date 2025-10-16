@@ -161,20 +161,25 @@ export default function AnalyzePage() {
       };
       
       // Submit to existing API
+      console.log('Submitting payload:', payload);
       const response = await fetch('/api/imcore/save', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
       
+      console.log('Response status:', response.status);
+      
       if (!response.ok) {
         const error = await response.json();
-        console.error('API Error:', error);
+        console.error('API Error Response:', error);
+        alert(`저장 실패: ${error.error || '알 수 없는 오류'}\n응답 코드: ${response.status}`);
         throw new Error(error.error || 'Failed to submit assessment');
       }
       
       const result = await response.json();
       console.log('Save result:', result);
+      console.log('Result ID:', result.resultId);
       
       // Mark complete and clear draft
       complete();
