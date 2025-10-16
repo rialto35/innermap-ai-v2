@@ -1,0 +1,547 @@
+{
+  "version": "1.1.0",
+  "totalQuestions": 55,
+  "sections": [
+    {
+      "id": "section_big5",
+      "name": "성격 특성",
+      "description": "당신의 기본 성격 특성을 파악합니다",
+      "questions": [
+        {
+          "id": "q_001",
+          "text": "나는 새로운 아이디어와 경험에 호기심이 많다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.openness",
+          "tags": ["openness", "curiosity", "exploration"]
+        },
+        {
+          "id": "q_002",
+          "text": "나는 계획을 세우고 체계적으로 일을 진행한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.conscientiousness",
+          "tags": ["conscientiousness", "organization", "planning"]
+        },
+        {
+          "id": "q_003",
+          "text": "나는 사람들과 어울리는 것을 즐긴다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.extraversion",
+          "tags": ["extraversion", "sociability", "energy"]
+        },
+        {
+          "id": "q_004",
+          "text": "나는 다른 사람의 감정을 잘 이해하고 배려한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.agreeableness",
+          "tags": ["agreeableness", "empathy", "cooperation"]
+        },
+        {
+          "id": "q_005",
+          "text": "나는 스트레스 상황에서 쉽게 불안해진다.",
+          "scale": 7,
+          "reverse": true,
+          "weight": 1.0,
+          "domain": "big5.neuroticism",
+          "tags": ["neuroticism", "anxiety", "stress"]
+        },
+        {
+          "id": "q_006",
+          "text": "나는 예술이나 창의적인 활동에 관심이 많다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.1,
+          "domain": "big5.openness",
+          "tags": ["openness", "creativity", "arts"]
+        },
+        {
+          "id": "q_007",
+          "text": "나는 일을 끝까지 마무리하는 것을 중요하게 생각한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.conscientiousness",
+          "tags": ["conscientiousness", "persistence", "completion"]
+        },
+        {
+          "id": "q_008",
+          "text": "나는 혼자 있는 시간이 더 편하다.",
+          "scale": 7,
+          "reverse": true,
+          "weight": 1.0,
+          "domain": "big5.extraversion",
+          "tags": ["introversion", "solitude", "recharge"]
+        },
+        {
+          "id": "q_009",
+          "text": "나는 경쟁보다는 협력을 선호한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.agreeableness",
+          "tags": ["agreeableness", "cooperation", "harmony"]
+        },
+        {
+          "id": "q_010",
+          "text": "나는 감정 기복이 거의 없는 편이다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.neuroticism",
+          "tags": ["emotional_stability", "calmness"]
+        }
+      ]
+    },
+    {
+      "id": "section_mbti",
+      "name": "사고와 행동 양식",
+      "description": "당신의 인지 스타일을 파악합니다",
+      "questions": [
+        {
+          "id": "q_011",
+          "text": "나는 낯선 사람과도 쉽게 대화를 시작한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.2,
+          "domain": "mbti.E",
+          "tags": ["extraversion", "sociability"]
+        },
+        {
+          "id": "q_012",
+          "text": "나는 깊이 생각한 후에 말하는 편이다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.2,
+          "domain": "mbti.I",
+          "tags": ["introversion", "reflection"]
+        },
+        {
+          "id": "q_013",
+          "text": "나는 구체적인 사실과 현실을 중시한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.2,
+          "domain": "mbti.S",
+          "tags": ["sensing", "practical", "detail"]
+        },
+        {
+          "id": "q_014",
+          "text": "나는 가능성과 미래의 비전을 보는 것을 좋아한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.2,
+          "domain": "mbti.N",
+          "tags": ["intuition", "vision", "possibility"]
+        },
+        {
+          "id": "q_015",
+          "text": "나는 논리와 객관성을 중시하여 결정을 내린다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.2,
+          "domain": "mbti.T",
+          "tags": ["thinking", "logic", "objectivity"]
+        },
+        {
+          "id": "q_016",
+          "text": "나는 사람들의 감정과 가치를 고려하여 결정한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.2,
+          "domain": "mbti.F",
+          "tags": ["feeling", "values", "empathy"]
+        },
+        {
+          "id": "q_017",
+          "text": "나는 계획을 세우고 일정에 맞춰 진행하는 것을 선호한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.2,
+          "domain": "mbti.J",
+          "tags": ["judging", "planning", "structure"]
+        },
+        {
+          "id": "q_018",
+          "text": "나는 유연하게 대응하며 즉흥적인 것을 즐긴다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.2,
+          "domain": "mbti.P",
+          "tags": ["perceiving", "flexibility", "spontaneity"]
+        },
+        {
+          "id": "q_019",
+          "text": "나는 많은 사람들과 함께 있을 때 에너지를 얻는다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "mbti.E",
+          "tags": ["extraversion", "energy", "social"]
+        },
+        {
+          "id": "q_020",
+          "text": "나는 경험을 통해 배운 것을 신뢰한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "mbti.S",
+          "tags": ["sensing", "experience", "practical"]
+        }
+      ]
+    },
+    {
+      "id": "section_reti",
+      "name": "가치관과 동기",
+      "description": "당신의 핵심 동기를 파악합니다",
+      "questions": [
+        {
+          "id": "q_021",
+          "text": "나는 모든 일을 올바르게 해야 한다는 책임감이 강하다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.1",
+          "tags": ["perfectionism", "ethics", "responsibility"]
+        },
+        {
+          "id": "q_022",
+          "text": "나는 다른 사람을 돕는 것에서 기쁨을 느낀다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.2",
+          "tags": ["helper", "empathy", "service"]
+        },
+        {
+          "id": "q_023",
+          "text": "나는 성공하고 인정받는 것이 중요하다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.3",
+          "tags": ["achiever", "success", "recognition"]
+        },
+        {
+          "id": "q_024",
+          "text": "나는 특별하고 독특한 존재로 보이고 싶다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.4",
+          "tags": ["individualist", "authenticity", "uniqueness"]
+        },
+        {
+          "id": "q_025",
+          "text": "나는 지식을 쌓고 이해하는 것을 즐긴다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.5",
+          "tags": ["investigator", "knowledge", "analysis"]
+        },
+        {
+          "id": "q_026",
+          "text": "나는 안정과 안전을 추구하며 신중하게 행동한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.6",
+          "tags": ["loyalist", "security", "caution"]
+        },
+        {
+          "id": "q_027",
+          "text": "나는 즐거운 경험과 모험을 추구한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.7",
+          "tags": ["enthusiast", "adventure", "optimism"]
+        },
+        {
+          "id": "q_028",
+          "text": "나는 강하고 자신감 있게 행동하는 것을 중시한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.8",
+          "tags": ["challenger", "power", "confidence"]
+        },
+        {
+          "id": "q_029",
+          "text": "나는 평화롭고 조화로운 환경을 선호한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.3,
+          "domain": "reti.9",
+          "tags": ["peacemaker", "harmony", "stability"]
+        },
+        {
+          "id": "q_030",
+          "text": "나는 내 원칙과 가치관에 따라 살아가려 노력한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.1,
+          "domain": "reti.1",
+          "tags": ["integrity", "principles"]
+        }
+      ]
+    },
+    {
+      "id": "section_auxiliary",
+      "name": "심층 특성",
+      "description": "추가적인 심리적 특성을 파악합니다",
+      "questions": [
+        {
+          "id": "q_031",
+          "text": "내가 하는 일은 내 자유 의지에 따른 선택이라고 느낀다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.autonomy",
+          "tags": ["self_determination", "autonomy", "freedom"]
+        },
+        {
+          "id": "q_032",
+          "text": "나는 내가 하는 일에서 능력을 발휘하고 있다고 느낀다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.competence",
+          "tags": ["self_determination", "competence", "mastery"]
+        },
+        {
+          "id": "q_033",
+          "text": "나는 주변 사람들과 깊은 유대감을 느낀다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.relatedness",
+          "tags": ["self_determination", "relatedness", "connection"]
+        },
+        {
+          "id": "q_034",
+          "text": "나는 대체로 긍정적이고 행복한 감정을 느낀다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.8,
+          "domain": "aux.positive_affect",
+          "tags": ["affect", "positivity", "wellbeing"]
+        },
+        {
+          "id": "q_035",
+          "text": "나는 부정적인 감정을 자주 경험하지 않는다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.8,
+          "domain": "aux.negative_affect",
+          "tags": ["affect", "emotional_stability"]
+        },
+        {
+          "id": "q_036",
+          "text": "나는 하는 일에 완전히 몰입할 때가 많다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.8,
+          "domain": "aux.engagement",
+          "tags": ["flow", "engagement", "absorption"]
+        },
+        {
+          "id": "q_037",
+          "text": "나는 내 삶의 목적과 의미를 명확히 알고 있다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.meaning",
+          "tags": ["purpose", "meaning", "direction"]
+        },
+        {
+          "id": "q_038",
+          "text": "나는 새로운 상황에 빠르게 적응한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.8,
+          "domain": "aux.adaptability",
+          "tags": ["resilience", "adaptability", "flexibility"]
+        },
+        {
+          "id": "q_039",
+          "text": "나는 어려운 상황에서도 희망을 잃지 않는다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.resilience",
+          "tags": ["resilience", "hope", "optimism"]
+        },
+        {
+          "id": "q_040",
+          "text": "나는 내 강점과 약점을 잘 알고 있다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.8,
+          "domain": "aux.self_awareness",
+          "tags": ["self_awareness", "insight", "reflection"]
+        }
+      ]
+    },
+    {
+      "id": "section_mixed",
+      "name": "통합 문항",
+      "description": "복합적인 특성을 종합적으로 파악합니다",
+      "questions": [
+        {
+          "id": "q_041",
+          "text": "나는 변화와 불확실성을 즐기는 편이다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.openness",
+          "tags": ["openness", "change", "uncertainty"]
+        },
+        {
+          "id": "q_042",
+          "text": "나는 중요한 결정을 내릴 때 충분히 고민한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.conscientiousness",
+          "tags": ["conscientiousness", "deliberation"]
+        },
+        {
+          "id": "q_043",
+          "text": "나는 사회적 상황에서 주도적인 역할을 맡는다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.extraversion",
+          "tags": ["extraversion", "leadership", "assertiveness"]
+        },
+        {
+          "id": "q_044",
+          "text": "나는 타인의 실수를 쉽게 용서하는 편이다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "big5.agreeableness",
+          "tags": ["agreeableness", "forgiveness", "tolerance"]
+        },
+        {
+          "id": "q_045",
+          "text": "나는 작은 일에도 쉽게 걱정이 많아진다.",
+          "scale": 7,
+          "reverse": true,
+          "weight": 1.0,
+          "domain": "big5.neuroticism",
+          "tags": ["neuroticism", "worry", "anxiety"]
+        },
+        {
+          "id": "q_046",
+          "text": "나는 직관적으로 빠르게 판단하는 것을 선호한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "mbti.N",
+          "tags": ["intuition", "quick_thinking"]
+        },
+        {
+          "id": "q_047",
+          "text": "나는 감정보다 이성적 판단을 우선시한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "mbti.T",
+          "tags": ["thinking", "rationality"]
+        },
+        {
+          "id": "q_048",
+          "text": "나는 규칙과 절차를 따르는 것이 중요하다고 생각한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "mbti.J",
+          "tags": ["judging", "structure", "rules"]
+        },
+        {
+          "id": "q_049",
+          "text": "나는 타인의 기대에 부응하려고 노력한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "reti.2",
+          "tags": ["helper", "pleasing", "expectations"]
+        },
+        {
+          "id": "q_050",
+          "text": "나는 깊이 사색하고 내면을 탐구하는 것을 즐긴다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 1.0,
+          "domain": "reti.4",
+          "tags": ["individualist", "introspection", "depth"]
+        },
+        {
+          "id": "q_051",
+          "text": "나는 혼자서도 충분히 행복할 수 있다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.autonomy",
+          "tags": ["independence", "self_sufficiency"]
+        },
+        {
+          "id": "q_052",
+          "text": "나는 내 일에 자부심을 느낀다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.competence",
+          "tags": ["pride", "achievement"]
+        },
+        {
+          "id": "q_053",
+          "text": "나는 나를 이해해주는 사람들에게 감사한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.relatedness",
+          "tags": ["gratitude", "connection"]
+        },
+        {
+          "id": "q_054",
+          "text": "나는 매일 새로운 것을 배우려고 노력한다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.8,
+          "domain": "aux.growth",
+          "tags": ["growth_mindset", "learning", "curiosity"]
+        },
+        {
+          "id": "q_055",
+          "text": "나는 내 감정을 잘 조절할 수 있다.",
+          "scale": 7,
+          "reverse": false,
+          "weight": 0.9,
+          "domain": "aux.emotion_regulation",
+          "tags": ["emotional_intelligence", "self_control"]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "createdAt": "2025-10-16",
+    "author": "InnerMap AI Team",
+    "validationRules": {
+      "minAnswers": 55,
+      "scaleMin": 1,
+      "scaleMax": 7,
+      "requiredDomains": ["big5", "mbti", "reti", "aux"]
+    }
+  }
+}
+

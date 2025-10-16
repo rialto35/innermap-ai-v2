@@ -6,7 +6,7 @@
  * - 과거 결과는 해당 버전으로 고정되어 보관됨
  */
 
-export const ENGINE_VERSION = 'v1.0.0';
+export const ENGINE_VERSION = 'v1.1.0';
 
 export interface EngineVersionInfo {
   version: string;
@@ -15,6 +15,17 @@ export interface EngineVersionInfo {
 }
 
 export const VERSION_HISTORY: EngineVersionInfo[] = [
+  {
+    version: 'v1.1.0',
+    timestamp: '2025-10-16',
+    changes: [
+      'Weighted scoring with domain-based mapping',
+      'Reverse item handling',
+      'Auxiliary psychological scales (SDT, affect, engagement)',
+      'Unified questionnaire format (55 items)',
+      'Enhanced reproducibility with answers hash'
+    ]
+  },
   {
     version: 'v1.0.0',
     timestamp: '2025-10-16',
