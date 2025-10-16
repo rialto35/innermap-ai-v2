@@ -29,38 +29,68 @@ export async function GET(
 
     const { id } = await params;
 
-    // Fetch from Supabase
+    // Fetch from Supabase (using test_results table)
     const { data: result, error } = await supabase
-      .from('results')
+      .from('test_results')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error || !result) {
+      console.error('Supabase error:', error);
       return NextResponse.json({
         error: {
           code: 'NOT_FOUND',
-          message: 'Result not found'
+          message: 'Result not found',
+          details: error?.message
         }
       } as ErrorResponse, { status: 404 });
     }
 
-    // Transform to ResultSnapshot format
+    // Transform test_results to ResultSnapshot format
     const snapshot = {
       id: result.id,
       userId: result.user_id,
-      assessmentId: result.assessment_id,
-      engineVersion: result.engine_version || 'v1.0.0',
-      big5: result.big5_scores || {},
-      mbti: result.mbti_scores || { type: 'INFP', confidence: { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 }, raw: {} },
-      reti: result.reti_scores || { primaryType: '4', confidence: 0.5, rawScores: {} },
-      tribe: result.tribe || { type: 'phoenix', score: 50, element: 'fire' },
-      stone: result.stone || { type: 'diamond', score: 50, affinity: [] },
-      hero: result.hero || { 
-        id: 'default', 
-        name: '미지의 영웅', 
-        description: '당신의 영웅을 발견해보세요', 
-        image: '/heroes/default.png',
+      assessmentId: result.id, // test_results doesn't have assessment_id
+      engineVersion: 'v1.0.0',
+      big5: {
+        openness: result.big5_openness || 50,
+        conscientiousness: result.big5_conscientiousness || 50,
+        extraversion: result.big5_extraversion || 50,
+        agreeableness: result.big5_agreeableness || 50,
+        neuroticism: result.big5_neuroticism || 50
+      },
+      mbti: {
+        type: result.mbti_type || 'INFP',
+        confidence: result.mbti_confidence || { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 },
+        raw: {
+          EI: { letter: result.mbti_type?.[0] || 'I', prob: 0.5, pairProb: [0.5, 0.5] },
+          SN: { letter: result.mbti_type?.[1] || 'N', prob: 0.5, pairProb: [0.5, 0.5] },
+          TF: { letter: result.mbti_type?.[2] || 'F', prob: 0.5, pairProb: [0.5, 0.5] },
+          JP: { letter: result.mbti_type?.[3] || 'P', prob: 0.5, pairProb: [0.5, 0.5] }
+        }
+      },
+      reti: {
+        primaryType: result.reti_top1?.replace('r', '') || '4',
+        secondaryType: result.reti_top2?.replace('r', ''),
+        confidence: 0.7,
+        rawScores: result.reti_scores || {}
+      },
+      tribe: {
+        type: 'phoenix',
+        score: 50,
+        element: 'fire'
+      },
+      stone: {
+        type: 'diamond',
+        score: 50,
+        affinity: []
+      },
+      hero: {
+        id: result.hero_id || 'default',
+        name: result.hero_name || '미지의 영웅',
+        description: '당신의 영웅을 발견해보세요',
+        image: `/heroes/${result.gender_preference || 'male'}/${result.mbti_type?.toLowerCase() || 'infp'}-${result.reti_top1?.replace('r', '') || '4'}.png`,
         score: 50,
         traits: ['탐험가', '개척자']
       },
