@@ -28,6 +28,9 @@ export async function GET(
     }
 
     const { id } = await params;
+    
+    console.log('[GET /api/results/:id] Fetching result for ID:', id);
+    console.log('[GET /api/results/:id] User email:', session.user.email);
 
     // Fetch from Supabase (using test_results table)
     const { data: result, error } = await supabase
@@ -36,16 +39,31 @@ export async function GET(
       .eq('id', id)
       .single();
 
+    console.log('[GET /api/results/:id] Supabase query result:', { 
+      found: !!result, 
+      error: error?.message,
+      errorCode: error?.code,
+      errorDetails: error?.details
+    });
+
     if (error || !result) {
-      console.error('Supabase error:', error);
+      console.error('[GET /api/results/:id] Failed to find result:', {
+        id,
+        error: error?.message,
+        code: error?.code,
+        details: error?.details
+      });
       return NextResponse.json({
         error: {
           code: 'NOT_FOUND',
           message: 'Result not found',
-          details: error?.message
+          details: error?.message,
+          supabaseError: error
         }
       } as ErrorResponse, { status: 404 });
     }
+    
+    console.log('[GET /api/results/:id] Successfully found result:', result.id);
 
     // Transform test_results to ResultSnapshot format
     const snapshot = {
