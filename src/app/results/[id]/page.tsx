@@ -45,13 +45,19 @@ export default function ResultPage({ params }: PageProps) {
     const fetchResult = async () => {
       try {
         setLoading(true);
+        console.log('Fetching result for ID:', id);
         const response = await fetch(`/api/results/${id}`);
         
+        console.log('Response status:', response.status);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch result');
+          const errorData = await response.json().catch(() => ({}));
+          console.error('API Error Response:', errorData);
+          throw new Error(errorData.error?.message || `Failed to fetch result (${response.status})`);
         }
 
         const data = await response.json();
+        console.log('Result data received:', data);
         setResult(data);
       } catch (err) {
         console.error('Fetch error:', err);
