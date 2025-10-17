@@ -1,10 +1,11 @@
 /**
  * GET /api/report/[id]
  * 
- * 리포트 조회
- * - 리포트 ID로 생성된 리포트 조회
+ * 리포트 데이터 조회
+ * - 전체 리포트 정보 반환
+ * - 본인 소유 리포트만 접근 가능
  * 
- * @version v1.0.0
+ * @version v1.1.0
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -17,7 +18,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Auth guard
+    // 1. Auth guard
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
       return NextResponse.json({
@@ -25,44 +26,42 @@ export async function GET(
       }, { status: 401 });
     }
 
-    const { id } = await params;
-    console.log('[GET /api/report/:id] Fetching report:', id);
+    const userId = session.user.email;
+    const { id: reportId } = await params;
 
-    // Fetch report
-    const { data: report, error } = await supabaseAdmin
-      .from('ai_reports')
+    if (!reportId) {
+      return NextResponse.json({
+        error: { code: 'INVALID_REQUEST', message: 'Report ID is required' }
+      }, { status: 400 });
+    }
+
+    // 2. Fetch report
+    const { data: report, error: fetchError } = await supabaseAdmin
+      .from('reports')
       .select('*')
-      .eq('id', id)
+      .eq('id', reportId)
       .single();
 
-    if (error || !report) {
-      console.error('[GET /api/report/:id] Report not found:', error);
+    if (fetchError || !report) {
+      console.error('[GET /api/report/[id]] Report not found:', fetchError);
       return NextResponse.json({
-        error: {
-          code: 'NOT_FOUND',
-          message: 'Report not found',
-          details: error?.message
-        }
+        error: { code: 'NOT_FOUND', message: 'Report not found' }
       }, { status: 404 });
     }
 
-    // Transform response
-    const response = {
-      reportId: report.id,
-      testResultId: report.test_result_id,
-      reportType: report.report_type,
-      status: 'ready',
-      content: report.content,
-      visualData: report.visual_data,
-      modelVersion: report.model_version,
-      createdAt: report.created_at,
-      updatedAt: report.updated_at
-    };
+    // 3. Verify ownership
+    if (report.user_id !== userId) {
+      console.error('[GET /api/report/[id]] Ownership mismatch');
+      return NextResponse.json({
+        error: { code: 'FORBIDDEN', message: 'Access denied' }
+      }, { status: 403 });
+    }
 
-    return NextResponse.json(response);
+    // 4. Return report data
+    return NextResponse.json(report);
 
   } catch (error) {
-    console.error('[GET /api/report/:id] Error:', error);
+    console.error('[GET /api/report/[id]] Error:', error);
     return NextResponse.json({
       error: {
         code: 'INTERNAL_ERROR',

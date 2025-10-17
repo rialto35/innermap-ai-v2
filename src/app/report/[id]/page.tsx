@@ -1,221 +1,268 @@
 /**
- * /report/[id]
+ * /report/[id] - Deep Report Page
  * 
- * 심층 리포트 페이지
- * - LLM 생성 내러티브 표시
- * - 성장 벡터 시각화
- * - PDF 다운로드 및 공유 기능
+ * 심층 리포트 페이지 (비동기 큐 방식)
+ * - 상태 폴링 (queued/processing/ready/failed)
+ * - Markdown 렌더링
+ * - 시각화 (Big5 레이더, 성장 벡터)
  * 
- * @version v1.0.0
+ * @version v1.1.0
  */
 
 'use client';
 
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { motion } from 'framer-motion';
-import ReactMarkdown from 'react-markdown';
+import ReportHeader from '@/components/report/ReportHeader';
+import ReportStatus from '@/components/report/ReportStatus';
+import ReportMarkdown from '@/components/report/ReportMarkdown';
+import ReportActions from '@/components/report/ReportActions';
+import Big5RadarChart from '@/components/Big5RadarChart';
 
 interface ReportData {
+  id: string;
+  user_id: string;
+  result_id: string;
+  status: 'queued' | 'processing' | 'ready' | 'failed';
+  summary_md?: string;
+  visuals_json?: any;
+  error_msg?: string;
+  started_at?: string;
+  finished_at?: string;
+  created_at: string;
+}
+
+interface ResultData {
+  id: string;
+  hero_id: string;
+  hero_name: string;
+  engine_version: string;
+  big5_openness: number;
+  big5_conscientiousness: number;
+  big5_extraversion: number;
+  big5_agreeableness: number;
+  big5_neuroticism: number;
+}
+
+interface StatusResponse {
   reportId: string;
-  testResultId: string;
-  reportType: string;
-  status: string;
-  content: string;
-  visualData: {
-    sections: Array<{
-      id: string;
-      title: string;
-      content: string;
-      order: number;
-    }>;
-  };
-  modelVersion: string;
-  createdAt: string;
-  updatedAt: string;
+  status: 'queued' | 'processing' | 'ready' | 'failed';
+  error?: string;
+  estimatedTimeRemaining?: number;
+  startedAt?: string;
+  finishedAt?: string;
 }
 
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default function ReportPage({ params }: PageProps) {
-  const { id } = use(params);
-  const { data: session, status } = useSession();
+export default function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
-  
+  const { data: session, status: sessionStatus } = useSession();
+  const [reportId, setReportId] = useState<string | null>(null);
   const [report, setReport] = useState<ReportData | null>(null);
+  const [result, setResult] = useState<ResultData | null>(null);
+  const [statusData, setStatusData] = useState<StatusResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Auth guard
+  // Extract reportId from params
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    }
-  }, [status, router]);
+    params.then(({ id }) => {
+      setReportId(id);
+    });
+  }, [params]);
 
-  // Fetch report
+  // Auth check
   useEffect(() => {
-    if (!session) return;
+    if (sessionStatus === 'loading') return;
+    if (sessionStatus === 'unauthenticated') {
+      router.push('/login?redirect=/report/' + reportId);
+    }
+  }, [sessionStatus, router, reportId]);
+
+  // Fetch report data initially
+  useEffect(() => {
+    if (!reportId || !session) return;
 
     const fetchReport = async () => {
       try {
         setLoading(true);
-        console.log('Fetching report:', id);
-        
-        const response = await fetch(`/api/report/${id}`);
-        
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
-          console.error('API Error:', errorData);
-          throw new Error(errorData.error?.message || `Failed to fetch report (${response.status})`);
+
+        // Fetch report
+        const reportRes = await fetch(`/api/report/${reportId}`);
+        if (!reportRes.ok) {
+          throw new Error('리포트를 찾을 수 없습니다.');
         }
 
-        const data = await response.json();
-        console.log('Report data:', data);
-        setReport(data);
+        const reportData = await reportRes.json();
+        setReport(reportData);
+
+        // Fetch result data for hero info
+        const resultRes = await fetch(`/api/results/${reportData.result_id}`);
+        if (resultRes.ok) {
+          const resultData = await resultRes.json();
+          setResult(resultData);
+        }
+
+        setLoading(false);
       } catch (err) {
-        console.error('Fetch error:', err);
-        setError(err instanceof Error ? err.message : 'Unknown error');
-      } finally {
+        console.error('[ReportPage] Error fetching report:', err);
+        setError(err instanceof Error ? err.message : '리포트를 불러올 수 없습니다.');
         setLoading(false);
       }
     };
 
     fetchReport();
-  }, [id, session]);
+  }, [reportId, session]);
 
-  if (loading || status === 'loading') {
+  // Status polling (when queued or processing)
+  useEffect(() => {
+    if (!report || !reportId) return;
+    if (report.status !== 'queued' && report.status !== 'processing') return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const statusRes = await fetch(`/api/report/${reportId}/status`);
+        if (statusRes.ok) {
+          const status: StatusResponse = await statusRes.json();
+          setStatusData(status);
+
+          // Update report status if changed
+          if (status.status !== report.status) {
+            console.log(`[ReportPage] Status changed: ${report.status} → ${status.status}`);
+            setReport({ ...report, status: status.status });
+
+            // If ready or failed, refetch full report data
+            if (status.status === 'ready' || status.status === 'failed') {
+              const reportRes = await fetch(`/api/report/${reportId}`);
+              if (reportRes.ok) {
+                const updatedReport = await reportRes.json();
+                setReport(updatedReport);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        console.error('[ReportPage] Polling error:', err);
+      }
+    }, 3000); // Poll every 3 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [report, reportId]);
+
+  // Retry handler
+  const handleRetry = async () => {
+    if (!result) return;
+
+    try {
+      const res = await fetch('/api/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resultId: result.id })
+      });
+
+      if (!res.ok) {
+        throw new Error('재시도 요청 실패');
+      }
+
+      const data = await res.json();
+      router.push(`/report/${data.reportId}`);
+    } catch (err) {
+      console.error('[ReportPage] Retry error:', err);
+      alert('재시도 중 오류가 발생했습니다. 다시 시도해주세요.');
+    }
+  };
+
+  // Loading state
+  if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">리포트를 불러오는 중...</p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 py-12">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="animate-pulse">
+            <div className="h-32 bg-gray-200 dark:bg-gray-800 rounded-2xl mb-6"></div>
+            <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded-2xl"></div>
+          </div>
         </div>
       </div>
     );
   }
 
+  // Error state
   if (error || !report) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <div className="text-6xl mb-4">📄</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            리포트를 찾을 수 없습니다
-          </h2>
-          <p className="text-gray-600 mb-2">{error}</p>
-          <p className="text-sm text-gray-500 mb-6">리포트 ID: {id}</p>
-          <div className="space-y-3">
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 py-12">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="bg-red-50 dark:bg-red-950 border-2 border-red-200 dark:border-red-800 rounded-2xl p-8 text-center">
+            <div className="text-6xl mb-4">❌</div>
+            <h1 className="text-2xl font-bold text-red-700 dark:text-red-300 mb-2">
+              오류 발생
+            </h1>
+            <p className="text-gray-700 dark:text-gray-300 mb-6">
+              {error || '알 수 없는 오류가 발생했습니다.'}
+            </p>
             <button
               onClick={() => router.push('/dashboard')}
-              className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+              className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition"
             >
               대시보드로 돌아가기
             </button>
-            <button
-              onClick={() => router.push('/analyze')}
-              className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-            >
-              새로운 검사 시작하기
-            </button>
           </div>
         </div>
       </div>
     );
   }
 
-  // Parse sections from visual data
-  const sections = report.visualData?.sections || [];
-  sections.sort((a, b) => a.order - b.order);
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-4xl mx-auto px-4 py-12 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 py-12">
+      <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center border-b pb-8"
-        >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            🌟 심층 리포트
-          </h1>
-          <p className="text-gray-600">
-            당신의 성격과 성장 가능성에 대한 AI 분석
-          </p>
-          <div className="flex items-center justify-center gap-4 mt-4 text-sm text-gray-500">
-            <span>생성일: {new Date(report.createdAt).toLocaleDateString('ko-KR')}</span>
-            <span>•</span>
-            <span>모델: {report.modelVersion || 'AI Engine v1.0'}</span>
-          </div>
-        </motion.header>
+        {result && (
+          <ReportHeader
+            heroId={result.hero_id}
+            heroName={result.hero_name}
+            engineVersion={result.engine_version}
+            createdAt={report.created_at}
+            finishedAt={report.finished_at}
+          />
+        )}
 
-        {/* Sections */}
-        <div className="space-y-12">
-          {sections.map((section, index) => (
-            <motion.section
-              key={section.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-2xl shadow-lg p-8"
-            >
-              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                <span className="text-indigo-600">{index + 1}.</span>
-                {section.title}
-              </h2>
-              <div className="prose prose-lg max-w-none">
-                <ReactMarkdown>{section.content}</ReactMarkdown>
+        {/* Status */}
+        <ReportStatus
+          status={report.status}
+          error={report.error_msg}
+          estimatedTimeRemaining={statusData?.estimatedTimeRemaining}
+          onRetry={report.status === 'failed' ? handleRetry : undefined}
+        />
+
+        {/* Report Content (only if ready) */}
+        {report.status === 'ready' && report.summary_md && (
+          <>
+            {/* Markdown Content */}
+            <div className="mb-6">
+              <ReportMarkdown content={report.summary_md} />
+            </div>
+
+            {/* Visualizations */}
+            {result && (
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                  성격 프로필
+                </h2>
+                <Big5RadarChart
+                  big5={{
+                    O: result.big5_openness,
+                    C: result.big5_conscientiousness,
+                    E: result.big5_extraversion,
+                    A: result.big5_agreeableness,
+                    N: result.big5_neuroticism
+                  }}
+                />
               </div>
-            </motion.section>
-          ))}
-        </div>
+            )}
+          </>
+        )}
 
         {/* Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white text-center space-y-4"
-        >
-          <h3 className="text-2xl font-bold">리포트 활용하기</h3>
-          <p className="text-indigo-100">
-            이 리포트를 저장하거나 다른 사람과 공유해보세요
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <button
-              onClick={() => window.print()}
-              className="px-6 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-indigo-50 transition"
-            >
-              📄 PDF로 저장
-            </button>
-            <button
-              onClick={() => {
-                const url = window.location.href;
-                navigator.clipboard.writeText(url);
-                alert('링크가 복사되었습니다!');
-              }}
-              className="px-6 py-3 bg-indigo-700 text-white font-semibold rounded-lg hover:bg-indigo-800 transition"
-            >
-              🔗 링크 복사
-            </button>
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="px-6 py-3 bg-indigo-700 text-white font-semibold rounded-lg hover:bg-indigo-800 transition"
-            >
-              🏠 대시보드로
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Footer */}
-        <div className="text-center text-sm text-gray-500 pt-8">
-          <p>이 리포트는 AI가 생성한 분석으로, 참고용으로만 사용해주세요.</p>
-          <p className="mt-2">더 정확한 진단이 필요하다면 전문가와 상담하시기 바랍니다.</p>
-        </div>
+        <ReportActions reportId={report.id} status={report.status} />
       </div>
     </div>
   );
