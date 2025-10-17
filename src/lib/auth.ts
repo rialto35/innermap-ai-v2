@@ -10,10 +10,6 @@ export const authOptions: AuthOptions = {
   ],
   session: { strategy: 'jwt' },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  // 프로덕션 URL 설정 (환경변수 또는 자동 감지)
-  url: process.env.NEXTAUTH_URL || process.env.VERCEL_URL 
-    ? `https://${process.env.VERCEL_URL}` 
-    : 'http://localhost:3000',
   debug: false, // 보안상 debug 비활성화 (clientSecret 로그 노출 방지)
   pages: {
     signIn: '/login',
