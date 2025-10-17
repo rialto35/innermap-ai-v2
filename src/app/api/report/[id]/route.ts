@@ -36,6 +36,7 @@ export async function GET(
     }
 
     // 2. Fetch report
+    console.log('[GET /api/report/[id]] Fetching report:', reportId, 'for user:', userId);
     const { data: report, error: fetchError } = await supabaseAdmin
       .from('reports')
       .select('*')
@@ -44,16 +45,38 @@ export async function GET(
 
     if (fetchError || !report) {
       console.error('[GET /api/report/[id]] Report not found:', fetchError);
+      console.error('[GET /api/report/[id]] Query:', { reportId, userId });
       return NextResponse.json({
-        error: { code: 'NOT_FOUND', message: 'Report not found' }
+        error: { 
+          code: 'NOT_FOUND', 
+          message: 'Report not found',
+          details: fetchError?.message,
+          debug: { reportId, userId }
+        }
       }, { status: 404 });
     }
 
     // 3. Verify ownership
+    console.log('[GET /api/report/[id]] Verifying ownership:', { 
+      reportUserId: report.user_id, 
+      sessionUserId: userId,
+      match: report.user_id === userId
+    });
+    
     if (report.user_id !== userId) {
-      console.error('[GET /api/report/[id]] Ownership mismatch');
+      console.error('[GET /api/report/[id]] Ownership mismatch:', {
+        expected: userId,
+        actual: report.user_id
+      });
       return NextResponse.json({
-        error: { code: 'FORBIDDEN', message: 'Access denied' }
+        error: { 
+          code: 'FORBIDDEN', 
+          message: 'Access denied',
+          debug: {
+            reportUserId: report.user_id,
+            sessionUserId: userId
+          }
+        }
       }, { status: 403 });
     }
 
