@@ -51,12 +51,17 @@ export const useAnalyzeStore = create<UnifiedState>()(
       
       // Actions
       setAnswer: (questionId, value) => {
+        const { index, totalQuestions } = get();
         set((state) => ({
           answers: {
             ...state.answers,
             [questionId]: value
           }
         }));
+        // Auto-advance to next question if not the last one
+        if (index < totalQuestions - 1) {
+          get().next();
+        }
       },
       
       next: () => {

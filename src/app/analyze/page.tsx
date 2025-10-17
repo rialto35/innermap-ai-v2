@@ -89,23 +89,6 @@ export default function AnalyzePage() {
   const progress = getProgress();
   const estimatedTimeLeft = getEstimatedTimeLeft();
   
-  // Handle answer change
-  const handleAnswer = (value: number) => {
-    setAnswer(currentQuestion.id, value);
-  };
-  
-  // Handle next
-  const handleNext = () => {
-    if (index < questions.length - 1) {
-      next();
-    } else {
-      // Last question - check completion
-      if (checkComplete()) {
-        handleSubmit();
-      }
-    }
-  };
-  
   // Handle submit
   const handleSubmit = async () => {
     const validation = validateCompleteness(answers);
@@ -230,8 +213,7 @@ export default function AnalyzePage() {
                 text={currentQuestion.text}
                 value={answers[currentQuestion.id]}
                 scale={currentQuestion.scale}
-                onChange={handleAnswer}
-                onNext={handleNext}
+                onChange={(value) => setAnswer(currentQuestion.id, value)}
                 onPrev={prev}
               />
             </AnimatePresence>
@@ -264,7 +246,13 @@ export default function AnalyzePage() {
               )}
               
               <button
-                onClick={handleNext}
+                onClick={() => {
+                  if (index === questions.length - 1) {
+                    handleSubmit();
+                  } else {
+                    next();
+                  }
+                }}
                 disabled={
                   index === questions.length - 1 
                     ? !checkComplete()  // 마지막 문항: 모든 문항 답변 체크
