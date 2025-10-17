@@ -139,11 +139,6 @@ function LoginForm() {
             🧪 개발용 로그인 (임시)
           </button>
         </div>
-
-        <div className="mt-6 text-center text-sm text-white/60">
-          계정이 없으신가요?{' '}
-          <Link href="/signup" className="text-sky-400 hover:underline">회원가입</Link>
-        </div>
       </div>
     </div>
   )
