@@ -10,7 +10,7 @@ export const authOptions: AuthOptions = {
   ],
   session: { strategy: 'jwt' },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  debug: true, // Temporarily enabled for debugging OAuth issues
+  debug: false, // disable debug in production
   pages: {
     signIn: '/login',
     error: '/login',
@@ -38,17 +38,3 @@ export const authOptions: AuthOptions = {
     },
   },
 }
-
-// Safe runtime diagnostic (prints only tails)
-try {
-  const id = process.env.GOOGLE_CLIENT_ID || ''
-  const secret = process.env.GOOGLE_CLIENT_SECRET || ''
-  const idTail = id ? id.slice(-4) : 'none'
-  const secTail = secret ? secret.slice(-4) : 'none'
-  // Only print in production runtime on server
-  if (typeof window === 'undefined') {
-    console.log('[auth][diagnostic] GOOGLE_CLIENT_ID tail:', idTail)
-    console.log('[auth][diagnostic] GOOGLE_CLIENT_SECRET tail:', secTail)
-    console.log('[auth][diagnostic] NEXTAUTH_URL:', process.env.NEXTAUTH_URL)
-  }
-} catch {}
