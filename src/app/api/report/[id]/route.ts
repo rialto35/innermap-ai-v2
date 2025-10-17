@@ -1,11 +1,8 @@
 /**
  * GET /api/report/[id]
  * 
- * 리포트 데이터 조회
- * - 전체 리포트 정보 반환
- * - 본인 소유 리포트만 접근 가능
- * 
- * @version v1.1.0
+ * 리포트 데이터 조회 (확장)
+ * - 리포트 + 사용자/영웅 메타 + 시각화 URL 포함
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,78 +15,85 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // 1. Auth guard
     const session = await getServerSession(authOptions);
     if (!session?.user?.email) {
-      return NextResponse.json({
-        error: { code: 'UNAUTHORIZED', message: 'Authentication required' }
-      }, { status: 401 });
+      return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required' } }, { status: 401 });
     }
 
-    const userId = session.user.email;
+    const sessionUserId = session.user.email;
     const { id: reportId } = await params;
-
     if (!reportId) {
-      return NextResponse.json({
-        error: { code: 'INVALID_REQUEST', message: 'Report ID is required' }
-      }, { status: 400 });
+      return NextResponse.json({ error: { code: 'INVALID_REQUEST', message: 'Report ID is required' } }, { status: 400 });
     }
 
-    // 2. Fetch report
-    console.log('[GET /api/report/[id]] Fetching report:', reportId, 'for user:', userId);
-    const { data: report, error: fetchError } = await supabaseAdmin
+    // reports + users + heroes 조인(뷰가 없다는 가정하 조립)
+    const { data: report, error } = await supabaseAdmin
       .from('reports')
-      .select('*')
+      .select('id, user_id, result_id, status, summary_md, visuals_json, created_at, finished_at')
       .eq('id', reportId)
       .single();
 
-    if (fetchError || !report) {
-      console.error('[GET /api/report/[id]] Report not found:', fetchError);
-      console.error('[GET /api/report/[id]] Query:', { reportId, userId });
-      return NextResponse.json({
-        error: { 
-          code: 'NOT_FOUND', 
-          message: 'Report not found',
-          details: fetchError?.message,
-          debug: { reportId, userId }
-        }
-      }, { status: 404 });
+    if (error || !report) {
+      return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Report not found', details: error?.message } }, { status: 404 });
     }
 
-    // 3. Verify ownership
-    console.log('[GET /api/report/[id]] Verifying ownership:', { 
-      reportUserId: report.user_id, 
-      sessionUserId: userId,
-      match: report.user_id === userId
-    });
-    
-    if (report.user_id !== userId) {
-      console.error('[GET /api/report/[id]] Ownership mismatch:', {
-        expected: userId,
-        actual: report.user_id
-      });
-      return NextResponse.json({
-        error: { 
-          code: 'FORBIDDEN', 
-          message: 'Access denied',
-          debug: {
-            reportUserId: report.user_id,
-            sessionUserId: userId
-          }
-        }
-      }, { status: 403 });
+    if (report.user_id !== sessionUserId) {
+      return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Access denied' } }, { status: 403 });
     }
 
-    // 4. Return report data
-    return NextResponse.json(report);
+    // 사용자 이름 (reports.user_id는 email이므로 email로 조회)
+    const { data: userMeta } = await supabaseAdmin
+      .from('users')
+      .select('id, name, email')
+      .eq('email', report.user_id)
+      .maybeSingle();
 
-  } catch (error) {
-    console.error('[GET /api/report/[id]] Error:', error);
-    return NextResponse.json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: error instanceof Error ? error.message : 'Unknown error'
+    // 영웅 메타(가정: results 또는 hero 테이블에서 조회)
+    const { data: resultMeta } = await supabaseAdmin
+      .from('test_results')
+      .select('hero_name, tribe_name')
+      .eq('id', report.result_id)
+      .maybeSingle();
+
+    const heroName = resultMeta?.hero_name ?? '영웅';
+    const heroTribe = resultMeta?.tribe_name ?? 'Water';
+
+    // visuals_json URL 정리(이미 값이 있으면 그대로, 없으면 null)
+    const visuals = report.visuals_json || {} as any;
+
+    // 비주얼이 비어 있고 아직 생성한 적 없으면 Edge Function에 비차단 trigger
+    try {
+      const needVisuals = !visuals?.big5RadarUrl || !visuals?.generated_at;
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (needVisuals && supabaseUrl && serviceKey) {
+        const functionUrl = `${supabaseUrl.replace(/\/$/, '')}/functions/v1/generate-visuals`;
+        fetch(functionUrl, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reportId }),
+        }).catch(() => {});
       }
-    }, { status: 500 });
+    } catch {}
+
+    const payload = {
+      id: report.id,
+      status: report.status,
+      summary_md: report.summary_md,
+      created_at: report.created_at,
+      finished_at: report.finished_at,
+      user: { name: userMeta?.name ?? (userMeta?.email ?? 'User') },
+      hero: { name: heroName, tribe: heroTribe },
+      visuals_json: {
+        big5RadarUrl: visuals.big5RadarUrl || null,
+        auxBarsUrl: visuals.auxBarsUrl || null,
+        growthVectorUrl: visuals.growthVectorUrl || null,
+        generated_at: visuals.generated_at || null,
+      },
+    };
+
+    return NextResponse.json(payload);
+  } catch (err) {
+    return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Unknown error' } }, { status: 500 });
   }
 }

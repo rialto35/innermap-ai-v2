@@ -31,6 +31,8 @@ interface ReportData {
   started_at?: string;
   finished_at?: string;
   created_at: string;
+  user?: { name: string };
+  hero?: { name: string; tribe: string };
 }
 
 interface ResultData {
@@ -232,11 +234,12 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       `}</style>
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
-        {result && (
+        {(result || report.hero) && (
           <ReportHeader
-            heroId={result.hero_id}
-            heroName={result.hero_name}
-            engineVersion={result.engine_version}
+            heroId={result?.hero_id || 'unknown'}
+            heroName={report.hero?.name || result?.hero_name || '영웅'}
+            heroTribe={report.hero?.tribe}
+            engineVersion={result?.engine_version || 'v1.0'}
             createdAt={report.created_at}
             finishedAt={report.finished_at}
             reportId={report.id}

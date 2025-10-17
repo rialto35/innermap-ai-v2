@@ -81,17 +81,38 @@ export default function ReportActions({ reportId, status }: ReportActionsProps) 
       // 캡처 시작 전 맨 위로 스크롤(빈 페이지 방지)
       window.scrollTo(0, 0);
 
-      await html2pdf()
-        .set({
-          margin: 12,
-          filename: `innermap-report-${reportId}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, scrollX: 0 },
-          jsPDF: { unit: 'pt', format: 'a4', orientation: 'p' },
-          pagebreak: { mode: ['css', 'legacy'] },
-        })
-        .from(target)
-        .save();
+      // html2pdf로 생성 후, jsPDF 인스턴스에 접근하여 페이지 번호 추가
+      const worker = html2pdf().set({
+        margin: [16, 14, 24, 14], // top, left, bottom, right (페이지 번호 공간 확보)
+        filename: `innermap-report-${reportId}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, scrollX: 0 },
+        jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
+        pagebreak: { mode: ['css', 'legacy', 'avoid-all'] },
+      }).from(target);
+
+      // toPdf() 후 출력을 가로채 페이지 번호 삽입
+      const pdf = await new Promise<any>((resolve) => worker.toPdf().get('pdf').then((p: any) => resolve(p)));
+
+      const total = pdf.internal.getNumberOfPages();
+      const w = pdf.internal.pageSize.getWidth();
+      const h = pdf.internal.pageSize.getHeight();
+
+      // 페이지 번호 + 브랜딩 추가
+      pdf.setFontSize(9);
+      pdf.setTextColor(102); // #666
+      for (let i = 1; i <= total; i++) {
+        pdf.setPage(i);
+        // 중앙 하단에 페이지 번호 + 브랜딩
+        pdf.text(`Page ${i} / ${total}`, w / 2 - 20, h - 12, { align: 'center' });
+        pdf.setFontSize(8);
+        pdf.setTextColor(140); // 더 연한 회색
+        pdf.text('© 2025 InnerMap AI by PromptCore', w / 2 + 40, h - 12, { align: 'center' });
+        pdf.setFontSize(9);
+        pdf.setTextColor(102);
+      }
+
+      pdf.save(`innermap-report-${reportId}.pdf`);
     } catch (e) {
       console.error('PDF export error:', e);
       alert('PDF 생성 중 오류가 발생했습니다.');

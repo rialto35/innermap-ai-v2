@@ -36,10 +36,10 @@ export default function ReportMarkdown({ content }: ReportMarkdownProps) {
   const parseMarkdown = (md: string) => {
     let html = sanitize(md);
 
-    // Headers
-    html = html.replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold text-gray-900 dark:text-white mt-6 mb-3">$1<\/h3>');
-    html = html.replace(/^## (.*$)/gim, '<h2 class="section-heading text-2xl font-bold text-gray-900 dark:text-white mt-8 mb-4">$1<\/h2>');
-    html = html.replace(/^# (.*$)/gim, '<h1 class="section-heading text-3xl font-bold text-gray-900 dark:text-white mt-10 mb-6">$1<\/h1>');
+    // Headers (with accent color)
+    html = html.replace(/^### (.*$)/gim, '<h3 class="text-xl font-semibold text-indigo-700 dark:text-indigo-300 mt-6 mb-3">$1<\/h3>');
+    html = html.replace(/^## (.*$)/gim, '<h2 class="section-heading text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-8 mb-4">$1<\/h2>');
+    html = html.replace(/^# (.*$)/gim, '<h1 class="section-heading text-3xl font-bold text-indigo-800 dark:text-indigo-300 mt-10 mb-6">$1<\/h1>');
 
     // Bold
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong class="font-semibold text-gray-900 dark:text-white">$1<\/strong>');
@@ -79,7 +79,7 @@ export default function ReportMarkdown({ content }: ReportMarkdownProps) {
 
       const parent = h.parentElement;
       const wrap = document.createElement('div');
-      wrap.className = 'section-card bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100/60 dark:border-white/10 p-6 md:p-8 mb-6 pdf-avoid-break';
+      wrap.className = 'section-card bg-gradient-to-br from-white to-indigo-50/30 dark:from-gray-900 dark:to-indigo-950/20 rounded-2xl shadow-sm border border-indigo-100/60 dark:border-indigo-900/40 p-6 md:p-8 mb-6 pdf-avoid-break';
       if (idx > 0) wrap.classList.add('pdf-page-break');
 
       // parent 기준으로 안전하게 삽입 후 노드 이동

@@ -157,14 +157,23 @@ export async function POST(request: NextRequest) {
 
     console.log(`[POST /api/report] Report queued successfully: ${newReport.id}`);
 
-    // 6. Trigger edge function (optional - can also use cron)
-    // For now, we'll rely on periodic polling by edge function
-    // In production, you can trigger it via Supabase Edge Function invocation
+    // 6. Trigger edge function (best-effort)
     try {
-      await triggerReportGeneration(newReport.id);
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      if (supabaseUrl && serviceKey) {
+        const functionUrl = `${supabaseUrl.replace(/\/$/, '')}/functions/v1/generate-report`;
+        fetch(functionUrl, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${serviceKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ trigger: 'api-report', reportId: newReport.id }),
+        }).catch(() => {});
+      }
     } catch (triggerError) {
-      console.warn('[POST /api/report] Failed to trigger edge function:', triggerError);
-      // Non-fatal - edge function will pick it up via polling
+      console.warn('[POST /api/report] Edge function trigger failed (non-fatal):', triggerError);
     }
 
     // 7. Return report ID immediately
