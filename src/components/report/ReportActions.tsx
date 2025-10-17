@@ -24,21 +24,16 @@ async function getHtml2Pdf(): Promise<any> {
   if (html2pdfPromise) return html2pdfPromise;
 
   html2pdfPromise = (async () => {
-    try {
-      const mod = await import('html2pdf.js');
-      return (mod as any).default || mod;
-    } catch {
-      // CDN 로드
-      await new Promise<void>((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
-        s.async = true;
-        s.onload = () => resolve();
-        s.onerror = () => reject(new Error('html2pdf CDN load failed'));
-        document.body.appendChild(s);
-      });
-      return (window as any).html2pdf;
-    }
+    // CDN에서 직접 로드 (npm 패키지 없음)
+    await new Promise<void>((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+      s.async = true;
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('html2pdf CDN load failed'));
+      document.body.appendChild(s);
+    });
+    return (window as any).html2pdf;
   })();
 
   return html2pdfPromise;
