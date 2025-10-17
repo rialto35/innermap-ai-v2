@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     // 3. Verify result exists and belongs to user
     const { data: result, error: resultError } = await supabaseAdmin
       .from('test_results')
-      .select('id, user_id, engine_version')
+      .select('id, user_id')
       .eq('id', resultId)
       .single();
 
