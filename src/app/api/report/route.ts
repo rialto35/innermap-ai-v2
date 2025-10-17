@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
-    const userId = session.user.email;
+    const userEmail = session.user.email;
 
     // 2. Parse request
     const body: ReportRequest = await request.json();
@@ -48,9 +48,26 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    console.log(`[POST /api/report] User ${userId} requesting report for result ${resultId}`);
+    console.log(`[POST /api/report] User ${userEmail} requesting report for result ${resultId}`);
 
-    // 3. Verify result exists and belongs to user
+    // 3. Get user UUID from email
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('email', userEmail)
+      .single();
+
+    if (userError || !user) {
+      console.error('[POST /api/report] User not found:', userError);
+      return NextResponse.json({
+        error: { code: 'NOT_FOUND', message: 'User not found' }
+      }, { status: 404 });
+    }
+
+    const userId = user.id;
+    console.log(`[POST /api/report] Resolved user UUID: ${userId}`);
+
+    // 4. Verify result exists and belongs to user
     const { data: result, error: resultError } = await supabaseAdmin
       .from('test_results')
       .select('id, user_id')
@@ -66,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     // Verify ownership
     if (result.user_id !== userId) {
-      console.error(`[POST /api/report] Ownership mismatch: ${userId} vs ${result.user_id}`);
+      console.error(`[POST /api/report] Ownership mismatch: user ${userId} vs result.user_id ${result.user_id}`);
       return NextResponse.json({
         error: { code: 'FORBIDDEN', message: 'Access denied' }
       }, { status: 403 });
@@ -119,7 +136,7 @@ export async function POST(request: NextRequest) {
     const { data: newReport, error: insertError } = await supabaseAdmin
       .from('reports')
       .insert({
-        user_id: userId,
+        user_id: userEmail, // reports.user_id is TEXT (email)
         result_id: resultId,
         status: 'queued',
         created_at: new Date().toISOString()
