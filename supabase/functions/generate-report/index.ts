@@ -98,9 +98,9 @@ Deno.serve(async (req) => {
       .eq('id', report.id);
 
     try {
-      // Fetch result data
+      // Fetch result data from test_results table
       const { data: result, error: resultError } = await supabase
-        .from('results')
+        .from('test_results')
         .select('*')
         .eq('id', report.result_id)
         .single();
@@ -188,32 +188,40 @@ Deno.serve(async (req) => {
 });
 
 /**
- * Build report input from result data
+ * Build report input from test_results data
  */
 function buildReportInput(result: any) {
   return {
-    big5: result.big5_scores || {
-      openness: 50,
-      conscientiousness: 50,
-      extraversion: 50,
-      agreeableness: 50,
-      neuroticism: 50
+    // Big5 from individual columns
+    big5: {
+      openness: result.big5_openness || 50,
+      conscientiousness: result.big5_conscientiousness || 50,
+      extraversion: result.big5_extraversion || 50,
+      agreeableness: result.big5_agreeableness || 50,
+      neuroticism: result.big5_neuroticism || 50
     },
-    mbti: result.mbti_scores || {
-      type: 'ENFP',
-      confidence: { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 }
+    // MBTI from mbti_type and mbti_confidence
+    mbti: {
+      type: result.mbti_type || 'ENFP',
+      confidence: result.mbti_confidence || { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 }
     },
-    reti: result.reti_scores || {
-      primaryType: '7',
+    // RETI from reti_top1/top2 and reti_scores
+    reti: {
+      primaryType: result.reti_top1?.replace('r', '') || '7',
+      secondaryType: result.reti_top2?.replace('r', ''),
       confidence: 0.7,
-      rawScores: {}
+      rawScores: result.reti_scores || {}
     },
+    // Hero from hero_id and hero_name
     hero: {
       id: result.hero_id || 'default',
-      name: result.hero_id || '탐험가',
+      name: result.hero_name || '탐험가',
       traits: ['모험심', '호기심']
     },
-    auxiliary: result.auxiliary_scores || undefined
+    // Auxiliary scores (optional)
+    auxiliary: result.auxiliary_scores || undefined,
+    // User name from result
+    userName: result.name
   };
 }
 
@@ -288,18 +296,16 @@ function buildNarrativePrompt(input: any): { system: string; user: string } {
 }
 
 /**
- * Build visual metadata
+ * Build visual metadata from test_results
  */
 function buildVisualMetadata(result: any) {
-  const big5 = result.big5_scores || {};
-  
   return {
     big5Radar: {
-      openness: big5.openness || 50,
-      conscientiousness: big5.conscientiousness || 50,
-      extraversion: big5.extraversion || 50,
-      agreeableness: big5.agreeableness || 50,
-      neuroticism: big5.neuroticism || 50
+      openness: result.big5_openness || 50,
+      conscientiousness: result.big5_conscientiousness || 50,
+      extraversion: result.big5_extraversion || 50,
+      agreeableness: result.big5_agreeableness || 50,
+      neuroticism: result.big5_neuroticism || 50
     },
     auxProfile: result.auxiliary_scores || undefined
   };
