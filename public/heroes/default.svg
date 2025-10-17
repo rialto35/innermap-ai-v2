@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-label="Default Hero">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#a5b4fc"/>
+      <stop offset="50%" stop-color="#c4b5fd"/>
+      <stop offset="100%" stop-color="#f5a7d7"/>
+    </linearGradient>
+    <linearGradient id="s" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="128" fill="url(#g)"/>
+  <circle cx="128" cy="96" r="52" fill="#fff" fill-opacity="0.25"/>
+  <rect x="56" y="152" width="144" height="64" rx="32" fill="#fff" fill-opacity="0.25"/>
+  <ellipse cx="128" cy="64" rx="110" ry="40" fill="url(#s)"/>
+</svg>
