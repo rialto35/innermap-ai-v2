@@ -99,8 +99,20 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         // Fetch result data for hero info
         const resultRes = await fetch(`/api/results/${reportData.result_id}`);
         if (resultRes.ok) {
-          const resultData = await resultRes.json();
-          setResult(resultData);
+          const raw = await resultRes.json();
+          // Normalize nested payload from results API → flat shape used by this page
+          const normalized: ResultData = {
+            id: raw.id,
+            hero_id: raw.hero?.id || 'default',
+            hero_name: raw.hero?.name || '미지의 영웅',
+            engine_version: raw.engineVersion || 'v1.0.0',
+            big5_openness: raw.big5?.openness ?? 50,
+            big5_conscientiousness: raw.big5?.conscientiousness ?? 50,
+            big5_extraversion: raw.big5?.extraversion ?? 50,
+            big5_agreeableness: raw.big5?.agreeableness ?? 50,
+            big5_neuroticism: raw.big5?.neuroticism ?? 50
+          };
+          setResult(normalized);
         }
 
         setLoading(false);
@@ -212,7 +224,12 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 py-12">
+    <div id="report-root" className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 py-12">
+      <style jsx global>{`
+        /* PDF 페이지 분리: 큰 섹션 앞뒤에 page-break 적용 */
+        .pdf-page-break { page-break-after: always; break-after: page; }
+        .pdf-avoid-break { page-break-inside: avoid; break-inside: avoid; }
+      `}</style>
       <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         {result && (
@@ -222,6 +239,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
             engineVersion={result.engine_version}
             createdAt={report.created_at}
             finishedAt={report.finished_at}
+            reportId={report.id}
           />
         )}
 
@@ -237,13 +255,13 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         {report.status === 'ready' && report.summary_md && (
           <>
             {/* Markdown Content */}
-            <div className="mb-6">
+            <div className="mb-6 pdf-avoid-break">
               <ReportMarkdown content={report.summary_md} />
             </div>
 
             {/* Visualizations */}
             {result && (
-              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm mb-6">
+              <div className="bg-white dark:bg-gray-900 rounded-2xl p-8 shadow-sm mb-6 pdf-avoid-break">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
                   성격 프로필
                 </h2>
@@ -263,6 +281,12 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
 
         {/* Actions */}
         <ReportActions reportId={report.id} status={report.status} />
+
+        {/* Footer */}
+        <div className="mt-10 text-center text-xs text-gray-500 dark:text-gray-400">
+          <div>© {new Date().getFullYear()} InnerMap AI · Professional Psychological Report</div>
+          <div className="opacity-70">이 리포트는 개인적 인사이트 제공을 목적으로 하며 의료적 진단이 아닙니다.</div>
+        </div>
       </div>
     </div>
   );

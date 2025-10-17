@@ -15,6 +15,46 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+// Reliability constants
+const MAX_RETRIES = 3; // 최대 재시도 횟수
+const INITIAL_BACKOFF_MS = 1500; // 첫 지수백오프 대기(ms)
+const LLM_TIMEOUT_MS = 45_000; // 각 LLM 요청 타임아웃(ms)
+
+// Helper: fetch with timeout
+async function fetchWithTimeout(url: string, options: RequestInit, timeoutMs: number): Promise<Response> {
+  const controller = new AbortController();
+  const id = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { ...options, signal: controller.signal });
+    return res;
+  } finally {
+    clearTimeout(id);
+  }
+}
+
+// Helper: retry wrapper with exponential backoff (429/5xx/abort/network)
+async function withRetry<T>(label: string, run: () => Promise<T>): Promise<T> {
+  let attempt = 0;
+  let backoff = INITIAL_BACKOFF_MS;
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    try {
+      return await run();
+    } catch (err) {
+      attempt += 1;
+      const isRetriable = err instanceof Error
+        ? /429|5\d\d|abort|network|timeout/i.test(err.message)
+        : true;
+      if (!isRetriable || attempt > MAX_RETRIES) {
+        throw err;
+      }
+      console.warn(`[retry] ${label} failed (attempt ${attempt}/${MAX_RETRIES}):`, err);
+      await new Promise((r) => setTimeout(r, backoff));
+      backoff *= 2; // exponential
+    }
+  }
+}
+
 // Types
 interface Report {
   id: string;
@@ -318,91 +358,86 @@ async function callLLM(prompt: { system: string; user: string }): Promise<LLMRes
   const openaiKey = Deno.env.get('OPENAI_API_KEY');
   const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
 
-  // Try OpenAI first
+  // Prefer OpenAI, with retries
   if (openaiKey) {
     console.log('[callLLM] Using OpenAI');
     try {
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${openaiKey}`
-        },
-        body: JSON.stringify({
-          model: 'gpt-4-turbo-preview',
-          messages: [
-            { role: 'system', content: prompt.system },
-            { role: 'user', content: prompt.user }
-          ],
-          temperature: 0.7,
-          max_tokens: 2000
-        })
+      const data = await withRetry('openai', async () => {
+        const response = await fetchWithTimeout('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${openaiKey}`
+          },
+          body: JSON.stringify({
+            model: 'gpt-4-turbo-preview',
+            messages: [
+              { role: 'system', content: prompt.system },
+              { role: 'user', content: prompt.user }
+            ],
+            temperature: 0.7,
+            max_tokens: 2000
+          })
+        }, LLM_TIMEOUT_MS);
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(String(error.error?.message || `OpenAI API error (${response.status})`));
+        }
+        return await response.json();
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'OpenAI API error');
-      }
-
-      const data = await response.json();
       return {
         success: true,
         content: data.choices[0].message.content,
         model: 'gpt-4-turbo-preview',
-        tokens: data.usage.total_tokens
+        tokens: data.usage?.total_tokens
       };
     } catch (error) {
-      console.error('[callLLM] OpenAI error:', error);
-      // Fall through to Anthropic if available
+      console.error('[callLLM] OpenAI error (after retries):', error);
+      // fallthrough to Anthropic if available
     }
   }
 
-  // Try Anthropic
   if (anthropicKey) {
     console.log('[callLLM] Using Anthropic');
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': anthropicKey,
-          'anthropic-version': '2023-06-01'
-        },
-        body: JSON.stringify({
-          model: 'claude-3-sonnet-20240229',
-          max_tokens: 2000,
-          system: prompt.system,
-          messages: [
-            { role: 'user', content: prompt.user }
-          ]
-        })
+      const data = await withRetry('anthropic', async () => {
+        const response = await fetchWithTimeout('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': anthropicKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: 'claude-3-sonnet-20240229',
+            max_tokens: 2000,
+            system: prompt.system,
+            messages: [{ role: 'user', content: prompt.user }]
+          })
+        }, LLM_TIMEOUT_MS);
+
+        if (!response.ok) {
+          const error = await response.json().catch(() => ({}));
+          throw new Error(String(error.error?.message || `Anthropic API error (${response.status})`));
+        }
+        return await response.json();
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error?.message || 'Anthropic API error');
-      }
-
-      const data = await response.json();
       return {
         success: true,
-        content: data.content[0].text,
+        content: data.content?.[0]?.text,
         model: 'claude-3-sonnet',
-        tokens: data.usage.input_tokens + data.usage.output_tokens
+        tokens: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0)
       };
     } catch (error) {
-      console.error('[callLLM] Anthropic error:', error);
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Anthropic API failed'
-      };
+      console.error('[callLLM] Anthropic error (after retries):', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Anthropic API failed' };
     }
   }
 
-  return {
-    success: false,
-    error: 'No LLM API key configured'
-  };
+  return { success: false, error: 'No LLM API key configured' };
 }
 
 /**

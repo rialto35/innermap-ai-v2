@@ -2,16 +2,47 @@
  * ReportActions
  * 
  * 리포트 액션 버튼들
- * - PDF 다운로드 (다음 PR)
- * - 공유 링크 (다음 PR)
+ * - PDF 다운로드
+ * - 공유 링크
  * - 대시보드로 돌아가기
  * 
- * @version v1.1.0
+ * @version v1.2.0
  */
 
 'use client';
 
 import Link from 'next/link';
+import { useCallback, useState } from 'react';
+
+// html2pdf.js 런타임 로더 (CDN 폴백)
+let html2pdfPromise: Promise<any> | null = null;
+async function getHtml2Pdf(): Promise<any> {
+  if (typeof window === 'undefined') throw new Error('window undefined');
+  // 이미 로드되어 있으면 반환
+  const w = window as any;
+  if (w.html2pdf) return w.html2pdf;
+  if (html2pdfPromise) return html2pdfPromise;
+
+  html2pdfPromise = (async () => {
+    try {
+      const mod = await import('html2pdf.js');
+      return (mod as any).default || mod;
+    } catch {
+      // CDN 로드
+      await new Promise<void>((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+        s.async = true;
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('html2pdf CDN load failed'));
+        document.body.appendChild(s);
+      });
+      return (window as any).html2pdf;
+    }
+  })();
+
+  return html2pdfPromise;
+}
 
 interface ReportActionsProps {
   reportId: string;
@@ -21,6 +52,53 @@ interface ReportActionsProps {
 export default function ReportActions({ reportId, status }: ReportActionsProps) {
   const canDownload = status === 'ready';
   const canShare = status === 'ready';
+  const [busy, setBusy] = useState(false);
+
+  const handleShare = useCallback(async () => {
+    const url = `${window.location.origin}/report/${reportId}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'InnerMap AI 리포트', text: '내 성장 리포트', url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      alert('링크가 복사되었습니다.');
+    } catch (e) {
+      console.error('Share error:', e);
+      alert('공유 중 오류가 발생했습니다. 링크를 수동으로 복사해주세요:\n' + url);
+    }
+  }, [reportId]);
+
+  const handlePdf = useCallback(async () => {
+    if (!canDownload || busy) return;
+    setBusy(true);
+    try {
+      const html2pdf = await getHtml2Pdf();
+
+      const target = document.querySelector('#report-root') as HTMLElement;
+      if (!target) throw new Error('리포트 영역을 찾을 수 없습니다.');
+
+      // 캡처 시작 전 맨 위로 스크롤(빈 페이지 방지)
+      window.scrollTo(0, 0);
+
+      await html2pdf()
+        .set({
+          margin: 12,
+          filename: `innermap-report-${reportId}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2, useCORS: true, backgroundColor: '#ffffff', scrollY: 0, scrollX: 0 },
+          jsPDF: { unit: 'pt', format: 'a4', orientation: 'p' },
+          pagebreak: { mode: ['css', 'legacy'] },
+        })
+        .from(target)
+        .save();
+    } catch (e) {
+      console.error('PDF export error:', e);
+      alert('PDF 생성 중 오류가 발생했습니다.');
+    } finally {
+      setBusy(false);
+    }
+  }, [canDownload, busy, reportId]);
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm">
@@ -37,24 +115,20 @@ export default function ReportActions({ reportId, status }: ReportActionsProps) 
           ← 대시보드로
         </Link>
 
-        {/* PDF Download (disabled for now) */}
+        {/* PDF Download */}
         <button
-          disabled={!canDownload}
+          disabled={!canDownload || busy}
           className={`px-6 py-3 rounded-lg transition ${
-            canDownload
+            canDownload && !busy
               ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
               : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
           }`}
-          onClick={() => {
-            if (canDownload) {
-              alert('PDF 다운로드 기능은 다음 업데이트에서 제공됩니다.');
-            }
-          }}
+          onClick={handlePdf}
         >
-          📄 PDF 다운로드
+          {busy ? '생성 중...' : '📄 PDF 다운로드'}
         </button>
 
-        {/* Share Link (disabled for now) */}
+        {/* Share Link */}
         <button
           disabled={!canShare}
           className={`px-6 py-3 rounded-lg transition ${
@@ -62,11 +136,7 @@ export default function ReportActions({ reportId, status }: ReportActionsProps) 
               ? 'bg-green-600 hover:bg-green-700 text-white'
               : 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
           }`}
-          onClick={() => {
-            if (canShare) {
-              alert('공유 링크 기능은 다음 업데이트에서 제공됩니다.');
-            }
-          }}
+          onClick={handleShare}
         >
           🔗 공유하기
         </button>
