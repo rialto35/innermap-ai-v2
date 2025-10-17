@@ -15,7 +15,7 @@ interface UnifiedQuestionProps {
   value?: number;
   scale: number;
   onChange: (value: number) => void;
-  onNext: () => void;
+  onNext?: () => void; // Optional - auto-advance in state
   onPrev: () => void;
 }
 
@@ -45,7 +45,7 @@ export default function UnifiedQuestion({
         onPrev();
       } else if (e.key === 'ArrowRight') {
         e.preventDefault();
-        if (value) onNext();
+        if (value && onNext) onNext();
       }
     };
     
@@ -99,9 +99,11 @@ export default function UnifiedQuestion({
             onClick={() => {
               onChange(num);
               // 자동으로 다음 문항으로 이동 (0.5초 후)
-              setTimeout(() => {
-                onNext();
-              }, 500);
+              if (onNext) {
+                setTimeout(() => {
+                  onNext();
+                }, 500);
+              }
             }}
             className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition ${
               value === num
