@@ -15,7 +15,7 @@ const toneStyles: Record<'default' | 'highlight', string> = {
 
 export default function SectionCard({ title, icon, children, footer, tone = 'default' }: SectionCardProps) {
   return (
-    <div className={`rounded-3xl border p-6 shadow-lg shadow-black/20 backdrop-blur ${toneStyles[tone]}`}>
+    <div className={`rounded-3xl border p-6 shadow-lg shadow-black/20 backdrop-blur overflow-hidden ${toneStyles[tone]}`}>
       {(title || icon) && (
         <div className="mb-4 flex items-center gap-3">
           {icon && <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-lg text-white">{icon}</div>}
