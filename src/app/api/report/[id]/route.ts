@@ -78,6 +78,7 @@ export async function GET(
 
     const payload = {
       id: report.id,
+      result_id: report.result_id,
       status: report.status,
       summary_md: report.summary_md,
       created_at: report.created_at,
