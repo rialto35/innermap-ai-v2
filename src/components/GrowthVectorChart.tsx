@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Cell } from 'recharts'
 
 interface GrowthVectorChartProps {
   growth: {
@@ -28,44 +28,38 @@ export default function GrowthVectorChart({ growth }: GrowthVectorChartProps) {
   ]
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20 backdrop-blur">
-      <div className="mb-4 flex items-center gap-2 text-white">
-        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500/50 to-sky-500/50 text-lg">📈</span>
-        <div>
-          <h3 className="text-lg font-semibold">성장 벡터</h3>
-          <p className="text-xs text-white/50">선천·후천·의식 등 주요 성장 축의 현재 위치</p>
-        </div>
+    <div className="space-y-4">
+      <div className="h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} layout="vertical">
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" horizontal={false} />
+            <XAxis
+              type="number"
+              domain={[0, 100]}
+              tick={{ fill: '#9ca3af', fontSize: 11 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tick={{ fill: '#d1d5db', fontSize: 12 }}
+              width={50}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Bar dataKey="value" radius={[0, 12, 12, 0]}>
+              {data.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={entry.color}
+                  opacity={0.75}
+                />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
-
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={data} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" horizontal={false} />
-          <XAxis 
-            type="number" 
-            domain={[0, 100]}
-            tick={{ fill: '#9ca3af', fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis 
-            type="category" 
-            dataKey="name" 
-            tick={{ fill: '#d1d5db', fontSize: 12 }}
-            width={50}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Bar dataKey="value" radius={[0, 12, 12, 0]}>
-            {data.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={entry.color}
-                opacity={0.75}
-              />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
     </div>
   )
 }
