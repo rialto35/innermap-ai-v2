@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
   const provider = body.provider === 'portone' ? 'portone' : 'stripe'
   const adapter = provider === 'portone' ? portoneAdapter : stripeAdapter
 
-  const userId = await resolveUserId(session.user.email)
+  const userId = await resolveOrCreateUserId(session.user.email, session.user.name || undefined)
   if (!userId) {
     return NextResponse.json({ ok: false, error: 'USER_NOT_FOUND' }, { status: 400 })
   }
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
   return NextResponse.json(result)
 }
 
-async function resolveUserId(email: string): Promise<string | null> {
+async function resolveOrCreateUserId(email: string, name?: string): Promise<string | null> {
   const { data, error } = await supabaseAdmin
     .from('users')
     .select('id')
@@ -54,6 +54,21 @@ async function resolveUserId(email: string): Promise<string | null> {
     return null
   }
 
-  return data?.id ?? null
+  if (data?.id) {
+    return data.id
+  }
+
+  const { data: inserted, error: insertError } = await supabaseAdmin
+    .from('users')
+    .insert({ email, name: name || null, provider: 'credentials', provider_id: email })
+    .select('id')
+    .single()
+
+  if (insertError) {
+    console.error('Failed to insert user into Supabase:', insertError)
+    return null
+  }
+
+  return inserted?.id ?? null
 }
 

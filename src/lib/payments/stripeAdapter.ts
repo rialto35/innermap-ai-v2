@@ -80,10 +80,12 @@ function buildIdempotencyKey(userId: string, plan: CheckoutReq['plan']): string 
 }
 
 function buildMetadata(req: CheckoutReq): Stripe.MetadataParam {
+  const fallbackMethod = req.provider === 'portone' ? 'kakao' : 'card'
+  const method = req.method ?? fallbackMethod
   const metadata: Stripe.MetadataParam = {
     provider: 'stripe',
     userId: req.userId,
-    method: req.method,
+    method,
     currency: req.currency,
     plan: req.plan || 'free'
   }
