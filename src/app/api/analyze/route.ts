@@ -49,21 +49,13 @@ export async function POST(req: Request) {
     const strongestKey = Object.entries(out.inner9)
       .sort((a: any, b: any) => (b[1] as number) - (a[1] as number))[0]?.[0] ?? 'unknown'
     const derivedTribe = strongestKey
-    const heroPayload = out.hero
-      ? {
-          id: out.hero.id ?? 0,
-          code: out.hero.code ?? 'H-UNKNOWN',
-          title: out.hero.title ?? '미확인 영웅',
-          color: (out.hero as any).color ?? null,
-          score: out.hero.score ?? null,
-        }
-      : {
-          id: 0,
-          code: out.hero?.code ?? 'H-UNKNOWN',
-          title: out.hero?.title ?? '미확인 영웅',
-          color: (out.hero as any)?.color ?? null,
-          score: (out.hero as any)?.score ?? null,
-        }
+    const heroPayload = {
+      id: out.hero?.id ?? 0,
+      code: out.hero?.code ?? 'H-UNKNOWN',
+      title: out.hero?.title ?? '미확인 영웅',
+      color: out.hero?.color ?? null,
+      score: out.hero?.score ?? null,
+    };
 
     const { data: resultData, error: insertError } = await supabaseAdmin
       .from('results')
