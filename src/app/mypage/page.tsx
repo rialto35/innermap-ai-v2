@@ -5,6 +5,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession, signOut } from 'next-auth/react'
 
+import { PremiumStatusBanner } from '@/components/PremiumStatusBanner'
+import { usePremiumSubscription } from '@/lib/hooks/usePremiumSubscription'
+
 import PageContainer from '@/components/layout/PageContainer'
 import PageSection from '@/components/layout/PageSection'
 import SectionCard from '@/components/layout/SectionCard'
@@ -67,6 +70,7 @@ export default function MyPage() {
   const [recentReports, setRecentReports] = useState<RecentReport[]>([])
   const [upcomingQuests, setUpcomingQuests] = useState<UpcomingQuest[]>([])
   const [loading, setLoading] = useState(true)
+  const subscription = usePremiumSubscription()
 
   const handleLogout = async () => {
     sessionStorage.removeItem('hero_data_cache')
@@ -183,6 +187,7 @@ export default function MyPage() {
               최근 리포트, 성장 지표, 추천 퀘스트를 한눈에 확인하세요.
             </p>
           </div>
+
 
           <PageSection
             title="핵심 요약"
@@ -351,6 +356,13 @@ export default function MyPage() {
               </Link>
             </div>
           </RightSidebarSection>
+
+          <PremiumStatusBanner
+            status={subscription.data?.status}
+            end={subscription.data?.current_period_end ?? undefined}
+            cancelAtPeriodEnd={subscription.data?.cancel_at_period_end}
+            pastDue={subscription.pastDue}
+          />
         </RightSidebar>
       </div>
     </PageContainer>
