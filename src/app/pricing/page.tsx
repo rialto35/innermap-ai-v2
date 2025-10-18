@@ -123,8 +123,19 @@ export default function PricingPage() {
         })
 
         if (!response.ok) {
-          const detail = (await response.json().catch(() => null)) as CheckoutResponse | null
-          throw new Error(detail?.error || '결제를 시작하지 못했습니다.')
+          let detail: CheckoutResponse | null = null
+          try {
+            detail = (await response.json()) as CheckoutResponse
+          } catch {
+            /* ignore */
+          }
+
+          const message = detail?.error
+          if (message?.includes('PortOne environment is not configured')) {
+            throw new Error('PortOne 환경변수가 설정되지 않았습니다. 관리자에게 문의해주세요.')
+          }
+
+          throw new Error(message || '결제를 시작하지 못했습니다.')
         }
 
         const result = (await response.json()) as CheckoutResponse

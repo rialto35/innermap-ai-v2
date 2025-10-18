@@ -22,6 +22,7 @@ export interface CheckoutRes {
   ok: boolean
   redirectUrl?: string
   clientSecret?: string
+  error?: string
 }
 
 export interface WebhookPayload {

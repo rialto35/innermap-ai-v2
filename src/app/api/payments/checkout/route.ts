@@ -38,8 +38,19 @@ export async function POST(request: NextRequest) {
     userId,
   }
 
-  const result = await adapter.checkout(payload)
-  return NextResponse.json(result)
+  try {
+    const result = await adapter.checkout(payload)
+    return NextResponse.json(result)
+  } catch (error) {
+    console.error('Checkout failed:', error)
+    return NextResponse.json(
+      {
+        ok: false,
+        error: error instanceof Error ? error.message : 'CHECKOUT_FAILED',
+      },
+      { status: 500 }
+    )
+  }
 }
 
 async function resolveOrCreateUserId(email: string, name?: string): Promise<string | null> {
