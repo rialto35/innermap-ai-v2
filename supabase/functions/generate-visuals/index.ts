@@ -4,8 +4,11 @@
 // and updates reports.visuals_json with signed URLs.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { Resvg } from 'npm:@resvg/resvg-js';
 import { buildBig5RadarSVG } from './buildBig5RadarSVG.ts';
+
+// Deno 호환 SVG → PNG 변환 (resvg-wasm 사용)
+// @resvg/resvg-js는 Node.js 네이티브 바이너리라서 Deno에서 작동 안 함
+import initWasm, { Resvg as ResvgWasm } from 'https://esm.sh/@resvg/resvg-wasm@2.6.2';
 
 Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
@@ -64,6 +67,9 @@ Deno.serve(async (req) => {
 
     // Generate Big5 Radar Chart
     if (!visuals.big5RadarUrl) {
+      // WASM 초기화 (최초 1회만)
+      await initWasm(fetch('https://esm.sh/@resvg/resvg-wasm@2.6.2/index_bg.wasm'));
+
       const big5Scores = {
         openness: testResult.big5_openness || 50,
         conscientiousness: testResult.big5_conscientiousness || 50,
@@ -73,7 +79,9 @@ Deno.serve(async (req) => {
       };
 
       const svg = buildBig5RadarSVG(big5Scores);
-      const resvg = new Resvg(svg, {
+      
+      // resvg-wasm 사용 (Deno 호환)
+      const resvg = new ResvgWasm(svg, {
         fitTo: { mode: 'width', value: 600 }
       });
       const pngData = resvg.render();
