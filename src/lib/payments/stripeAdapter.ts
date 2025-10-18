@@ -49,13 +49,13 @@ function getConfig(): StripeConfig {
   }
 }
 
-function getStripe(secretKey: string, config: StripeConfig): Stripe {
+function getStripe(secretKey: string): Stripe {
   if (stripeInstances.has(secretKey)) {
     return stripeInstances.get(secretKey) as Stripe
   }
 
   const instance = new Stripe(secretKey, {
-    apiVersion: '2024-10-16',
+    apiVersion: '2023-10-16',
     appInfo: {
       name: 'InnerMap AI',
       url: 'https://innermap.ai'
@@ -107,7 +107,7 @@ function normalizeStatus(subscription?: Stripe.Subscription | null): Subscriptio
 export const stripeAdapter: PaymentsAdapter = {
   async checkout(req: CheckoutReq): Promise<CheckoutRes> {
     const config = getConfig()
-    const stripe = getStripe(config.secretKey, config)
+    const stripe = getStripe(config.secretKey)
     const priceId = resolvePriceId(req.currency, config)
 
     const metadata = buildMetadata(req)
