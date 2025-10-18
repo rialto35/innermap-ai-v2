@@ -1,11 +1,9 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, Suspense } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useSession, signIn } from 'next-auth/react'
-
-import type { Provider, Method } from '@/lib/payments/types'
+import { useSearchParams } from 'next/navigation'
+import { logEvent } from '@/lib/analytics/logEvent'
 
 const PLANS = [
   {
@@ -63,120 +61,104 @@ const PLANS = [
   },
 ]
 
-const PREMIUM_AMOUNTS = {
-  KRW: { premium: 9900, pro: 19900 },
-  USD: { premium: 19, pro: 39 },
-}
+function PricingContent() {
+  const searchParams = useSearchParams()
+  const [email, setEmail] = useState('')
+  const [waitlistOk, setWaitlistOk] = useState<null | boolean>(null)
+  const [waitlistMsg, setWaitlistMsg] = useState<string>('')
 
-type PaidPlan = 'premium' | 'pro'
+  const guarded = searchParams.get('guard') === '1'
 
-type CheckoutResponse = {
-  ok: boolean
-  redirectUrl?: string
-  clientSecret?: string
-  error?: string
-}
+  useEffect(() => {
+    logEvent('premium_gate_view', { path: '/pricing', guard: guarded })
+  }, [guarded])
 
-export default function PricingPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [loadingPlan, setLoadingPlan] = useState<PaidPlan | null>(null)
+  const onPremiumCtaClick = useCallback((plan: string) => {
+    // Log checkout intent for analytics (payment is disabled)
+    logEvent('checkout_intent', { path: '/pricing', mode: 'upsell-only', plan })
+  }, [])
 
-  const startCheckout = useCallback(
-    async (plan: PaidPlan) => {
-      if (!session?.user) {
-        signIn()
-        return
-      }
-
-      const isKR = (() => {
-        try {
-          const locale = navigator.language
-          if (locale?.toLowerCase().startsWith('ko')) return true
-          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone
-          return tz?.toLowerCase().includes('seoul')
-        } catch {
-          return false
-        }
-      })()
-
-      const provider: Provider = isKR ? 'portone' : 'stripe'
-      const method: Method = isKR ? 'kakao' : 'card'
-      const currency = isKR ? 'KRW' : 'USD'
-      const amountTable = PREMIUM_AMOUNTS[currency]
-      const amount = amountTable[plan]
-
-      const body = {
-        provider,
-        method,
-        amount,
-        currency,
-        plan,
-      }
+  const onWaitlistSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault()
+      setWaitlistOk(null)
+      setWaitlistMsg('')
 
       try {
-        setLoadingPlan(plan)
-        const response = await fetch('/api/payments/checkout', {
+        const res = await fetch('/api/waitlist', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
+          cache: 'no-store',
+          body: JSON.stringify({ email, source: '/pricing' }),
         })
+        const j = await res.json()
+        if (!res.ok || !j.ok) throw new Error(j.error || 'FAILED')
 
-        if (!response.ok) {
-          let detail: CheckoutResponse | null = null
-          try {
-            detail = (await response.json()) as CheckoutResponse
-          } catch {
-            /* ignore */
-          }
-
-          const message = detail?.error
-          if (message?.includes('PortOne environment is not configured')) {
-            throw new Error('PortOne 환경변수가 설정되지 않았습니다. 관리자에게 문의해주세요.')
-          }
-
-          throw new Error(message || '결제를 시작하지 못했습니다.')
-        }
-
-        const result = (await response.json()) as CheckoutResponse
-        if (!result.ok) {
-          throw new Error(result.error || '결제를 시작하지 못했습니다.')
-        }
-
-        if (result.redirectUrl) {
-          window.location.href = result.redirectUrl
-          return
-        }
-
-        if (result.clientSecret) {
-          console.log('Stripe PaymentIntent clientSecret:', result.clientSecret)
-          return
-        }
-
-        router.push('/mypage?sub=ok')
-      } catch (error) {
-        console.error('Checkout error:', error)
-        alert(error instanceof Error ? error.message : '결제 중 오류가 발생했습니다.')
-      } finally {
-        setLoadingPlan(null)
+        setWaitlistOk(true)
+        setWaitlistMsg('조기 체험 신청이 접수됐어요. 런칭 시 메일로 안내합니다.')
+        setEmail('')
+      } catch {
+        setWaitlistOk(false)
+        setWaitlistMsg('신청 처리에 실패했어요. 이메일을 확인 후 다시 시도해주세요.')
       }
     },
-    [router, session?.user]
+    [email]
   )
 
   return (
     <div className="min-h-screen px-4 py-12">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 text-center">
-          <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">요금제</h1>
-          <p className="text-lg text-white/70">당신에게 맞는 플랜을 선택하세요</p>
+          <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">프리미엄 (베타 준비중)</h1>
+          <p className="text-lg text-white/70">
+            지금은 결제 없이 체험 버전이 제공됩니다.
+            <br />
+            조기 체험 신청을 남기시면 런칭 시 우선 안내를 드려요.
+          </p>
+        </div>
+
+        {guarded && (
+          <div className="mb-6 mx-auto max-w-2xl rounded-xl bg-amber-500/10 border border-amber-500/30 p-4 text-amber-200 text-center">
+            <p className="font-medium">프리미엄 기능은 베타 준비 중입니다.</p>
+            <p className="mt-1 text-sm text-amber-300/80">조기 체험 신청을 남겨주세요.</p>
+          </div>
+        )}
+
+        {/* Waitlist Form */}
+        <div className="mb-12 mx-auto max-w-2xl">
+          <form
+            onSubmit={onWaitlistSubmit}
+            className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-md p-6"
+          >
+            <h3 className="mb-4 text-xl font-bold text-white">조기 체험 신청</h3>
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="이메일을 입력하세요"
+                className="flex-1 bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-purple-400 transition"
+              />
+              <button
+                type="submit"
+                className="rounded-lg px-6 py-3 bg-gradient-to-r from-purple-500 to-blue-500 text-white font-medium hover:scale-105 transition"
+              >
+                신청하기
+              </button>
+            </div>
+            {waitlistOk !== null && (
+              <div
+                className={`mt-3 text-sm ${waitlistOk ? 'text-emerald-300' : 'text-rose-300'}`}
+              >
+                {waitlistMsg}
+              </div>
+            )}
+          </form>
         </div>
 
         <div className="mb-12 grid gap-6 md:grid-cols-3">
-          {PLANS.map((plan) => {
-            const isPaidPlan = plan.plan === 'premium' || plan.plan === 'pro'
-            const isLoading = isPaidPlan ? loadingPlan === plan.plan : false
-            return (
+          {PLANS.map((plan) => (
               <div
                 key={plan.name}
                 className={`backdrop-blur-md rounded-2xl p-8 transition-all ${
@@ -218,15 +200,14 @@ export default function PricingPage() {
                 {plan.paid ? (
                   <button
                     type="button"
-                    onClick={() => startCheckout(plan.plan as PaidPlan)}
-                    disabled={isLoading || status === 'loading'}
+                    onClick={() => onPremiumCtaClick(plan.plan)}
                     className={`block w-full rounded-xl px-6 py-3 text-center font-medium transition ${
                       plan.featured
                         ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:scale-105'
                         : 'bg-white/10 text-white hover:bg-white/20'
-                    } ${isLoading ? 'opacity-70' : ''}`}
+                    } opacity-60 cursor-not-allowed`}
                   >
-                    {isLoading ? '결제 페이지로 이동 중...' : plan.cta}
+                    런칭 예정
                   </button>
                 ) : (
                   <Link
@@ -241,8 +222,7 @@ export default function PricingPage() {
                   </Link>
                 )}
               </div>
-            )
-          })}
+          ))}
         </div>
 
         <div className="mx-auto max-w-3xl">
@@ -260,5 +240,17 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-white/70">로딩 중...</div>
+      </div>
+    }>
+      <PricingContent />
+    </Suspense>
   )
 }
