@@ -45,6 +45,11 @@ export async function POST(req: Request) {
       userId = userData?.id ?? null;
     }
 
+    // Derive a simple tribe from the strongest Inner9 dimension to satisfy NOT NULL constraints
+    const strongestKey = Object.entries(out.inner9)
+      .sort((a: any, b: any) => (b[1] as number) - (a[1] as number))[0]?.[0] ?? 'unknown'
+    const derivedTribe = strongestKey
+
     const { data: resultData, error: insertError } = await supabaseAdmin
       .from('results')
       .insert({
@@ -65,6 +70,7 @@ export async function POST(req: Request) {
         color_natal: out.color?.natal?.id ?? null,
         color_growth: out.color?.growth?.id ?? null,
         narrative: out.narrative?.summary ?? null,
+        tribe: (out as any)?.hero?.tribe ?? derivedTribe ?? 'unknown',
       })
       .select('id')
       .single();
