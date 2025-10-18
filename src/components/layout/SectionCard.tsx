@@ -10,7 +10,7 @@ interface SectionCardProps {
 
 const toneStyles: Record<'default' | 'highlight', string> = {
   default: 'bg-white/5 border-white/10',
-  highlight: 'bg-gradient-to-br from-violet-500/15 via-cyan-500/10 to-white/5 border-violet-500/20'
+  highlight: 'bg-gradient-to-br from-violet-500/30 via-cyan-500/15 to-white/10 border-violet-500/30'
 }
 
 export default function SectionCard({ title, icon, children, footer, tone = 'default' }: SectionCardProps) {

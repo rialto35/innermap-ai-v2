@@ -28,33 +28,40 @@ export default function GrowthVectorChart({ growth }: GrowthVectorChartProps) {
   ]
 
   return (
-    <div className="rounded-2xl bg-zinc-900/80 border border-zinc-800 p-5">
-      <h3 className="text-lg font-semibold text-white mb-4">성장 벡터</h3>
-      <ResponsiveContainer width="100%" height={300}>
+    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-lg shadow-black/20 backdrop-blur">
+      <div className="mb-4 flex items-center gap-2 text-white">
+        <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500/50 to-sky-500/50 text-lg">📈</span>
+        <div>
+          <h3 className="text-lg font-semibold">성장 벡터</h3>
+          <p className="text-xs text-white/50">선천·후천·의식 등 주요 성장 축의 현재 위치</p>
+        </div>
+      </div>
+
+      <ResponsiveContainer width="100%" height={280}>
         <BarChart data={data} layout="vertical">
-          <CartesianGrid strokeDasharray="3 3" stroke="#3f3f46" />
+          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" horizontal={false} />
           <XAxis 
             type="number" 
             domain={[0, 100]}
-            tick={{ fill: '#a1a1aa', fontSize: 11 }}
+            tick={{ fill: '#9ca3af', fontSize: 11 }}
+            axisLine={false}
+            tickLine={false}
           />
           <YAxis 
             type="category" 
             dataKey="name" 
-            tick={{ fill: '#a1a1aa', fontSize: 12 }}
+            tick={{ fill: '#d1d5db', fontSize: 12 }}
             width={50}
+            axisLine={false}
+            tickLine={false}
           />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: '#27272a', 
-              border: '1px solid #3f3f46',
-              borderRadius: '8px',
-              color: '#fff'
-            }}
-          />
-          <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+          <Bar dataKey="value" radius={[0, 12, 12, 0]}>
             {data.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.color}
+                opacity={0.75}
+              />
             ))}
           </Bar>
         </BarChart>
