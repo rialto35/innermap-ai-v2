@@ -195,7 +195,6 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       heroTribe={report?.hero?.tribe}
       status={report?.status || 'processing'}
       summaryMd={report?.summary_md}
-      big5={big5Scores}
     />
   )
 
