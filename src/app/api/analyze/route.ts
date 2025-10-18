@@ -69,6 +69,7 @@ export async function POST(req: Request) {
         hero_code: out.hero?.code ?? null,
         color_natal: out.color?.natal?.id ?? null,
         color_growth: out.color?.growth?.id ?? null,
+        stone: out.color?.natal?.id ?? 0,
         narrative: out.narrative?.summary ?? null,
         tribe: (out as any)?.hero?.tribe ?? derivedTribe ?? 'unknown',
       })
