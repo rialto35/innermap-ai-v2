@@ -32,7 +32,13 @@ interface HeroData {
   testResultId?: string
   hasTestResult?: boolean
   testDate?: string
-  big5?: Record<string, number>
+  big5?: {
+    O: number
+    C: number
+    E: number
+    A: number
+    N: number
+  }
 }
 
 interface RecentReport {
