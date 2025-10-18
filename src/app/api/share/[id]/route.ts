@@ -11,12 +11,12 @@ function generateToken(len = 24) {
 }
 
 // POST /api/share/:id -> issue share token for report
-export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 });
   }
-  const reportId = params.id;
+  const { id: reportId } = await params;
   if (!reportId) return NextResponse.json({ ok: false, error: 'invalid_id' }, { status: 400 });
 
   // Ownership check
