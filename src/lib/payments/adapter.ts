@@ -1,6 +1,6 @@
-import { CheckoutReq, CheckoutRes } from './types'
+import type { CheckoutReq, CheckoutRes, WebhookPayload } from './types'
 
 export interface PaymentsAdapter {
   checkout(req: CheckoutReq): Promise<CheckoutRes>
-  handleWebhook(event: unknown): Promise<{ ok: boolean }>
+  handleWebhook(event: WebhookPayload): Promise<{ ok: boolean }>
 }

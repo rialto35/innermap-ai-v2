@@ -23,3 +23,21 @@ export interface CheckoutRes {
   redirectUrl?: string
   clientSecret?: string
 }
+
+export interface WebhookPayload {
+  rawBody: string
+  signature?: string
+}
+
+export interface SubscriptionUpsertInput {
+  userId: string | null
+  provider: Provider
+  providerSubId: string
+  status: string
+  currentPeriodStart?: Date
+  currentPeriodEnd?: Date
+  cancelAt?: Date
+  plan?: string
+  currency?: string
+  amount?: number
+}

@@ -1,7 +1,8 @@
 import Stripe from 'stripe'
 
 import type { PaymentsAdapter } from './adapter'
-import type { CheckoutReq, CheckoutRes } from './types'
+import type { CheckoutReq, CheckoutRes, WebhookPayload } from './types'
+import { upsertSubscription, markWebhookHandled } from './subscriptions'
 
 interface StripeConfig {
   secretKey: string
@@ -10,12 +11,6 @@ interface StripeConfig {
   successUrl: string
   cancelUrl: string
   webhookSecret?: string
-}
-
-interface SubscriptionMeta {
-  status: string
-  currentPeriodEnd?: number
-  cancelAt?: number | null
 }
 
 const stripeInstances = new Map<string, Stripe>()
@@ -95,18 +90,6 @@ function buildMetadata(req: CheckoutReq): Stripe.MetadataParam {
   return metadata
 }
 
-function normalizeStatus(subscription?: Stripe.Subscription | null): SubscriptionMeta {
-  if (!subscription) {
-    return { status: 'unknown' }
-  }
-
-  return {
-    status: subscription.status,
-    currentPeriodEnd: subscription.current_period_end,
-    cancelAt: subscription.cancel_at
-  }
-}
-
 export const stripeAdapter: PaymentsAdapter = {
   async checkout(req: CheckoutReq): Promise<CheckoutRes> {
     const config = getConfig()
@@ -148,40 +131,99 @@ export const stripeAdapter: PaymentsAdapter = {
     }
   },
 
-  async handleWebhook(event: unknown): Promise<{ ok: boolean }> {
+  async handleWebhook(event: WebhookPayload): Promise<{ ok: boolean }> {
     const config = getConfig()
     if (!config.webhookSecret) {
       throw new Error('Stripe webhook secret is not configured.')
     }
 
-    const payload = event as { rawBody: string; signature: string } | undefined
-    if (!payload || !payload.rawBody || !payload.signature) {
+    if (!event?.rawBody || !event.signature) {
       return { ok: false }
     }
 
+    const stripe = getStripe(config.secretKey)
+
     try {
-      const stripe = getStripe(config.secretKey)
-      const constructed = stripe.webhooks.constructEvent(payload.rawBody, payload.signature, config.webhookSecret)
-      return handleStripeEvent(constructed)
+      const constructed = stripe.webhooks.constructEvent(event.rawBody, event.signature, config.webhookSecret)
+
+      const isFirstDelivery = await markWebhookHandled('stripe', constructed.id)
+      if (!isFirstDelivery) {
+        return { ok: true }
+      }
+
+      return await handleStripeEvent(stripe, constructed)
     } catch (error) {
-      console.error('Stripe webhook signature validation failed:', error)
+      console.error('Stripe webhook validation failed:', error)
       return { ok: false }
     }
   }
 }
 
-function handleStripeEvent(stripeEvent: Stripe.Event): { ok: boolean } {
-  switch (stripeEvent.type) {
-    case 'checkout.session.completed':
+async function handleStripeEvent(stripe: Stripe, event: Stripe.Event): Promise<{ ok: boolean }> {
+  switch (event.type) {
+    case 'checkout.session.completed': {
+      const session = event.data.object as Stripe.Checkout.Session
+      if (!session.subscription || typeof session.subscription !== 'string') {
+        return { ok: false }
+      }
+
+      const subscription = await stripe.subscriptions.retrieve(session.subscription)
+      await upsertStripeSubscription(session.client_reference_id, subscription)
       return { ok: true }
-    case 'invoice.paid':
+    }
     case 'customer.subscription.created':
     case 'customer.subscription.updated':
-    case 'customer.subscription.deleted':
+    case 'customer.subscription.deleted': {
+      const subscription = event.data.object as Stripe.Subscription
+      const userId = (subscription.metadata?.userId || subscription.metadata?.user_id || null) as string | null
+      await upsertStripeSubscription(userId, subscription)
       return { ok: true }
-    case 'invoice.payment_failed':
+    }
+    case 'invoice.paid': {
+      const invoice = event.data.object as Stripe.Invoice
+      if (invoice.subscription && typeof invoice.subscription === 'string') {
+        const subscription = await stripe.subscriptions.retrieve(invoice.subscription)
+        await upsertStripeSubscription((invoice.metadata?.userId as string | undefined) || invoice.customer?.toString() || null, subscription)
+      }
+      return { ok: true }
+    }
+    case 'invoice.payment_failed': {
+      const invoice = event.data.object as Stripe.Invoice
+      if (invoice.subscription && typeof invoice.subscription === 'string') {
+        await upsertSubscription({
+          userId: (invoice.metadata?.userId as string | undefined) || null,
+          provider: 'stripe',
+          providerSubId: invoice.subscription,
+          status: 'past_due'
+        })
+      }
       return { ok: false }
+    }
     default:
       return { ok: true }
   }
+}
+
+async function upsertStripeSubscription(userId: string | null | undefined, subscription: Stripe.Subscription) {
+  const firstItem = subscription.items?.data?.[0]
+  const plan = firstItem?.plan
+
+  await upsertSubscription({
+    userId: userId || (subscription.metadata?.userId as string | undefined) || null,
+    provider: 'stripe',
+    providerSubId: subscription.id,
+    status: subscription.status,
+    currentPeriodStart: fromUnix(subscription.current_period_start),
+    currentPeriodEnd: fromUnix(subscription.current_period_end),
+    plan: (plan?.nickname as string | undefined) || (plan?.metadata?.plan as string | undefined) || 'premium',
+    currency: plan?.currency?.toUpperCase(),
+    amount:
+      plan?.amount ?? (plan?.amount_decimal !== undefined ? Number(plan.amount_decimal) : undefined),
+    cancelAt: fromUnix(subscription.cancel_at ?? undefined)
+  })
+}
+
+function fromUnix(value?: number | null): Date | undefined {
+  if (!value) return undefined
+  return new Date(value * 1000)
 }

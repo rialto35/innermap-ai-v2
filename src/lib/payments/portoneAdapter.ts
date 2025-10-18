@@ -3,6 +3,7 @@ import { randomUUID } from 'crypto'
 
 import type { PaymentsAdapter } from './adapter'
 import type { CheckoutReq, CheckoutRes, Method } from './types'
+import { upsertSubscription, markWebhookHandled } from './subscriptions'
 
 interface PortOneConfig {
   baseUrl: string
@@ -184,36 +185,78 @@ export const portoneAdapter: PaymentsAdapter = {
     return { ok: true, redirectUrl }
   },
 
-  async handleWebhook(event: unknown): Promise<{ ok: boolean }> {
+  async handleWebhook(event: WebhookPayload): Promise<{ ok: boolean }> {
     const config = getConfig()
-    const parsedEvent = event as PortOneWebhookEvent | undefined
-    if (!parsedEvent || !parsedEvent.rawBody) {
+    if (!event?.rawBody) {
       return { ok: false }
     }
 
-    if (!verifySignature(config, parsedEvent)) {
+    const signatureEvent: PortOneWebhookEvent = {
+      rawBody: event.rawBody,
+      signature: event.signature
+    }
+
+    if (!verifySignature(config, signatureEvent)) {
       return { ok: false }
     }
 
-    const payload: PortOneWebhookPayload | null = (() => {
-      try {
-        return JSON.parse(parsedEvent.rawBody) as PortOneWebhookPayload
-      } catch {
-        return null
-      }
-    })()
+    const payload = parseWebhookPayload(event.rawBody)
 
     if (!payload) {
       return { ok: false }
     }
 
-    const status = payload.data?.status || payload.status || payload.type
-    const normalized = typeof status === 'string' ? status.toLowerCase() : undefined
-
-    if (normalized && SUCCESS_STATUSES.has(normalized)) {
+    if (!(await markWebhookHandled('portone', payload.type || payload.data?.paymentId || ''))) {
       return { ok: true }
     }
 
-    return { ok: false }
+    const status = payload.data?.status || payload.status || payload.type
+    const normalized = typeof status === 'string' ? status.toLowerCase() : undefined
+
+    await upsertPortOneSubscription(payload)
+
+    return { ok: normalized ? SUCCESS_STATUSES.has(normalized) : false }
+  }
+}
+
+function parseWebhookPayload(raw: string): PortOneWebhookPayload | null {
+  try {
+    return JSON.parse(raw) as PortOneWebhookPayload
+  } catch {
+    return null
+  }
+}
+
+async function upsertPortOneSubscription(payload: PortOneWebhookPayload) {
+  const data = payload.data || {}
+  const status = (data.status || payload.status || payload.type || '').toLowerCase()
+
+  const normalizedStatus = normalizePortOneStatus(status)
+
+  await upsertSubscription({
+    userId: null,
+    provider: 'portone',
+    providerSubId: data.paymentId || 'unknown',
+    status: normalizedStatus
+  })
+}
+
+function normalizePortOneStatus(status: string): string {
+  switch (status) {
+    case 'paid':
+    case 'pay_completed':
+    case 'payment.succeeded':
+      return 'active'
+    case 'ready':
+      return 'incomplete'
+    case 'cancelled':
+    case 'partial_cancelled':
+    case 'payment.canceled':
+      return 'canceled'
+    case 'failed':
+    case 'payment.failed':
+      return 'past_due'
+    default:
+      return status || 'unknown'
   }
 }
