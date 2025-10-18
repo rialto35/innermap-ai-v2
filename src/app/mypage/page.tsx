@@ -17,6 +17,7 @@ import RightSidebarSection from '@/components/layout/RightSidebarSection'
 import HeroGrowthCard from '@/components/HeroGrowthCard'
 import Big5RadarChart from '@/components/Big5RadarChart'
 import GrowthVectorChart from '@/components/GrowthVectorChart'
+import InnerCompass9, { toChartData } from '@/components/charts/InnerCompass9'
 
 interface GrowthScores {
   innate: number
@@ -72,12 +73,27 @@ export default function MyPage() {
   const [upcomingQuests, setUpcomingQuests] = useState<UpcomingQuest[]>([])
   const [loading, setLoading] = useState(true)
   const subscription = usePremiumSubscription()
+  const [inner9Data, setInner9Data] = useState<any>(null)
 
   const handleLogout = async () => {
     sessionStorage.removeItem('hero_data_cache')
     await signOut({ redirect: false })
     router.push('/')
   }
+
+  const runInner9Demo = useCallback(async () => {
+    try {
+      const res = await fetch('/api/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 } }),
+      })
+      const j = await res.json()
+      if (j.ok) setInner9Data(j.data)
+    } catch (error) {
+      console.error('Inner9 demo error:', error)
+    }
+  }, [])
 
   const fetchHeroData = useCallback(async () => {
     if (!session?.user?.email) return
@@ -223,6 +239,14 @@ export default function MyPage() {
           <PageSection
             title="시각화 리포트"
             description="Big5 성향과 성장 벡터를 시각적으로 확인하세요"
+            action={
+              <button
+                onClick={runInner9Demo}
+                className="rounded-xl border border-violet-400/30 bg-violet-500/10 px-4 py-2 text-sm text-violet-200 transition hover:border-violet-400/50 hover:bg-violet-500/20"
+              >
+                Inner9 데모 실행
+              </button>
+            }
           >
             <div className="grid gap-6 lg:grid-cols-2">
               {heroData?.big5 ? (
@@ -249,6 +273,33 @@ export default function MyPage() {
                 </SectionCard>
               )}
             </div>
+
+            {inner9Data && (
+              <div className="mt-6">
+                <SectionCard title="Inner Compass (Inner9)" icon="🧭" tone="highlight">
+                  <InnerCompass9 data={toChartData(inner9Data.inner9)} />
+                  <div className="mt-4 space-y-2 text-sm text-white/70">
+                    <div className="flex items-center justify-between">
+                      <span>엔진:</span>
+                      <span className="font-mono text-violet-300">{inner9Data.engineVersion}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>모델:</span>
+                      <span className="font-mono text-violet-300">{inner9Data.modelVersion}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>영웅:</span>
+                      <span className="text-white">
+                        {inner9Data.hero?.title} ({inner9Data.hero?.code})
+                      </span>
+                    </div>
+                    <div className="mt-3 rounded-lg bg-white/5 p-3 text-white/80">
+                      {inner9Data.narrative?.summary}
+                    </div>
+                  </div>
+                </SectionCard>
+              </div>
+            )}
           </PageSection>
 
           <PageSection
