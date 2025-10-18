@@ -15,21 +15,18 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required' } }, { status: 401 });
-    }
-
-    const sessionUserId = session.user.email;
     const { id: reportId } = await params;
     if (!reportId) {
       return NextResponse.json({ error: { code: 'INVALID_REQUEST', message: 'Report ID is required' } }, { status: 400 });
     }
 
-    // reports + users + heroes 조인(뷰가 없다는 가정하 조립)
+    // 공유 토큰 파라미터
+    const token = request.nextUrl.searchParams.get('t');
+
+    // reports 조회(공유 토큰 검증 위해 share_token 포함)
     const { data: report, error } = await supabaseAdmin
       .from('reports')
-      .select('id, user_id, result_id, status, summary_md, visuals_json, created_at, finished_at')
+      .select('id, user_id, result_id, status, summary_md, visuals_json, created_at, finished_at, share_token, share_issued_at')
       .eq('id', reportId)
       .single();
 
@@ -37,8 +34,26 @@ export async function GET(
       return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Report not found', details: error?.message } }, { status: 404 });
     }
 
-    if (report.user_id !== sessionUserId) {
-      return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Access denied' } }, { status: 403 });
+    // 1) 공유 토큰이 있으면 토큰 검증으로 접근 허용(비로그인 허용)
+    if (token) {
+      if (!report.share_token || report.share_token !== token) {
+        return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Invalid share token' } }, { status: 403 });
+      }
+      // (선택) 만료 검사: 필요 시 활성화
+      // const ttlMs = 30 * 24 * 60 * 60 * 1000; // 30일
+      // if (report.share_issued_at && Date.now() - new Date(report.share_issued_at).getTime() > ttlMs) {
+      //   return NextResponse.json({ error: { code: 'EXPIRED', message: 'Share token expired' } }, { status: 403 });
+      // }
+    } else {
+      // 2) 토큰이 없으면 로그인 사용자 소유권 검증
+      const session = await getServerSession(authOptions);
+      if (!session?.user?.email) {
+        return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required' } }, { status: 401 });
+      }
+      const sessionUserId = session.user.email;
+      if (report.user_id !== sessionUserId) {
+        return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Access denied' } }, { status: 403 });
+      }
     }
 
     // 사용자 이름 (reports.user_id는 email이므로 email로 조회)
@@ -93,7 +108,9 @@ export async function GET(
       },
     };
 
-    return NextResponse.json(payload);
+    // 공유 페이지는 캐시 방지
+    const headers = new Headers({ 'Cache-Control': 'private, no-store' });
+    return NextResponse.json(payload, { headers });
   } catch (err) {
     return NextResponse.json({ error: { code: 'INTERNAL_ERROR', message: err instanceof Error ? err.message : 'Unknown error' } }, { status: 500 });
   }
