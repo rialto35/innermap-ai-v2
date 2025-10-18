@@ -6,10 +6,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { buildBig5RadarSVG } from './buildBig5RadarSVG.ts';
 
-// Deno 호환 SVG → PNG 변환 (resvg-wasm 사용)
-// @resvg/resvg-js는 Node.js 네이티브 바이너리라서 Deno에서 작동 안 함
-import initWasm, { Resvg as ResvgWasm } from 'https://esm.sh/@resvg/resvg-wasm@2.6.2';
-
 Deno.serve(async (req) => {
   const supabaseUrl = Deno.env.get('SUPABASE_URL');
   const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -56,9 +52,10 @@ Deno.serve(async (req) => {
     const visuals = report.visuals_json || {};
     const bucket = 'reports';
 
-    const uploadPng = async (key: string, pngBuffer: Uint8Array): Promise<string> => {
+    const uploadFile = async (key: string, content: string | Uint8Array, contentType: string): Promise<string> => {
       const path = `${reportId}/charts/${key}`;
-      await supabase.storage.from(bucket).upload(path, pngBuffer, { contentType: 'image/png', upsert: true });
+      const buffer = typeof content === 'string' ? new TextEncoder().encode(content) : content;
+      await supabase.storage.from(bucket).upload(path, buffer, { contentType, upsert: true });
       const { data } = supabase.storage.from(bucket).getPublicUrl(path);
       return data.publicUrl;
     };
@@ -77,13 +74,9 @@ Deno.serve(async (req) => {
 
       const svg = buildBig5RadarSVG(big5Scores);
       
-      // WASM 초기화 및 변환
-      await initWasm();
-      const resvg = new ResvgWasm(svg);
-      const pngData = resvg.render();
-      const pngBuffer = pngData.asPng();
-
-      updates.big5RadarUrl = await uploadPng('big5.png', pngBuffer);
+      // SVG를 직접 저장 (PNG 변환 없이)
+      // 브라우저에서는 SVG를 img src로 사용 가능
+      updates.big5RadarUrl = await uploadFile('big5.svg', svg, 'image/svg+xml');
     }
 
     // Placeholder for auxiliary bars (future implementation)
