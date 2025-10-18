@@ -260,6 +260,12 @@ SENTINEL ✅ project tree consistent
 - Folders: /scripts, /src/components, /app/analyze, /docs
 - Definition of Done: build passes, :ci outputs SENTINEL, feature visible in UI.
 
+### Payments Guardrails
+- Do not modify TopNav or app layouts.
+- Keep folder structure under /lib/payments and /app/api/payments intact.
+- Only implement adapter internals; do not rename public types or routes.
+- Provider routing logic must select by `provider` (checkout) and `?p=` (webhook).
+
 ## Logging/Completion
 - For checks (typecheck/lint/tree), always run npm scripts ending with :ci.
 - Print `<<<CURSOR_SENTINEL>>> {"ok":...}` on success/fail and exit with real code.
