@@ -56,11 +56,6 @@ export async function POST(req: Request) {
         color_natal: out.color?.natal?.id ?? null,
         color_growth: out.color?.growth?.id ?? null,
         narrative: out.narrative?.summary ?? null,
-        big5_openness: body.big5.O,
-        big5_conscientiousness: body.big5.C,
-        big5_extraversion: body.big5.E,
-        big5_agreeableness: body.big5.A,
-        big5_neuroticism: body.big5.N,
       })
       .select('id')
       .single();
