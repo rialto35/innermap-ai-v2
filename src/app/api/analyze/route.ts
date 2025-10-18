@@ -49,6 +49,13 @@ export async function POST(req: Request) {
       .from('results')
       .insert({
         user_id: userId,
+        big5_scores: {
+          O: body.big5.O,
+          C: body.big5.C,
+          E: body.big5.E,
+          A: body.big5.A,
+          N: body.big5.N,
+        },
         inner_nine: out.inner9,
         model_version: out.modelVersion,
         engine_version: out.engineVersion,
