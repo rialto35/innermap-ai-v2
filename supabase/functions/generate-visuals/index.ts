@@ -67,9 +67,6 @@ Deno.serve(async (req) => {
 
     // Generate Big5 Radar Chart
     if (!visuals.big5RadarUrl) {
-      // WASM 초기화 (최초 1회만)
-      await initWasm(fetch('https://esm.sh/@resvg/resvg-wasm@2.6.2/index_bg.wasm'));
-
       const big5Scores = {
         openness: testResult.big5_openness || 50,
         conscientiousness: testResult.big5_conscientiousness || 50,
@@ -80,10 +77,9 @@ Deno.serve(async (req) => {
 
       const svg = buildBig5RadarSVG(big5Scores);
       
-      // resvg-wasm 사용 (Deno 호환)
-      const resvg = new ResvgWasm(svg, {
-        fitTo: { mode: 'width', value: 600 }
-      });
+      // WASM 초기화 및 변환
+      await initWasm();
+      const resvg = new ResvgWasm(svg);
       const pngData = resvg.render();
       const pngBuffer = pngData.asPng();
 
