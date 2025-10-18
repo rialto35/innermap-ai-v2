@@ -17,6 +17,10 @@ import GrowthVectorChart from '@/components/GrowthVectorChart'
 interface GrowthScores {
   innate: number
   acquired: number
+  conscious: number
+  unconscious: number
+  growth: number
+  stability: number
   harmony: number
   individual: number
 }
