@@ -2,7 +2,7 @@ import { createHmac } from 'crypto'
 import { randomUUID } from 'crypto'
 
 import type { PaymentsAdapter } from './adapter'
-import type { CheckoutReq, CheckoutRes, Method } from './types'
+import type { CheckoutReq, CheckoutRes, Method, WebhookPayload } from './types'
 import { upsertSubscription, markWebhookHandled } from './subscriptions'
 
 interface PortOneConfig {
