@@ -13,10 +13,17 @@ export type AnalyzeInput = {
   locale?: 'ko-KR' | 'en-US';
 };
 
+export type ColorStone = {
+  id: number;
+  name: string;
+  color: string;
+  score?: number;
+};
+
 export type AnalyzeOutput = {
   inner9: InnerNine;
-  hero?: { id: number; code: string; title: string };
-  color?: { natal?: number; growth?: number };
+  hero?: { id: number; code: string; title: string; color?: number; score?: number };
+  color?: { natal: ColorStone; growth: ColorStone };
   narrative?: { summary: string };
   engineVersion: string;
   modelVersion: string;

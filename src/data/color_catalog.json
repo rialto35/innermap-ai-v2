@@ -1,0 +1,31 @@
+{
+  "natal": [
+    { "id": 1, "name": "루비", "color": "#E0115F", "traits": ["sensitivity", "expression"] },
+    { "id": 2, "name": "사파이어", "color": "#0F52BA", "traits": ["insight", "balance"] },
+    { "id": 3, "name": "에메랄드", "color": "#50C878", "traits": ["harmony", "growth"] },
+    { "id": 4, "name": "토파즈", "color": "#FFC87C", "traits": ["creation", "will"] },
+    { "id": 5, "name": "자수정", "color": "#9966CC", "traits": ["sensitivity", "insight"] },
+    { "id": 6, "name": "진주", "color": "#F0EAD6", "traits": ["balance", "harmony"] },
+    { "id": 7, "name": "오팔", "color": "#A8C3BC", "traits": ["expression", "resilience"] },
+    { "id": 8, "name": "호박", "color": "#FFBF00", "traits": ["will", "growth"] },
+    { "id": 9, "name": "청옥", "color": "#6EA5C9", "traits": ["insight", "balance"] },
+    { "id": 10, "name": "산호", "color": "#FF7F50", "traits": ["harmony", "sensitivity"] },
+    { "id": 11, "name": "흑요석", "color": "#3B3C40", "traits": ["resilience", "will"] },
+    { "id": 12, "name": "다이아몬드", "color": "#B9F2FF", "traits": ["creation", "insight"] }
+  ],
+  "growth": [
+    { "id": 1, "name": "봉황석", "color": "#FF6B35", "traits": ["growth", "expression"] },
+    { "id": 2, "name": "용석", "color": "#4056A1", "traits": ["will", "resilience"] },
+    { "id": 3, "name": "기린석", "color": "#C5CBE3", "traits": ["balance", "harmony"] },
+    { "id": 4, "name": "청룡석", "color": "#00B4D8", "traits": ["insight", "creation"] },
+    { "id": 5, "name": "백호석", "color": "#F1F1F1", "traits": ["resilience", "balance"] },
+    { "id": 6, "name": "주작석", "color": "#DC2F02", "traits": ["expression", "growth"] },
+    { "id": 7, "name": "현무석", "color": "#03045E", "traits": ["will", "insight"] },
+    { "id": 8, "name": "천마석", "color": "#90E0EF", "traits": ["growth", "expression"] },
+    { "id": 9, "name": "영지석", "color": "#7209B7", "traits": ["creation", "insight"] },
+    { "id": 10, "name": "불사조석", "color": "#F72585", "traits": ["growth", "resilience"] },
+    { "id": 11, "name": "태극석", "color": "#8D99AE", "traits": ["balance", "harmony"] },
+    { "id": 12, "name": "무극석", "color": "#000000", "traits": ["creation", "will"] }
+  ]
+}
+

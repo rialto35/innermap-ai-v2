@@ -1,0 +1,15 @@
+[
+  { "id": 101, "code": "H-creation-will-expression", "title": "빛의 창조자", "traits": ["creation", "will", "expression"], "color": 9 },
+  { "id": 102, "code": "H-will-harmony-insight", "title": "조화의 중재자", "traits": ["will", "harmony", "insight"], "color": 3 },
+  { "id": 103, "code": "H-insight-resilience-balance", "title": "지혜의 수호자", "traits": ["insight", "resilience", "balance"], "color": 7 },
+  { "id": 104, "code": "H-expression-growth-creation", "title": "가능성의 탐험가", "traits": ["expression", "growth", "creation"], "color": 5 },
+  { "id": 105, "code": "H-sensitivity-harmony-balance", "title": "공감의 예술가", "traits": ["sensitivity", "harmony", "balance"], "color": 2 },
+  { "id": 106, "code": "H-resilience-will-growth", "title": "불굴의 전사", "traits": ["resilience", "will", "growth"], "color": 1 },
+  { "id": 107, "code": "H-balance-insight-harmony", "title": "균형의 현자", "traits": ["balance", "insight", "harmony"], "color": 4 },
+  { "id": 108, "code": "H-growth-creation-insight", "title": "혁신의 개척자", "traits": ["growth", "creation", "insight"], "color": 8 },
+  { "id": 109, "code": "H-harmony-sensitivity-expression", "title": "소통의 매개자", "traits": ["harmony", "sensitivity", "expression"], "color": 6 },
+  { "id": 110, "code": "H-creation-insight-balance", "title": "통찰의 건축가", "traits": ["creation", "insight", "balance"], "color": 10 },
+  { "id": 111, "code": "H-will-growth-resilience", "title": "목표의 달성자", "traits": ["will", "growth", "resilience"], "color": 11 },
+  { "id": 112, "code": "H-expression-harmony-growth", "title": "변화의 안내자", "traits": ["expression", "harmony", "growth"], "color": 12 }
+]
+

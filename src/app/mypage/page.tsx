@@ -17,7 +17,7 @@ import RightSidebarSection from '@/components/layout/RightSidebarSection'
 import HeroGrowthCard from '@/components/HeroGrowthCard'
 import Big5RadarChart from '@/components/Big5RadarChart'
 import GrowthVectorChart from '@/components/GrowthVectorChart'
-import InnerCompass9, { toChartData } from '@/components/charts/InnerCompass9'
+import HeroProfileCard from '@/components/HeroProfileCard'
 
 interface GrowthScores {
   innate: number
@@ -276,28 +276,15 @@ export default function MyPage() {
 
             {inner9Data && (
               <div className="mt-6">
-                <SectionCard title="Inner Compass (Inner9)" icon="🧭" tone="highlight">
-                  <InnerCompass9 data={toChartData(inner9Data.inner9)} />
-                  <div className="mt-4 space-y-2 text-sm text-white/70">
-                    <div className="flex items-center justify-between">
-                      <span>엔진:</span>
-                      <span className="font-mono text-violet-300">{inner9Data.engineVersion}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>모델:</span>
-                      <span className="font-mono text-violet-300">{inner9Data.modelVersion}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>영웅:</span>
-                      <span className="text-white">
-                        {inner9Data.hero?.title} ({inner9Data.hero?.code})
-                      </span>
-                    </div>
-                    <div className="mt-3 rounded-lg bg-white/5 p-3 text-white/80">
-                      {inner9Data.narrative?.summary}
-                    </div>
-                  </div>
-                </SectionCard>
+                <HeroProfileCard
+                  hero={inner9Data.hero}
+                  color={inner9Data.color}
+                  inner9={inner9Data.inner9}
+                  narrative={inner9Data.narrative}
+                  engineVersion={inner9Data.engineVersion}
+                  modelVersion={inner9Data.modelVersion}
+                  dob="1990-01-01"
+                />
               </div>
             )}
           </PageSection>
