@@ -7,6 +7,7 @@ import { useSession, signOut } from 'next-auth/react'
 
 import { PremiumStatusBanner } from '@/components/PremiumStatusBanner'
 import { usePremiumSubscription } from '@/lib/hooks/usePremiumSubscription'
+import { SubscriptionManage } from '@/components/SubscriptionManage'
 
 import PageContainer from '@/components/layout/PageContainer'
 import PageSection from '@/components/layout/PageSection'
@@ -363,6 +364,8 @@ export default function MyPage() {
             cancelAtPeriodEnd={subscription.data?.cancel_at_period_end}
             pastDue={subscription.pastDue}
           />
+
+          <SubscriptionManage providerPortalUrl={subscription.data?.portal_url} receiptUrl={subscription.data?.receipt_url} />
         </RightSidebar>
       </div>
     </PageContainer>

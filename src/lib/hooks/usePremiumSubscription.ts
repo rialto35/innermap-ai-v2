@@ -4,6 +4,8 @@ type SubscriptionData = {
   status: 'active' | 'trialing' | 'past_due' | 'canceled' | 'incomplete' | 'unpaid'
   current_period_end?: string | null
   cancel_at_period_end?: boolean
+  portal_url?: string | null
+  receipt_url?: string | null
 } | null
 
 type SubscriptionState = {
