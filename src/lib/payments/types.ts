@@ -11,7 +11,7 @@ export type Method =
 
 export interface CheckoutReq {
   provider: Provider
-  method: Method
+  method?: Method
   amount: number
   currency: 'KRW' | 'USD'
   userId: string

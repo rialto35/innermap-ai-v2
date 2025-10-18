@@ -147,7 +147,7 @@ async function callPortOne<T>(config: PortOneConfig, path: string, payload: unkn
 export const portoneAdapter: PaymentsAdapter = {
   async checkout(req: CheckoutReq): Promise<CheckoutRes> {
     const config = getConfig()
-    const method = ensureMethod(req.method, req.currency)
+    const method = ensureMethod(req.method ?? 'kakao', req.currency)
 
     const paymentId = `pt_${randomUUID()}`
     const orderName = resolveOrderName(req.plan)
