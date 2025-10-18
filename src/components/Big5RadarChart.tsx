@@ -58,7 +58,7 @@ export default function Big5RadarChart({ big5 }: Big5RadarChartProps) {
         </ResponsiveContainer>
       </div>
 
-      <div className="grid grid-cols-5 gap-2 text-xs text-white/70">
+      <div className="grid grid-cols-5 gap-2 px-1 pb-2 text-xs text-white/70">
         {data.map((item, i) => (
           <div key={i} className="rounded-2xl border border-white/10 bg-white/5 px-3 py-2 text-center">
             <div className="text-white/60">{item.trait}</div>
