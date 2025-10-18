@@ -17,10 +17,13 @@ Deno.serve(async (req) => {
 
   try {
     const body = await req.json().catch(() => ({}));
+    console.log('[generate-visuals] Received body:', JSON.stringify(body));
     const reportId = body.reportId as string | undefined;
     if (!reportId) {
-      return new Response(JSON.stringify({ error: 'reportId required' }), { status: 400 });
+      console.error('[generate-visuals] Missing reportId in body:', body);
+      return new Response(JSON.stringify({ error: 'reportId required', receivedBody: body }), { status: 400 });
     }
+    console.log('[generate-visuals] Processing reportId:', reportId);
 
     // Load report + result data (with Big5 scores)
     const { data: report, error: reportError } = await supabase
@@ -95,9 +98,11 @@ Deno.serve(async (req) => {
     if (Object.keys(updates).length > 0) {
       updates.generated_at = new Date().toISOString();
       const merged = { ...(visuals || {}), ...updates };
+      console.log('[generate-visuals] Updating reports table with:', JSON.stringify(merged));
       await supabase.from('reports').update({ visuals_json: merged }).eq('id', reportId);
     }
 
+    console.log('[generate-visuals] Success! Updates:', JSON.stringify(updates));
     return new Response(
       JSON.stringify({ ok: true, reportId, updates }),
       { headers: { 'Content-Type': 'application/json' } }
