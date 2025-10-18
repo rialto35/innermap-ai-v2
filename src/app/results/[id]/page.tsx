@@ -12,6 +12,9 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
+import PageContainer from '@/components/layout/PageContainer';
+import PageSection from '@/components/layout/PageSection';
+import SectionCard from '@/components/layout/SectionCard';
 import ResultSkeleton from '@/components/ui/ResultSkeleton';
 import type { ResultSnapshot } from '@innermap/engine';
 
@@ -76,176 +79,134 @@ export default function ResultPage({ params }: PageProps) {
 
   if (error || !result) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white flex items-center justify-center px-4">
-        <div className="text-center max-w-md">
-          <div className="text-6xl mb-4">😕</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            결과를 찾을 수 없습니다
-          </h2>
-          <p className="text-gray-600 mb-2">{error}</p>
-          <p className="text-sm text-gray-500 mb-6">
-            검사 ID: {id}
-          </p>
-          <div className="space-y-3">
-            <button
-              onClick={() => router.push('/dashboard')}
-              className="w-full px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
-            >
-              대시보드로 돌아가기
-            </button>
-            <button
-              onClick={() => router.push('/analyze')}
-              className="w-full px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition"
-            >
-              새로운 검사 시작하기
-            </button>
+      <PageContainer>
+        <SectionCard title="결과를 찾을 수 없습니다" icon="😕" tone="highlight">
+          <div className="space-y-3 text-sm text-white/70">
+            <p>{error}</p>
+            <p className="text-xs text-white/40">검사 ID: {id}</p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => router.push('/mypage')}
+                className="rounded-xl border border-white/10 px-4 py-2 text-white/80 transition hover:border-white/20 hover:text-white"
+              >
+                마이페이지로 돌아가기
+              </button>
+              <button
+                onClick={() => router.push('/analyze')}
+                className="rounded-xl border border-violet-500/40 px-4 py-2 text-violet-200 transition hover:border-violet-400/70 hover:text-violet-100"
+              >
+                새로운 검사 시작하기
+              </button>
+            </div>
+            <p className="text-xs text-white/40">💡 검사를 완료하지 않았거나 아직 처리 중일 수 있습니다.</p>
           </div>
-          <p className="text-xs text-gray-400 mt-4">
-            💡 검사를 완료하지 않았거나, 결과가 아직 처리 중일 수 있습니다.
-          </p>
-        </div>
-      </div>
-    );
+        </SectionCard>
+      </PageContainer>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-5xl mx-auto px-4 py-12 space-y-8">
-        {/* Header */}
-        <motion.header
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">
-            {result.hero.name}
-          </h1>
-          <div className="flex items-center justify-center space-x-3 text-sm">
-            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full">
-              {result.tribe.type}
-            </span>
-            <span className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full">
-              {result.stone.type}
-            </span>
-            <span className="text-gray-500">
-              {new Date(result.createdAt).toLocaleDateString('ko-KR')}
-            </span>
-          </div>
-        </motion.header>
+    <PageContainer>
+      <div className="flex flex-col gap-6">
+        <PageSection
+          title="분석 결과 요약"
+          description="MBTI · RETI · Big5 기반 인사이트"
+          action={
+            <button
+              onClick={async () => {
+                try {
+                  const response = await fetch('/api/report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ resultId: result.id })
+                  })
 
-        {/* Hero Profile */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white rounded-2xl shadow-lg p-8"
-        >
-          <div className="flex items-center justify-center mb-6">
-            <div className="w-32 h-32 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-5xl">
-              {result.hero.name.charAt(0)}
-            </div>
-          </div>
-          <div className="text-center">
-            <p className="text-gray-600">{result.hero.description}</p>
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              {result.hero.traits.map((trait, i) => (
-                <span key={i} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
-                  {trait}
-                </span>
-              ))}
-            </div>
-          </div>
-        </motion.div>
+                  if (!response.ok) {
+                    throw new Error('리포트 생성 실패')
+                  }
 
-        {/* Stats Grid */}
-        <div className="grid md:grid-cols-2 gap-6">
-          {/* Big5 Radar */}
+                  const data = await response.json()
+                  router.push(`/report/${data.reportId}`)
+                } catch (error) {
+                  console.error('Report generation error:', error)
+                  alert('리포트 생성 중 오류가 발생했습니다. 다시 시도해주세요.')
+                }
+              }}
+              className="rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:scale-[1.02]"
+            >
+              심층 리포트 생성
+            </button>
+          }
+        >
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-lg p-6"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center"
           >
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Big5 Personality</h3>
-            <div className="h-64">
-              <Big5RadarChart big5={{
-                O: result.big5.openness,
-                C: result.big5.conscientiousness,
-                E: result.big5.extraversion,
-                A: result.big5.agreeableness,
-                N: result.big5.neuroticism
-              }} />
+            <h1 className="text-3xl font-semibold text-white mb-2">{result.hero.name}</h1>
+            <div className="flex items-center justify-center gap-2 text-xs text-white/60">
+              <span className="rounded-full bg-white/10 px-3 py-1">{result.tribe.type}</span>
+              <span className="rounded-full bg-white/10 px-3 py-1">{result.stone.type}</span>
+              <span>{new Date(result.createdAt).toLocaleDateString('ko-KR')}</span>
             </div>
           </motion.div>
 
-          {/* MBTI/RETI */}
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
-            className="bg-white rounded-2xl shadow-lg p-6"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className="mt-6"
           >
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Personality Types</h3>
-            <div className="space-y-6">
-              <div>
-                <div className="text-sm text-gray-600 mb-2">MBTI</div>
-                <div className="text-3xl font-bold text-indigo-600">{result.mbti.type}</div>
-                <div className="text-sm text-gray-500 mt-1">
-                  Confidence: {Math.round(result.mbti.confidence * 100)}%
+            <SectionCard title="영웅 프로필" icon="🧙" tone="default">
+              <div className="flex flex-col items-center gap-4 text-sm text-white/70">
+                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 text-4xl text-white">
+                  {result.hero.name.charAt(0)}
+                </div>
+                <p className="text-center text-white/80">{result.hero.description}</p>
+                <div className="flex flex-wrap justify-center gap-2 text-xs text-white/60">
+                  {result.hero.traits.map((trait, idx) => (
+                    <span key={idx} className="rounded-full border border-white/10 bg-white/5 px-3 py-1">{trait}</span>
+                  ))}
                 </div>
               </div>
-              <div>
-                <div className="text-sm text-gray-600 mb-2">RETI (Enneagram)</div>
-                <div className="text-3xl font-bold text-purple-600">Type {result.reti.primaryType}</div>
-                {result.reti.wing && (
-                  <div className="text-sm text-gray-500 mt-1">Wing: {result.reti.wing}</div>
-                )}
-              </div>
-            </div>
+            </SectionCard>
           </motion.div>
-        </div>
+        </PageSection>
 
-      {/* CTA */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-        className="bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl p-8 text-white text-center"
-      >
-        <h2 className="text-2xl font-bold mb-4">심층 리포트가 필요하신가요?</h2>
-        <p className="mb-6 text-indigo-100">
-          AI 기반 내러티브 분석과 상세한 인사이트를 확인하세요
-        </p>
-        <button
-          onClick={async () => {
-            try {
-              // 리포트 생성 요청
-              const response = await fetch('/api/report', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ resultId: result.id })
-              });
-              
-              if (!response.ok) {
-                throw new Error('리포트 생성 실패');
-              }
-              
-              const data = await response.json();
-              
-              // 리포트 페이지로 이동
-              router.push(`/report/${data.reportId}`);
-            } catch (error) {
-              console.error('Report generation error:', error);
-              alert('리포트 생성 중 오류가 발생했습니다. 다시 시도해주세요.');
-            }
-          }}
-          className="px-8 py-3 bg-white text-indigo-600 font-semibold rounded-lg hover:bg-gray-100 transition"
-        >
-          리포트 생성하기 →
-        </button>
-      </motion.div>
+        <PageSection title="성향 지표" description="Big5 기준의 현재 성향 분포를 살펴보세요">
+          <div className="grid gap-6 md:grid-cols-2">
+            <SectionCard title="Big5 레이더" icon="🌌">
+              <div className="h-64">
+                <Big5RadarChart
+                  big5={{
+                    O: result.big5.openness,
+                    C: result.big5.conscientiousness,
+                    E: result.big5.extraversion,
+                    A: result.big5.agreeableness,
+                    N: result.big5.neuroticism
+                  }}
+                />
+              </div>
+            </SectionCard>
+
+            <SectionCard title="성격 유형" icon="🧭">
+              <div className="grid gap-4 text-sm text-white/70">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="text-xs uppercase tracking-[0.3em] text-white/50">MBTI</div>
+                  <div className="mt-2 text-3xl font-semibold text-white">{result.mbti.type}</div>
+                  <div className="text-xs text-white/40">Confidence: {Math.round(result.mbti.confidence * 100)}%</div>
+                </div>
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <div className="text-xs uppercase tracking-[0.3em] text-white/50">RETI</div>
+                  <div className="mt-2 text-3xl font-semibold text-white">Type {result.reti.primaryType}</div>
+                  {result.reti.wing && <div className="text-xs text-white/40">Wing: {result.reti.wing}</div>}
+                </div>
+              </div>
+            </SectionCard>
+          </div>
+        </PageSection>
       </div>
-    </div>
-  );
+    </PageContainer>
+  )
 }
 
