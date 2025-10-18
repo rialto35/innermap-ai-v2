@@ -9,6 +9,7 @@ interface StripeConfig {
   priceUsd: string
   successUrl: string
   cancelUrl: string
+  webhookSecret?: string
 }
 
 interface SubscriptionMeta {
@@ -25,7 +26,8 @@ function getConfig(): StripeConfig {
     STRIPE_PRICE_PREMIUM_KRW,
     STRIPE_PRICE_PREMIUM_USD,
     STRIPE_SUCCESS_URL,
-    STRIPE_CANCEL_URL
+    STRIPE_CANCEL_URL,
+    STRIPE_WEBHOOK_SECRET
   } = process.env
 
   if (!STRIPE_SECRET_KEY) {
@@ -45,7 +47,8 @@ function getConfig(): StripeConfig {
     priceKrw: STRIPE_PRICE_PREMIUM_KRW,
     priceUsd: STRIPE_PRICE_PREMIUM_USD,
     successUrl: STRIPE_SUCCESS_URL,
-    cancelUrl: STRIPE_CANCEL_URL
+    cancelUrl: STRIPE_CANCEL_URL,
+    webhookSecret: STRIPE_WEBHOOK_SECRET
   }
 }
 
@@ -146,32 +149,39 @@ export const stripeAdapter: PaymentsAdapter = {
   },
 
   async handleWebhook(event: unknown): Promise<{ ok: boolean }> {
-    const stripeEvent = event as Stripe.Event | undefined
-    if (!stripeEvent) {
+    const config = getConfig()
+    if (!config.webhookSecret) {
+      throw new Error('Stripe webhook secret is not configured.')
+    }
+
+    const payload = event as { rawBody: string; signature: string } | undefined
+    if (!payload || !payload.rawBody || !payload.signature) {
       return { ok: false }
     }
 
-    switch (stripeEvent.type) {
-      case 'checkout.session.completed': {
-        const session = stripeEvent.data.object as Stripe.Checkout.Session
-        const subscriptionId = session.subscription
-        if (!subscriptionId || typeof subscriptionId !== 'string') {
-          return { ok: false }
-        }
-        return { ok: true }
-      }
-      case 'invoice.paid':
-      case 'customer.subscription.created':
-      case 'customer.subscription.updated':
-      case 'customer.subscription.deleted': {
-        const subscription = stripeEvent.data.object as Stripe.Subscription
-        const meta = normalizeStatus(subscription)
-        return { ok: meta.status === 'active' || meta.status === 'trialing' }
-      }
-      case 'invoice.payment_failed':
-        return { ok: false }
-      default:
-        return { ok: true }
+    try {
+      const stripe = getStripe(config.secretKey)
+      const constructed = stripe.webhooks.constructEvent(payload.rawBody, payload.signature, config.webhookSecret)
+      return handleStripeEvent(constructed)
+    } catch (error) {
+      console.error('Stripe webhook signature validation failed:', error)
+      return { ok: false }
     }
+  }
+}
+
+function handleStripeEvent(stripeEvent: Stripe.Event): { ok: boolean } {
+  switch (stripeEvent.type) {
+    case 'checkout.session.completed':
+      return { ok: true }
+    case 'invoice.paid':
+    case 'customer.subscription.created':
+    case 'customer.subscription.updated':
+    case 'customer.subscription.deleted':
+      return { ok: true }
+    case 'invoice.payment_failed':
+      return { ok: false }
+    default:
+      return { ok: true }
   }
 }

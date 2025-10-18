@@ -14,11 +14,15 @@ export async function POST(request: NextRequest) {
   if (!provider) {
     return NextResponse.json({ ok: false, error: 'UNKNOWN_PROVIDER' }, { status: 400 })
   }
-  const payload = await request.text()
+  const rawBody = await request.text()
+  const signature =
+    (provider === 'stripe'
+      ? request.headers.get('stripe-signature')
+      : request.headers.get('x-portone-signature')) || undefined
 
   const adapter = provider === 'portone' ? portoneAdapter : stripeAdapter
 
-  const { ok } = await adapter.handleWebhook(payload)
+  const { ok } = await adapter.handleWebhook({ rawBody, signature })
 
   return NextResponse.json({ ok })
 }
