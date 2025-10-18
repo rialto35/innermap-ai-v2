@@ -56,6 +56,7 @@ export async function POST(req: Request) {
           A: body.big5.A,
           N: body.big5.N,
         },
+        mbti_scores: body.mbti ? { type: body.mbti } : {},
         inner_nine: out.inner9,
         model_version: out.modelVersion,
         engine_version: out.engineVersion,
