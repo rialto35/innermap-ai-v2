@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth'
 import { z } from 'zod'
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
+import { calculateHoroscope } from '@/lib/horoscope'
 
 const HoroscopeBodySchema = z.object({
   lunarBirth: z.string().optional(),
@@ -44,24 +45,16 @@ export async function POST(req: NextRequest) {
 
     const data = validationResult.data
 
-    // TODO: 실제 만세력 계산 로직 또는 외부 API 연동
-    // 현재는 placeholder 데이터 사용
-    const sajuData = {
-      year: { heavenlyStem: '甲', earthlyBranch: '子' },
-      month: { heavenlyStem: '乙', earthlyBranch: '丑' },
-      day: { heavenlyStem: '丙', earthlyBranch: '寅' },
-      time: { heavenlyStem: '丁', earthlyBranch: '卯' },
-      elements: {
-        wood: 2,
-        fire: 1,
-        earth: 1,
-        metal: 0,
-        water: 0,
-      },
-      dominantElement: 'wood',
-    }
+    // 실제 만세력 계산 및 AI 해석 수행
+    const { saju, analysis } = await calculateHoroscope({
+      solarBirth: data.solarBirth,
+      lunarBirth: data.lunarBirth,
+      birthTime: data.birthTime,
+      location: data.location,
+    })
 
-    const dailyFortune = generateDailyFortune(sajuData)
+    const sajuData = saju
+    const dailyFortune = analysis
 
     // DB에 저장
     const { data: horoscope, error: insertError } = await supabaseAdmin
@@ -105,17 +98,4 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// 임시 운세 생성 함수 (나중에 실제 알고리즘으로 교체)
-function generateDailyFortune(sajuData: any): string {
-  const fortunes = [
-    '오늘은 새로운 시작에 좋은 날입니다. 긍정적인 마음으로 도전하세요.',
-    '인간관계에서 좋은 소식이 있을 것입니다. 주변 사람들과 소통하세요.',
-    '재물운이 상승하는 날입니다. 투자나 계약에 유리합니다.',
-    '건강에 유의하세요. 충분한 휴식이 필요한 시기입니다.',
-    '창의력이 발휘되는 날입니다. 새로운 아이디어를 실행에 옮기세요.',
-  ]
-  
-  const index = Math.floor(Math.random() * fortunes.length)
-  return fortunes[index]
-}
 

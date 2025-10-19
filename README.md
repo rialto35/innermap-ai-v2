@@ -11,6 +11,28 @@
 ### 🚀 영웅 이미지 생성 방법
 
 #### 1. 환경 변수 설정
+
+프로젝트 루트에 `.env.local` 파일을 생성하고 다음 환경변수를 설정하세요:
+
+```bash
+# OpenAI API Configuration
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+OPENAI_MODEL=gpt-4o
+
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+
+# NextAuth Configuration
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_nextauth_secret_here
+
+# Payment Configuration
+NEXT_PUBLIC_PAYMENTS_V2_GUARD=false
+```
+
+또는 터미널에서 직접 설정:
 ```bash
 export OPENAI_API_KEY="your_openai_api_key_here"
 ```
@@ -87,6 +109,64 @@ detailed illustration, professional artwork
 - 충분한 API 크레딧을 확보하세요
 - 네트워크 연결이 안정적인 환경에서 실행하세요
 - 생성 중에는 스크립트를 중단하지 마세요
+
+---
+
+## 🔮 운세(만세력) 시스템
+
+### 📋 개요
+- **실제 사주팔자 계산**: `manseryeok` 라이브러리 활용
+- **AI 기반 해석**: OpenAI GPT-4o를 통한 성격 분석 및 운세 해석
+- **양력/음력 지원**: 양력 또는 음력 생년월일 입력 가능
+- **오행 분석**: 목(木), 화(火), 토(土), 금(金), 수(水) 분포 계산
+
+### 🚀 운세 기능 사용 방법
+
+#### 1. 환경 변수 설정
+`.env.local` 파일에 OpenAI API 키를 추가하세요:
+```bash
+OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+OPENAI_MODEL=gpt-4o
+```
+
+#### 2. 운세 등록
+1. 대시보드에서 "운세" 탭 클릭
+2. "운세 등록하기" 버튼 클릭
+3. 생년월일, 출생 시간, 출생 지역 입력
+4. AI가 사주팔자를 계산하고 해석 생성
+
+#### 3. 운세 조회
+- **카드 뷰**: 대시보드에서 간단한 운세 요약 확인
+- **상세 뷰**: "상세 운세 보기" 클릭하여 전체 분석 확인
+
+### ⚙️ 기술 스택
+- **manseryeok**: 한국 사주/만세력 계산 라이브러리
+- **OpenAI GPT-4o**: AI 기반 운세 해석
+- **Supabase**: 운세 데이터 저장
+- **React Hook Form + Zod**: 폼 검증
+
+### 📊 운세 데이터 구조
+```typescript
+{
+  year: { heavenlyStem: '甲', earthlyBranch: '子' },
+  month: { heavenlyStem: '乙', earthlyBranch: '丑' },
+  day: { heavenlyStem: '丙', earthlyBranch: '寅' },
+  hour: { heavenlyStem: '丁', earthlyBranch: '卯' },
+  elements: {
+    wood: 2,
+    fire: 1,
+    earth: 1,
+    metal: 0,
+    water: 0
+  }
+}
+```
+
+### 💡 AI 해석 내용
+- **성격 특징**: 사주 기반 성격 분석
+- **강점**: 타고난 재능과 능력
+- **약점**: 주의해야 할 부분
+- **오늘의 운세**: 일일 운세 조언
 
 ---
 
