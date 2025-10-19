@@ -1,85 +1,64 @@
-'use client'
+/**
+ * Dashboard Page v2
+ * Enhanced with tabs, tribe/stone visualization, and Inner9 integration
+ */
 
-import Link from 'next/link'
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
+'use client';
 
-import { PremiumStatusBanner } from '@/components/PremiumStatusBanner'
-import { usePremiumSubscription } from '@/lib/hooks/usePremiumSubscription'
-import { SubscriptionManage } from '@/components/SubscriptionManage'
+import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import dynamic from 'next/dynamic';
 
-import PageContainer from '@/components/layout/PageContainer'
-import PageSection from '@/components/layout/PageSection'
-import SectionCard from '@/components/layout/SectionCard'
-import RightSidebar from '@/components/layout/RightSidebar'
-import RightSidebarSection from '@/components/layout/RightSidebarSection'
-import HeroGrowthCard from '@/components/HeroGrowthCard'
-import Big5RadarChart from '@/components/Big5RadarChart'
-import GrowthVectorChart from '@/components/GrowthVectorChart'
-import HeroProfileCard from '@/components/HeroProfileCard'
+import EnhancedHeroCard from '@/components/hero/EnhancedHeroCard';
+import DashboardTabs from '@/components/dashboard/DashboardTabs';
+import { useSearchTab } from '@/lib/hooks/useSearchTab';
 
-interface GrowthScores {
-  innate: number
-  acquired: number
-  conscious: number
-  unconscious: number
-  growth: number
-  stability: number
-  harmony: number
-  individual: number
+// Lazy load tab content components
+const Inner9Overview = dynamic(() => import('@/components/dashboard/Inner9Overview'), {
+  ssr: false,
+  loading: () => <TabLoadingState />,
+});
+
+const DetailedReport = dynamic(() => import('@/components/dashboard/DetailedReport'), {
+  ssr: false,
+  loading: () => <TabLoadingState />,
+});
+
+const DeepAnalysis = dynamic(() => import('@/components/dashboard/DeepAnalysis'), {
+  ssr: false,
+  loading: () => <TabLoadingState />,
+});
+
+function TabLoadingState() {
+  return (
+    <div className="min-h-[400px] flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4" />
+        <p className="text-white/60">로딩 중...</p>
+      </div>
+    </div>
+  );
 }
 
-interface HeroData {
-  hero: any
-  gem?: any
-  tribe?: any
-  growth?: GrowthScores
-  strengths?: string[]
-  weaknesses?: string[]
-  genderPreference?: 'male' | 'female'
-  testResultId?: string
-  hasTestResult?: boolean
-  testDate?: string
-  big5?: {
-    O: number
-    C: number
-    E: number
-    A: number
-    N: number
-  }
-}
-
-interface RecentReport {
-  id: string
-  title: string
-  tribe: string
-  createdAt: string
-  status: 'ready' | 'queued' | 'processing' | 'failed'
-}
-
-interface UpcomingQuest {
-  id: string
-  title: string
-  description: string
-  difficulty: 'easy' | 'mid' | 'hard'
-}
-
-export default function MyPage() {
-  const { data: session, status } = useSession()
-  const router = useRouter()
-  const [heroData, setHeroData] = useState<HeroData | null>(null)
-  const [recentReports, setRecentReports] = useState<RecentReport[]>([])
-  const [upcomingQuests, setUpcomingQuests] = useState<UpcomingQuest[]>([])
-  const [loading, setLoading] = useState(true)
-  const subscription = usePremiumSubscription()
-  const [inner9Data, setInner9Data] = useState<any>(null)
+function DashboardContent() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const { currentTab } = useSearchTab();
+  const [heroData, setHeroData] = useState<any>(null);
+  const [inner9Data, setInner9Data] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
   const handleLogout = async () => {
-    sessionStorage.removeItem('hero_data_cache')
-    await signOut({ redirect: false })
-    router.push('/')
-  }
+    try {
+      sessionStorage.removeItem('hero_data_cache');
+      await signOut({ redirect: false });
+      router.push('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const runInner9Demo = useCallback(async () => {
     try {
@@ -87,325 +66,183 @@ export default function MyPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 } }),
-      })
-      const j = await res.json()
-      if (j.ok) setInner9Data(j.data)
+      });
+      const j = await res.json();
+      if (j.ok) setInner9Data(j.data);
     } catch (error) {
-      console.error('Inner9 demo error:', error)
+      console.error('Inner9 demo error:', error);
     }
-  }, [])
+  }, []);
 
   const fetchHeroData = useCallback(async () => {
-    if (!session?.user?.email) return
+    if (heroData) return;
 
-    const cacheKey = 'hero_data_cache'
-    const cached = sessionStorage.getItem(cacheKey)
+    const cacheKey = 'hero_data_cache';
+    const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       try {
-        const { data: cachedData, timestamp } = JSON.parse(cached)
-        const now = Date.now()
-        const CACHE_DURATION = 5 * 60 * 1000
+        const { data: cachedData, timestamp } = JSON.parse(cached);
+        const now = Date.now();
+        const CACHE_DURATION = 5 * 60 * 1000;
+
         if (now - timestamp < CACHE_DURATION) {
-          setHeroData(cachedData)
-          setLoading(false)
-          return
+          setHeroData(cachedData);
+          setLoading(false);
+          return;
         }
       } catch {
-        /* ignore */
+        // Ignore cache parsing errors
       }
     }
 
     try {
-      setLoading(true)
-      const response = await fetch('/api/imcore/me')
+      setLoading(true);
+      const response = await fetch('/api/imcore/me');
+
       if (!response.ok) {
-        throw new Error('Failed to fetch hero data')
+        throw new Error('Failed to fetch hero data');
       }
-      const data = await response.json()
-      sessionStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }))
-      setHeroData(data)
+
+      const data = await response.json();
+      sessionStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
+      setHeroData(data);
     } catch (error) {
-      console.error('Error fetching hero data:', error)
-      setHeroData(null)
+      console.error('Error fetching hero data:', error);
+      // Fallback data
+      setHeroData({
+        user: {
+          name: session?.user?.name || 'Guest',
+          email: session?.user?.email || '',
+        },
+        hero: {
+          name: '비전의 불꽃',
+          subtitle: '감정의 에너지로 세상을 움직이는 영혼의 점화자',
+          level: 12,
+          exp: { current: 340, next: 500 },
+          mbti: 'ENFP',
+          reti: { code: 'R7', score: 1.8 },
+        },
+        gem: {
+          name: '아우레아',
+          keywords: ['균형', '평형', '통합'],
+          summary: '조화로운 중심을 만드는 결정.',
+          color: '#8B5CF6',
+        },
+        tribe: {
+          name: '화염의 부족',
+          nameEn: 'flame',
+          color: '#F59E0B',
+        },
+        growth: { innate: 62, acquired: 74, harmony: 68, individual: 55 },
+        strengths: ['영감 전파', '공감 리더십', '창의적 시도'],
+        weaknesses: ['지속성 저하', '우선순위 분산', '감정 과몰입'],
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [session?.user?.email])
-
-  // TODO: Replace with actual API endpoints
-  const fetchRecentReports = useCallback(async () => {
-    // Placeholder data
-    setRecentReports([
-      {
-        id: 'demo-report-1',
-        title: '탐험가의 성장 리포트',
-        tribe: 'Water 부족',
-        createdAt: '2025-10-15T12:00:00Z',
-        status: 'ready'
-      }
-    ])
-  }, [])
-
-  const fetchUpcomingQuests = useCallback(async () => {
-    setUpcomingQuests([
-      {
-        id: 'quest-1',
-        title: '매일 10분 아이디어 노트 작성',
-        description: '자유로운 발상을 기록하며 사고 확장 하기',
-        difficulty: 'easy'
-      },
-      {
-        id: 'quest-2',
-        title: '감정 코칭 세션 예약',
-        description: '프로 코치와 1:1 세션으로 감정 밸런스 잡기',
-        difficulty: 'mid'
-      }
-    ])
-  }, [])
+  }, [session, heroData]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login?redirect=/mypage')
-      return
+      router.push('/login');
+      return;
     }
-    if (status === 'authenticated') {
-      fetchHeroData()
-      fetchRecentReports()
-      fetchUpcomingQuests()
-    }
-  }, [status, fetchHeroData, fetchRecentReports, fetchUpcomingQuests, router])
 
-  const creationDisplay = useMemo(() => {
-    if (!session?.user?.name) return 'InnerMap Explorer'
-    return session.user.name
-  }, [session])
+    if (status === 'authenticated' && !heroData) {
+      fetchHeroData();
+    }
+  }, [status, router, fetchHeroData, heroData]);
 
   if (status === 'loading' || loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center text-white/70">
+      <div className="min-h-screen flex items-center justify-center text-white/70">
         <div className="text-center">
-          <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-b-2 border-white/20" />
-          <p>마이페이지 데이터를 불러오는 중...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4" />
+          <p>영웅 데이터를 불러오는 중...</p>
         </div>
       </div>
-    )
+    );
   }
 
-  return (
-    <PageContainer>
-      <div className="flex flex-col gap-8 lg:grid lg:grid-cols-[minmax(0,_1fr)_320px]">
-        <div className="flex flex-col gap-6">
-          <div>
-            <div className="text-sm uppercase tracking-widest text-white/40">InnerMap Hub</div>
-            <h1 className="mt-2 text-3xl font-semibold text-white">
-              {creationDisplay}님의 여정
-            </h1>
-            <p className="mt-2 text-sm text-white/60">
-              최근 리포트, 성장 지표, 추천 퀘스트를 한눈에 확인하세요.
-            </p>
-          </div>
-
-
-          <PageSection
-            title="핵심 요약"
-            description="최근 분석 결과를 기반으로 한 영웅 프로필"
-            action={(
-              <Link
-                href="/analyze"
-                className="rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:scale-[1.02]"
-              >
-                신규 분석 시작
-              </Link>
-            )}
+  if (!heroData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-white/70">
+        <div className="text-center">
+          <p>데이터를 불러올 수 없습니다.</p>
+          <button
+            onClick={fetchHeroData}
+            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
           >
-            {heroData ? (
-              <HeroGrowthCard
-                hero={heroData.hero}
-                gem={heroData.gem}
-                tribe={heroData.tribe}
-                growth={heroData.growth}
-                strengths={heroData.strengths}
-                weaknesses={heroData.weaknesses}
-                genderPreference={heroData.genderPreference}
-                testResultId={heroData.testResultId}
-              />
-            ) : (
-              <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-10 text-center text-white/60">
-                아직 저장된 분석이 없습니다. 첫 검사를 시작해보세요!
-              </div>
-            )}
-          </PageSection>
-
-          <PageSection
-            title="시각화 리포트"
-            description="Big5 성향과 성장 벡터를 시각적으로 확인하세요"
-            action={
-              <button
-                onClick={runInner9Demo}
-                className="rounded-xl border border-violet-400/30 bg-violet-500/10 px-4 py-2 text-sm text-violet-200 transition hover:border-violet-400/50 hover:bg-violet-500/20"
-              >
-                Inner9 데모 실행
-              </button>
-            }
-          >
-            <div className="grid gap-6 lg:grid-cols-2">
-              {heroData?.big5 ? (
-                <SectionCard title="Big5 레이더" icon="🌌">
-                  <Big5RadarChart big5={heroData.big5} />
-                </SectionCard>
-              ) : (
-                <SectionCard title="Big5 레이더" icon="🌌" tone="highlight">
-                  <div className="text-sm text-white/60">
-                    분석을 완료하면 당신만의 Big5 레이더가 자동 생성됩니다.
-                  </div>
-                </SectionCard>
-              )}
-
-              {heroData?.growth ? (
-                <SectionCard title="성장 벡터" icon="📈">
-                  <GrowthVectorChart growth={heroData.growth} />
-                </SectionCard>
-              ) : (
-                <SectionCard title="성장 벡터" icon="📈" tone="highlight">
-                  <div className="text-sm text-white/60">
-                    성장 영역을 파악해 맞춤 퀘스트를 추천받으세요.
-                  </div>
-                </SectionCard>
-              )}
-            </div>
-
-            {inner9Data && (
-              <div className="mt-6">
-                <HeroProfileCard
-                  hero={inner9Data.hero}
-                  color={inner9Data.color}
-                  inner9={inner9Data.inner9}
-                  narrative={inner9Data.narrative}
-                  engineVersion={inner9Data.engineVersion}
-                  modelVersion={inner9Data.modelVersion}
-                  dob="1990-01-01"
-                />
-              </div>
-            )}
-          </PageSection>
-
-          <PageSection
-            title="최근 리포트"
-            description="완료된 리포트와 생성 상태를 확인합니다"
-            action={(
-              <Link
-                href="/report"
-                className="rounded-xl border border-white/10 px-4 py-2 text-sm text-white/70 transition hover:border-white/20 hover:text-white"
-              >
-                전체 보기
-              </Link>
-            )}
-          >
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {recentReports.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-white/10 bg-white/5 p-8 text-center text-sm text-white/60">
-                  아직 생성된 리포트가 없습니다. 분석을 완료하면 자동으로 저장됩니다.
-                </div>
-              )}
-              {recentReports.map(report => (
-                <SectionCard
-                  key={report.id}
-                  title={report.title}
-                  icon="📄"
-                  footer={(
-                    <div className="flex items-center justify-between">
-                      <span className="text-white/50">{new Date(report.createdAt).toLocaleString('ko-KR')}</span>
-                      <Link href={`/report/${report.id}`} className="text-violet-300 hover:text-violet-200">
-                        자세히 보기 →
-                      </Link>
-                    </div>
-                  )}
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="rounded-full bg-white/10 px-3 py-1 text-white/70">{report.tribe}</span>
-                    <span className={`text-xs ${report.status === 'ready' ? 'text-emerald-300' : 'text-amber-300'}`}>
-                      {report.status === 'ready' ? '완료' : '생성 중'}
-                    </span>
-                  </div>
-                </SectionCard>
-              ))}
-            </div>
-          </PageSection>
+            다시 시도
+          </button>
         </div>
-
-        <RightSidebar>
-          <RightSidebarSection title="계정 관리" accent="violet">
-            <div className="flex flex-col gap-2 text-sm">
-              <span className="text-white/80">{session?.user?.name}</span>
-              <span className="text-white/50">{session?.user?.email}</span>
-              <button
-                onClick={handleLogout}
-                className="mt-3 rounded-xl border border-red-400/30 px-3 py-2 text-sm text-red-300 transition hover:border-red-300/60 hover:text-red-200"
-              >
-                로그아웃
-              </button>
-            </div>
-          </RightSidebarSection>
-
-          <RightSidebarSection title="추천 퀘스트" accent="emerald">
-            {upcomingQuests.length === 0 ? (
-              <div className="text-sm text-white/60">현재 추천 퀘스트가 없습니다.</div>
-            ) : (
-              <div className="space-y-3">
-                {upcomingQuests.map(quest => (
-                  <div key={quest.id} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                    <div className="flex items-center justify-between text-xs text-white/50">
-                      <span>#{quest.id}</span>
-                      <span
-                        className={`rounded-full px-2 py-1 ${
-                          quest.difficulty === 'easy'
-                            ? 'bg-emerald-500/10 text-emerald-200'
-                            : quest.difficulty === 'mid'
-                              ? 'bg-amber-500/10 text-amber-200'
-                              : 'bg-rose-500/10 text-rose-200'
-                        }`}
-                      >
-                        {quest.difficulty.toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="mt-2 text-sm font-medium text-white/90">{quest.title}</div>
-                    <p className="mt-1 text-xs text-white/60">{quest.description}</p>
-                    <Link
-                      href="/analyze"
-                      className="mt-3 inline-flex items-center gap-1 text-xs text-cyan-300 hover:text-cyan-200"
-                    >
-                      실행하기 →
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            )}
-          </RightSidebarSection>
-
-          <RightSidebarSection title="리포트 도구" accent="sky">
-            <div className="flex flex-col gap-2 text-sm text-white/70">
-              <Link href="/report" className="rounded-xl border border-white/10 px-4 py-2 transition hover:border-white/20 hover:text-white">
-                리포트 목록 보기
-              </Link>
-              <Link href="/report" className="rounded-xl border border-white/10 px-4 py-2 transition hover:border-white/20 hover:text-white">
-                공유 링크 관리
-              </Link>
-              <Link href="/report" className="rounded-xl border border-white/10 px-4 py-2 transition hover:border-white/20 hover:text-white">
-                PDF 다운로드 기록
-              </Link>
-            </div>
-          </RightSidebarSection>
-
-          <PremiumStatusBanner
-            status={subscription.data?.status}
-            end={subscription.data?.current_period_end ?? undefined}
-            cancelAtPeriodEnd={subscription.data?.cancel_at_period_end}
-            pastDue={subscription.pastDue}
-          />
-
-          <SubscriptionManage providerPortalUrl={subscription.data?.portal_url} receiptUrl={subscription.data?.receipt_url} />
-        </RightSidebar>
       </div>
-    </PageContainer>
-  )
+    );
+  }
+
+  const userName = heroData.user?.name || session?.user?.name || '여행자';
+
+  return (
+    <div className="max-w-7xl mx-auto p-6 space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">{userName}님의 여정</h1>
+          <p className="text-white/60">당신의 내면 세계를 탐험하세요</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/analyze"
+            className="px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white font-semibold rounded-xl hover:scale-105 transition shadow-lg shadow-violet-500/20"
+          >
+            신규 분석 시작
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 text-sm text-red-400 hover:text-red-300 border border-red-400/30 hover:border-red-300/50 rounded-lg transition"
+          >
+            로그아웃
+          </button>
+        </div>
+      </div>
+
+      {/* Hero Highlight Card */}
+      <EnhancedHeroCard
+        hero={heroData.hero}
+        gem={heroData.gem}
+        tribe={heroData.tribe}
+        growth={heroData.growth}
+        strengths={heroData.strengths}
+        weaknesses={heroData.weaknesses}
+        genderPreference={heroData.genderPreference || 'male'}
+        testResultId={heroData.testResultId}
+        tribeKey={heroData.tribe?.nameEn || 'lumin'}
+        stoneKey={heroData.gem?.nameEn || 'arche'}
+      />
+
+      {/* Tabbed Content */}
+      <DashboardTabs>
+        {currentTab === 'inner9' && (
+          <Inner9Overview inner9Data={inner9Data} onRunDemo={runInner9Demo} />
+        )}
+        {currentTab === 'report' && <DetailedReport heroData={heroData} />}
+        {currentTab === 'deep' && <DeepAnalysis />}
+      </DashboardTabs>
+    </div>
+  );
 }
+
+export default function DashboardPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500" />
+        </div>
+      }
+    >
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
