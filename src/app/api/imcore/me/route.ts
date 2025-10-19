@@ -120,7 +120,7 @@ export async function GET() {
         const analysis = await runAnalysis({ big5: defaultBig5, mbti: defaultHero.mbti as any, locale: 'ko-KR' })
         defaultInner9 = analysis.inner9
       } catch {}
-      const defaultInner9Scores = computeInner9Scores(defaultBig5Percentiles, defaultMBTIRatios)
+      const defaultInner9Scores = computeInner9Scores(defaultBig5Percentiles, defaultHero.mbti as any, undefined, false)
 
       const responseData = {
         user: {
@@ -211,7 +211,7 @@ export async function GET() {
     }
     const savedBig5Percentiles = computeBig5Percentiles(savedBig5)
     const savedMBTIRatios = computeMBTIRatios(latestResult.mbti_type)
-    const savedInner9Scores = computeInner9Scores(savedBig5Percentiles, savedMBTIRatios)
+    const savedInner9Scores = computeInner9Scores(savedBig5Percentiles, latestResult.mbti_type as any, undefined, false)
 
     const responseData = {
       user: {
