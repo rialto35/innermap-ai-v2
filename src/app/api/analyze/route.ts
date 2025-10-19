@@ -9,6 +9,11 @@ import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { runAnalysis } from '@/core/im-core';
 import type { AnalyzeInput } from '@/core/im-core/types';
+import { 
+  computeBig5Percentiles, 
+  computeMBTIRatios, 
+  generateAnalysisText 
+} from '@/lib/psychometrics';
 
 export async function POST(req: Request) {
   try {
@@ -32,6 +37,39 @@ export async function POST(req: Request) {
       dob: body.dob,
       locale: body.locale ?? 'ko-KR',
     });
+
+    // Compute deep analysis metrics
+    console.log('📊 [API /analyze] Computing deep analysis metrics...');
+    const big5Percentiles = computeBig5Percentiles({ O, C, E, A, N });
+    const mbtiRatios = body.mbti ? computeMBTIRatios(body.mbti) : { EI: 50, SN: 50, TF: 50, JP: 50 };
+    
+    // Generate AI analysis text (async)
+    let analysisText = '';
+    try {
+      analysisText = await generateAnalysisText({
+        userId: session?.user?.email ?? 'anonymous',
+        testType: 'inner9',
+        big5: { O, C, E, A, N },
+        mbti: body.mbti ?? 'XXXX',
+        big5Percentiles,
+        mbtiRatios,
+        analysisText: '', // Will be filled
+        growth: out.inner9 ? {
+          innate: out.inner9.creation ?? 50,
+          acquired: out.inner9.will ?? 50,
+          conscious: out.inner9.insight ?? 50,
+          unconscious: out.inner9.sensitivity ?? 50,
+          growth: out.inner9.growth ?? 50,
+          stability: out.inner9.balance ?? 50,
+          harmony: out.inner9.harmony ?? 50,
+          individual: out.inner9.expression ?? 50,
+        } : undefined,
+      });
+      console.log('✅ [API /analyze] AI analysis generated:', analysisText.length, 'chars');
+    } catch (error) {
+      console.error('⚠️ [API /analyze] Failed to generate AI analysis:', error);
+      analysisText = '심층 분석을 생성하는 중 오류가 발생했습니다. 기본 분석 결과를 확인해주세요.';
+    }
 
     // DB 저장: results 테이블에 Inner9 결과 저장
     let userId = null;
@@ -80,6 +118,10 @@ export async function POST(req: Request) {
         stone: out.color?.natal?.id ?? 0,
         narrative: out.narrative?.summary ?? null,
         tribe: (out as any)?.hero?.tribe ?? derivedTribe ?? 'unknown',
+        // Deep analysis fields
+        big5_percentiles: big5Percentiles,
+        mbti_ratios: mbtiRatios,
+        analysis_text: analysisText,
       })
       .select('id')
       .single();
@@ -92,7 +134,16 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ ok: true, id: resultData.id, data: out });
+    return NextResponse.json({ 
+      ok: true, 
+      id: resultData.id, 
+      data: {
+        ...out,
+        big5Percentiles,
+        mbtiRatios,
+        analysisText,
+      }
+    });
   } catch (e: any) {
     console.error('Inner9 analysis error:', e);
     return NextResponse.json(

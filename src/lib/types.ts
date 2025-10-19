@@ -53,3 +53,55 @@ export type Scores = {
   Growth: Record<AxisGrowth, number>
 }
 
+// Deep Analysis Types
+export interface Big5Percentiles {
+  O: number // Openness (0-100)
+  C: number // Conscientiousness (0-100)
+  E: number // Extraversion (0-100)
+  A: number // Agreeableness (0-100)
+  N: number // Neuroticism (0-100)
+}
+
+export interface MBTIRatios {
+  EI: number // Extraversion vs Introversion (0-100)
+  SN: number // Sensing vs Intuition (0-100)
+  TF: number // Thinking vs Feeling (0-100)
+  JP: number // Judging vs Perceiving (0-100)
+}
+
+export interface AnalyzeResult {
+  // Basic info
+  userId: string
+  testType: string
+  
+  // Scores
+  big5: { O: number; C: number; E: number; A: number; N: number }
+  mbti: string
+  reti?: { top1: string; top2?: string }
+  
+  // Deep analysis
+  big5Percentiles: Big5Percentiles
+  mbtiRatios: MBTIRatios
+  analysisText: string
+  
+  // Hero matching
+  hero?: {
+    id: string
+    name: string
+    tribe?: string
+    stone?: string
+  }
+  
+  // Growth vectors
+  growth?: {
+    innate: number
+    acquired: number
+    conscious: number
+    unconscious: number
+    growth: number
+    stability: number
+    harmony: number
+    individual: number
+  }
+}
+
