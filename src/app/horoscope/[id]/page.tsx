@@ -14,15 +14,16 @@ interface HoroscopeData {
     year: { heavenlyStem: string; earthlyBranch: string }
     month: { heavenlyStem: string; earthlyBranch: string }
     day: { heavenlyStem: string; earthlyBranch: string }
-    time: { heavenlyStem: string; earthlyBranch: string }
-    elements: {
+    hour?: { heavenlyStem: string; earthlyBranch: string }
+    time?: { heavenlyStem: string; earthlyBranch: string }
+    elements?: {
       wood: number
       fire: number
       earth: number
       metal: number
       water: number
     }
-    dominantElement: string
+    dominantElement?: string
   }
   dailyFortune: string
   createdAt: string
@@ -147,13 +148,13 @@ export default function HoroscopeDetailPage() {
               { label: '연주 (年柱)', data: sajuData.year, desc: '조상과 유년기' },
               { label: '월주 (月柱)', data: sajuData.month, desc: '부모와 청년기' },
               { label: '일주 (日柱)', data: sajuData.day, desc: '본인과 배우자' },
-              { label: '시주 (時柱)', data: sajuData.time, desc: '자녀와 노년기' },
+              { label: '시주 (時柱)', data: sajuData.hour || sajuData.time, desc: '자녀와 노년기' },
             ].map((pillar, idx) => (
               <div key={idx} className="p-4 rounded-xl bg-white/5 border border-white/10">
                 <div className="text-xs text-white/50 mb-2">{pillar.label}</div>
                 <div className="text-3xl font-bold text-white mb-2 text-center">
-                  {pillar.data.heavenlyStem}
-                  {pillar.data.earthlyBranch}
+                  {pillar.data?.heavenlyStem || '-'}
+                  {pillar.data?.earthlyBranch || '-'}
                 </div>
                 <div className="text-xs text-white/60 text-center">{pillar.desc}</div>
               </div>
@@ -166,39 +167,43 @@ export default function HoroscopeDetailPage() {
           <h2 className="text-2xl font-bold text-white mb-6">오행 분석</h2>
           
           {/* 오행 분포 */}
-          <div className="mb-6">
-            <div className="grid grid-cols-5 gap-3 mb-4">
-              {Object.entries(sajuData.elements).map(([element, count]) => {
-                const info = elementInfo[element as keyof typeof elementInfo]
-                return (
-                  <div key={element} className="text-center">
-                    <div className={`text-4xl font-bold ${info.color} mb-2`}>
-                      {info.name.split(' ')[0]}
+          {sajuData.elements && (
+            <div className="mb-6">
+              <div className="grid grid-cols-5 gap-3 mb-4">
+                {Object.entries(sajuData.elements).map(([element, count]) => {
+                  const info = elementInfo[element as keyof typeof elementInfo]
+                  return (
+                    <div key={element} className="text-center">
+                      <div className={`text-4xl font-bold ${info.color} mb-2`}>
+                        {info.name.split(' ')[0]}
+                      </div>
+                      <div className="text-2xl font-bold text-white mb-1">{count}</div>
+                      <div className="text-xs text-white/60">{info.desc}</div>
                     </div>
-                    <div className="text-2xl font-bold text-white mb-1">{count}</div>
-                    <div className="text-xs text-white/60">{info.desc}</div>
-                  </div>
-                )
-              })}
+                  )
+                })}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* 주요 오행 */}
-          <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-            <div className="text-sm text-white/60 mb-2">주요 오행</div>
-            <div className="flex items-center gap-3">
-              <span
-                className={`text-2xl font-bold ${
-                  elementInfo[sajuData.dominantElement as keyof typeof elementInfo].color
-                }`}
-              >
-                {elementInfo[sajuData.dominantElement as keyof typeof elementInfo].name}
-              </span>
-              <span className="text-white/80">
-                {elementInfo[sajuData.dominantElement as keyof typeof elementInfo].desc}이 강합니다
-              </span>
+          {sajuData.dominantElement && (
+            <div className="p-4 rounded-xl bg-white/5 border border-white/10">
+              <div className="text-sm text-white/60 mb-2">주요 오행</div>
+              <div className="flex items-center gap-3">
+                <span
+                  className={`text-2xl font-bold ${
+                    elementInfo[sajuData.dominantElement as keyof typeof elementInfo].color
+                  }`}
+                >
+                  {elementInfo[sajuData.dominantElement as keyof typeof elementInfo].name}
+                </span>
+                <span className="text-white/80">
+                  {elementInfo[sajuData.dominantElement as keyof typeof elementInfo].desc}이 강합니다
+                </span>
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* 추가 정보 */}

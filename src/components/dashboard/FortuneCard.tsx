@@ -14,15 +14,16 @@ interface HoroscopeData {
     year: { heavenlyStem: string; earthlyBranch: string }
     month: { heavenlyStem: string; earthlyBranch: string }
     day: { heavenlyStem: string; earthlyBranch: string }
-    time: { heavenlyStem: string; earthlyBranch: string }
-    elements: {
+    hour?: { heavenlyStem: string; earthlyBranch: string }
+    time?: { heavenlyStem: string; earthlyBranch: string }
+    elements?: {
       wood: number
       fire: number
       earth: number
       metal: number
       water: number
     }
-    dominantElement: string
+    dominantElement?: string
   }
   dailyFortune: string
   createdAt: string
@@ -148,40 +149,44 @@ export default function FortuneCard() {
         <div className="p-3 rounded-lg bg-white/5 border border-white/10">
           <div className="text-xs text-white/50 mb-1">시주</div>
           <div className="text-sm font-medium text-white">
-            {sajuData.time.heavenlyStem}
-            {sajuData.time.earthlyBranch}
+            {sajuData.hour?.heavenlyStem || sajuData.time?.heavenlyStem || '-'}
+            {sajuData.hour?.earthlyBranch || sajuData.time?.earthlyBranch || '-'}
           </div>
         </div>
       </div>
 
       {/* 오행 분포 */}
-      <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-4">
-        <div className="text-xs text-white/50 mb-2">오행 분포</div>
-        <div className="flex items-center gap-3 flex-wrap">
-          {Object.entries(sajuData.elements).map(([element, count]) => (
-            <div key={element} className="flex items-center gap-1">
-              <span className={`text-sm font-medium ${elementColors[element]}`}>
-                {element === 'wood' && '木'}
-                {element === 'fire' && '火'}
-                {element === 'earth' && '土'}
-                {element === 'metal' && '金'}
-                {element === 'water' && '水'}
+      {sajuData.elements && (
+        <div className="p-4 rounded-xl bg-white/5 border border-white/10 mb-4">
+          <div className="text-xs text-white/50 mb-2">오행 분포</div>
+          <div className="flex items-center gap-3 flex-wrap">
+            {Object.entries(sajuData.elements).map(([element, count]) => (
+              <div key={element} className="flex items-center gap-1">
+                <span className={`text-sm font-medium ${elementColors[element]}`}>
+                  {element === 'wood' && '木'}
+                  {element === 'fire' && '火'}
+                  {element === 'earth' && '土'}
+                  {element === 'metal' && '金'}
+                  {element === 'water' && '水'}
+                </span>
+                <span className="text-xs text-white/70">{count}</span>
+              </div>
+            ))}
+          </div>
+          {sajuData.dominantElement && (
+            <div className="mt-2 text-xs text-white/60">
+              주요 오행:{' '}
+              <span className={`font-medium ${elementColors[sajuData.dominantElement]}`}>
+                {sajuData.dominantElement === 'wood' && '木 (나무)'}
+                {sajuData.dominantElement === 'fire' && '火 (불)'}
+                {sajuData.dominantElement === 'earth' && '土 (흙)'}
+                {sajuData.dominantElement === 'metal' && '金 (쇠)'}
+                {sajuData.dominantElement === 'water' && '水 (물)'}
               </span>
-              <span className="text-xs text-white/70">{count}</span>
             </div>
-          ))}
+          )}
         </div>
-        <div className="mt-2 text-xs text-white/60">
-          주요 오행:{' '}
-          <span className={`font-medium ${elementColors[sajuData.dominantElement]}`}>
-            {sajuData.dominantElement === 'wood' && '木 (나무)'}
-            {sajuData.dominantElement === 'fire' && '火 (불)'}
-            {sajuData.dominantElement === 'earth' && '土 (흙)'}
-            {sajuData.dominantElement === 'metal' && '金 (쇠)'}
-            {sajuData.dominantElement === 'water' && '水 (물)'}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* 액션 버튼들 */}
       <div className="flex gap-3">
