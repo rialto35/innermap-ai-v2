@@ -14,7 +14,9 @@
     "tree:ci": "node scripts/print-tree.cjs . 3",
     "verify": "npm run typecheck:ci && npm run build",
     "verify-env": "node scripts/verify-env.mjs",
-    "prebuild": "node scripts/verify-env.mjs"
+    "prebuild": "node scripts/verify-env.mjs",
+    "build:assets": "tsx scripts/build-asset-manifest.ts",
+    "postbuild": "npm run build:assets"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",
@@ -46,6 +48,8 @@
     "eslint-config-next": "15.4.6",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5"
+    "tsx": "^4.20.6",
+    "typescript": "^5",
+    "vitest": "^2.1.9"
   }
 }

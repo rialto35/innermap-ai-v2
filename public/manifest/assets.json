@@ -1,0 +1,2414 @@
+{
+  "generatedAt": "2025-10-19T00:44:08.039Z",
+  "counts": {
+    "heroes": 287,
+    "tribes": 13,
+    "stones": 13
+  },
+  "heroes": [
+    {
+      "code": "ENFJ-TYPE1-F",
+      "mbti": "ENFJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE1.png"
+    },
+    {
+      "code": "ENFJ-TYPE1-M",
+      "mbti": "ENFJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE1.png"
+    },
+    {
+      "code": "ENFJ-TYPE2-F",
+      "mbti": "ENFJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE2.png"
+    },
+    {
+      "code": "ENFJ-TYPE2-M",
+      "mbti": "ENFJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE2.png"
+    },
+    {
+      "code": "ENFJ-TYPE3-F",
+      "mbti": "ENFJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE3.png"
+    },
+    {
+      "code": "ENFJ-TYPE3-M",
+      "mbti": "ENFJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE3.png"
+    },
+    {
+      "code": "ENFJ-TYPE4-F",
+      "mbti": "ENFJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE4.png"
+    },
+    {
+      "code": "ENFJ-TYPE4-M",
+      "mbti": "ENFJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE4.png"
+    },
+    {
+      "code": "ENFJ-TYPE5-F",
+      "mbti": "ENFJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE5.png"
+    },
+    {
+      "code": "ENFJ-TYPE5-M",
+      "mbti": "ENFJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE5.png"
+    },
+    {
+      "code": "ENFJ-TYPE6-F",
+      "mbti": "ENFJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE6.png"
+    },
+    {
+      "code": "ENFJ-TYPE6-M",
+      "mbti": "ENFJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE6.png"
+    },
+    {
+      "code": "ENFJ-TYPE7-F",
+      "mbti": "ENFJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE7.png"
+    },
+    {
+      "code": "ENFJ-TYPE7-M",
+      "mbti": "ENFJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE7.png"
+    },
+    {
+      "code": "ENFJ-TYPE8-F",
+      "mbti": "ENFJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE8.png"
+    },
+    {
+      "code": "ENFJ-TYPE8-M",
+      "mbti": "ENFJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE8.png"
+    },
+    {
+      "code": "ENFJ-TYPE9-F",
+      "mbti": "ENFJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ENFJ_TYPE9.png"
+    },
+    {
+      "code": "ENFJ-TYPE9-M",
+      "mbti": "ENFJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ENFJ_TYPE9.png"
+    },
+    {
+      "code": "ENFP-TYPE1-F",
+      "mbti": "ENFP",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE1.png"
+    },
+    {
+      "code": "ENFP-TYPE1-M",
+      "mbti": "ENFP",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE1.png"
+    },
+    {
+      "code": "ENFP-TYPE2-F",
+      "mbti": "ENFP",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE2.png"
+    },
+    {
+      "code": "ENFP-TYPE2-M",
+      "mbti": "ENFP",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE2.png"
+    },
+    {
+      "code": "ENFP-TYPE3-F",
+      "mbti": "ENFP",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE3.png"
+    },
+    {
+      "code": "ENFP-TYPE3-M",
+      "mbti": "ENFP",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE3.png"
+    },
+    {
+      "code": "ENFP-TYPE4-F",
+      "mbti": "ENFP",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE4.png"
+    },
+    {
+      "code": "ENFP-TYPE4-M",
+      "mbti": "ENFP",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE4.png"
+    },
+    {
+      "code": "ENFP-TYPE5-F",
+      "mbti": "ENFP",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE5.png"
+    },
+    {
+      "code": "ENFP-TYPE5-M",
+      "mbti": "ENFP",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE5.png"
+    },
+    {
+      "code": "ENFP-TYPE6-F",
+      "mbti": "ENFP",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE6.png"
+    },
+    {
+      "code": "ENFP-TYPE6-M",
+      "mbti": "ENFP",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE6.png"
+    },
+    {
+      "code": "ENFP-TYPE7-F",
+      "mbti": "ENFP",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE7.png"
+    },
+    {
+      "code": "ENFP-TYPE7-M",
+      "mbti": "ENFP",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE7.png"
+    },
+    {
+      "code": "ENFP-TYPE8-F",
+      "mbti": "ENFP",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE8.png"
+    },
+    {
+      "code": "ENFP-TYPE8-M",
+      "mbti": "ENFP",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE8.png"
+    },
+    {
+      "code": "ENFP-TYPE9-F",
+      "mbti": "ENFP",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ENFP_TYPE9.png"
+    },
+    {
+      "code": "ENFP-TYPE9-M",
+      "mbti": "ENFP",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ENFP_TYPE9.png"
+    },
+    {
+      "code": "ENTJ-TYPE1-F",
+      "mbti": "ENTJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE1.png"
+    },
+    {
+      "code": "ENTJ-TYPE1-M",
+      "mbti": "ENTJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE1.png"
+    },
+    {
+      "code": "ENTJ-TYPE2-F",
+      "mbti": "ENTJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE2.png"
+    },
+    {
+      "code": "ENTJ-TYPE2-M",
+      "mbti": "ENTJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE2.png"
+    },
+    {
+      "code": "ENTJ-TYPE3-F",
+      "mbti": "ENTJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE3.png"
+    },
+    {
+      "code": "ENTJ-TYPE3-M",
+      "mbti": "ENTJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE3.png"
+    },
+    {
+      "code": "ENTJ-TYPE4-F",
+      "mbti": "ENTJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE4.png"
+    },
+    {
+      "code": "ENTJ-TYPE4-M",
+      "mbti": "ENTJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE4.png"
+    },
+    {
+      "code": "ENTJ-TYPE5-F",
+      "mbti": "ENTJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE5.png"
+    },
+    {
+      "code": "ENTJ-TYPE5-M",
+      "mbti": "ENTJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE5.png"
+    },
+    {
+      "code": "ENTJ-TYPE6-F",
+      "mbti": "ENTJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE6.png"
+    },
+    {
+      "code": "ENTJ-TYPE6-M",
+      "mbti": "ENTJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE6.png"
+    },
+    {
+      "code": "ENTJ-TYPE7-F",
+      "mbti": "ENTJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE7.png"
+    },
+    {
+      "code": "ENTJ-TYPE7-M",
+      "mbti": "ENTJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE7.png"
+    },
+    {
+      "code": "ENTJ-TYPE8-F",
+      "mbti": "ENTJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE8.png"
+    },
+    {
+      "code": "ENTJ-TYPE8-M",
+      "mbti": "ENTJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE8.png"
+    },
+    {
+      "code": "ENTJ-TYPE9-F",
+      "mbti": "ENTJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ENTJ_TYPE9.png"
+    },
+    {
+      "code": "ENTJ-TYPE9-M",
+      "mbti": "ENTJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ENTJ_TYPE9.png"
+    },
+    {
+      "code": "ENTP-TYPE1-F",
+      "mbti": "ENTP",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE1.png"
+    },
+    {
+      "code": "ENTP-TYPE2-F",
+      "mbti": "ENTP",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE2.png"
+    },
+    {
+      "code": "ENTP-TYPE2-M",
+      "mbti": "ENTP",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ENTP_TYPE2.png"
+    },
+    {
+      "code": "ENTP-TYPE3-F",
+      "mbti": "ENTP",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE3.png"
+    },
+    {
+      "code": "ENTP-TYPE3-M",
+      "mbti": "ENTP",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ENTP_TYPE3.png"
+    },
+    {
+      "code": "ENTP-TYPE4-F",
+      "mbti": "ENTP",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE4.png"
+    },
+    {
+      "code": "ENTP-TYPE4-M",
+      "mbti": "ENTP",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ENTP_TYPE4.png"
+    },
+    {
+      "code": "ENTP-TYPE5-F",
+      "mbti": "ENTP",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE5.png"
+    },
+    {
+      "code": "ENTP-TYPE5-M",
+      "mbti": "ENTP",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ENTP_TYPE5.png"
+    },
+    {
+      "code": "ENTP-TYPE6-F",
+      "mbti": "ENTP",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE6.png"
+    },
+    {
+      "code": "ENTP-TYPE6-M",
+      "mbti": "ENTP",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ENTP_TYPE6.png"
+    },
+    {
+      "code": "ENTP-TYPE7-F",
+      "mbti": "ENTP",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE7.png"
+    },
+    {
+      "code": "ENTP-TYPE7-M",
+      "mbti": "ENTP",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ENTP_TYPE7.png"
+    },
+    {
+      "code": "ENTP-TYPE8-F",
+      "mbti": "ENTP",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE8.png"
+    },
+    {
+      "code": "ENTP-TYPE8-M",
+      "mbti": "ENTP",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ENTP_TYPE8.png"
+    },
+    {
+      "code": "ENTP-TYPE9-F",
+      "mbti": "ENTP",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ENTP_TYPE9.png"
+    },
+    {
+      "code": "ENTP-TYPE9-M",
+      "mbti": "ENTP",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ENTP_TYPE9.png"
+    },
+    {
+      "code": "ESFJ-TYPE1-F",
+      "mbti": "ESFJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type1.png"
+    },
+    {
+      "code": "ESFJ-TYPE1-M",
+      "mbti": "ESFJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type1.png"
+    },
+    {
+      "code": "ESFJ-TYPE2-F",
+      "mbti": "ESFJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type2.png"
+    },
+    {
+      "code": "ESFJ-TYPE2-M",
+      "mbti": "ESFJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type2.png"
+    },
+    {
+      "code": "ESFJ-TYPE3-F",
+      "mbti": "ESFJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type3.png"
+    },
+    {
+      "code": "ESFJ-TYPE3-M",
+      "mbti": "ESFJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type3.png"
+    },
+    {
+      "code": "ESFJ-TYPE4-F",
+      "mbti": "ESFJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type4.png"
+    },
+    {
+      "code": "ESFJ-TYPE4-M",
+      "mbti": "ESFJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type4.png"
+    },
+    {
+      "code": "ESFJ-TYPE5-F",
+      "mbti": "ESFJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type5.png"
+    },
+    {
+      "code": "ESFJ-TYPE5-M",
+      "mbti": "ESFJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type5.png"
+    },
+    {
+      "code": "ESFJ-TYPE6-F",
+      "mbti": "ESFJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type6.png"
+    },
+    {
+      "code": "ESFJ-TYPE6-M",
+      "mbti": "ESFJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type6.png"
+    },
+    {
+      "code": "ESFJ-TYPE7-F",
+      "mbti": "ESFJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type7.png"
+    },
+    {
+      "code": "ESFJ-TYPE7-M",
+      "mbti": "ESFJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type7.png"
+    },
+    {
+      "code": "ESFJ-TYPE8-F",
+      "mbti": "ESFJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type8.png"
+    },
+    {
+      "code": "ESFJ-TYPE8-M",
+      "mbti": "ESFJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type8.png"
+    },
+    {
+      "code": "ESFJ-TYPE9-F",
+      "mbti": "ESFJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ESFJ_type9.png"
+    },
+    {
+      "code": "ESFJ-TYPE9-M",
+      "mbti": "ESFJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ESFJ_type9.png"
+    },
+    {
+      "code": "ESFP-TYPE1-F",
+      "mbti": "ESFP",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE1.png"
+    },
+    {
+      "code": "ESFP-TYPE1-M",
+      "mbti": "ESFP",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE1.png"
+    },
+    {
+      "code": "ESFP-TYPE2-F",
+      "mbti": "ESFP",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE2.png"
+    },
+    {
+      "code": "ESFP-TYPE2-M",
+      "mbti": "ESFP",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE2.png"
+    },
+    {
+      "code": "ESFP-TYPE3-F",
+      "mbti": "ESFP",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE3.png"
+    },
+    {
+      "code": "ESFP-TYPE3-M",
+      "mbti": "ESFP",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE3.png"
+    },
+    {
+      "code": "ESFP-TYPE4-F",
+      "mbti": "ESFP",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE4.png"
+    },
+    {
+      "code": "ESFP-TYPE4-M",
+      "mbti": "ESFP",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE4.png"
+    },
+    {
+      "code": "ESFP-TYPE5-F",
+      "mbti": "ESFP",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE5.png"
+    },
+    {
+      "code": "ESFP-TYPE5-M",
+      "mbti": "ESFP",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE5.png"
+    },
+    {
+      "code": "ESFP-TYPE6-F",
+      "mbti": "ESFP",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE6.png"
+    },
+    {
+      "code": "ESFP-TYPE6-M",
+      "mbti": "ESFP",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE6.png"
+    },
+    {
+      "code": "ESFP-TYPE7-F",
+      "mbti": "ESFP",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE7.png"
+    },
+    {
+      "code": "ESFP-TYPE7-M",
+      "mbti": "ESFP",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE7.png"
+    },
+    {
+      "code": "ESFP-TYPE8-F",
+      "mbti": "ESFP",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE8.png"
+    },
+    {
+      "code": "ESFP-TYPE8-M",
+      "mbti": "ESFP",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE8.png"
+    },
+    {
+      "code": "ESFP-TYPE9-F",
+      "mbti": "ESFP",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ESFP_TYPE9.png"
+    },
+    {
+      "code": "ESFP-TYPE9-M",
+      "mbti": "ESFP",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ESFP_TYPE9.png"
+    },
+    {
+      "code": "ESTJ-TYPE1-F",
+      "mbti": "ESTJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE1.png"
+    },
+    {
+      "code": "ESTJ-TYPE1-M",
+      "mbti": "ESTJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE1.png"
+    },
+    {
+      "code": "ESTJ-TYPE2-F",
+      "mbti": "ESTJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE2.png"
+    },
+    {
+      "code": "ESTJ-TYPE2-M",
+      "mbti": "ESTJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE2.png"
+    },
+    {
+      "code": "ESTJ-TYPE3-F",
+      "mbti": "ESTJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE3.png"
+    },
+    {
+      "code": "ESTJ-TYPE3-M",
+      "mbti": "ESTJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE3.png"
+    },
+    {
+      "code": "ESTJ-TYPE4-F",
+      "mbti": "ESTJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE4.png"
+    },
+    {
+      "code": "ESTJ-TYPE4-M",
+      "mbti": "ESTJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE4.png"
+    },
+    {
+      "code": "ESTJ-TYPE5-F",
+      "mbti": "ESTJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE5.png"
+    },
+    {
+      "code": "ESTJ-TYPE5-M",
+      "mbti": "ESTJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE5.png"
+    },
+    {
+      "code": "ESTJ-TYPE6-F",
+      "mbti": "ESTJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE6.png"
+    },
+    {
+      "code": "ESTJ-TYPE6-M",
+      "mbti": "ESTJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE6.png"
+    },
+    {
+      "code": "ESTJ-TYPE7-F",
+      "mbti": "ESTJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE7.png"
+    },
+    {
+      "code": "ESTJ-TYPE7-M",
+      "mbti": "ESTJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE7.png"
+    },
+    {
+      "code": "ESTJ-TYPE8-F",
+      "mbti": "ESTJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE8.png"
+    },
+    {
+      "code": "ESTJ-TYPE8-M",
+      "mbti": "ESTJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE8.png"
+    },
+    {
+      "code": "ESTJ-TYPE9-F",
+      "mbti": "ESTJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ESTJ_TYPE9.png"
+    },
+    {
+      "code": "ESTJ-TYPE9-M",
+      "mbti": "ESTJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ESTJ_TYPE9.png"
+    },
+    {
+      "code": "ESTP-TYPE1-F",
+      "mbti": "ESTP",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE1.png"
+    },
+    {
+      "code": "ESTP-TYPE1-M",
+      "mbti": "ESTP",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE1.png"
+    },
+    {
+      "code": "ESTP-TYPE2-F",
+      "mbti": "ESTP",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE2.png"
+    },
+    {
+      "code": "ESTP-TYPE2-M",
+      "mbti": "ESTP",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE2.png"
+    },
+    {
+      "code": "ESTP-TYPE3-F",
+      "mbti": "ESTP",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE3.png"
+    },
+    {
+      "code": "ESTP-TYPE3-M",
+      "mbti": "ESTP",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE3.png"
+    },
+    {
+      "code": "ESTP-TYPE4-F",
+      "mbti": "ESTP",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE4.png"
+    },
+    {
+      "code": "ESTP-TYPE4-M",
+      "mbti": "ESTP",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE4.png"
+    },
+    {
+      "code": "ESTP-TYPE5-F",
+      "mbti": "ESTP",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE5.png"
+    },
+    {
+      "code": "ESTP-TYPE5-M",
+      "mbti": "ESTP",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE5.png"
+    },
+    {
+      "code": "ESTP-TYPE6-F",
+      "mbti": "ESTP",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE6.png"
+    },
+    {
+      "code": "ESTP-TYPE6-M",
+      "mbti": "ESTP",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE6.png"
+    },
+    {
+      "code": "ESTP-TYPE7-F",
+      "mbti": "ESTP",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE7.png"
+    },
+    {
+      "code": "ESTP-TYPE7-M",
+      "mbti": "ESTP",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE7.png"
+    },
+    {
+      "code": "ESTP-TYPE8-F",
+      "mbti": "ESTP",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE8.png"
+    },
+    {
+      "code": "ESTP-TYPE8-M",
+      "mbti": "ESTP",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE8.png"
+    },
+    {
+      "code": "ESTP-TYPE9-F",
+      "mbti": "ESTP",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ESTP_TYPE9.png"
+    },
+    {
+      "code": "ESTP-TYPE9-M",
+      "mbti": "ESTP",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ESTP_TYPE9.png"
+    },
+    {
+      "code": "INFJ-TYPE1-F",
+      "mbti": "INFJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE1.png"
+    },
+    {
+      "code": "INFJ-TYPE1-M",
+      "mbti": "INFJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE1.png"
+    },
+    {
+      "code": "INFJ-TYPE2-F",
+      "mbti": "INFJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE2.png"
+    },
+    {
+      "code": "INFJ-TYPE2-M",
+      "mbti": "INFJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE2.png"
+    },
+    {
+      "code": "INFJ-TYPE3-F",
+      "mbti": "INFJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE3.png"
+    },
+    {
+      "code": "INFJ-TYPE3-M",
+      "mbti": "INFJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE3.png"
+    },
+    {
+      "code": "INFJ-TYPE4-F",
+      "mbti": "INFJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE4.png"
+    },
+    {
+      "code": "INFJ-TYPE4-M",
+      "mbti": "INFJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE4.png"
+    },
+    {
+      "code": "INFJ-TYPE5-F",
+      "mbti": "INFJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE5.png"
+    },
+    {
+      "code": "INFJ-TYPE5-M",
+      "mbti": "INFJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE5.png"
+    },
+    {
+      "code": "INFJ-TYPE6-F",
+      "mbti": "INFJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE6.png"
+    },
+    {
+      "code": "INFJ-TYPE6-M",
+      "mbti": "INFJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE6.png"
+    },
+    {
+      "code": "INFJ-TYPE7-F",
+      "mbti": "INFJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE7.png"
+    },
+    {
+      "code": "INFJ-TYPE7-M",
+      "mbti": "INFJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE7.png"
+    },
+    {
+      "code": "INFJ-TYPE8-F",
+      "mbti": "INFJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE8.png"
+    },
+    {
+      "code": "INFJ-TYPE8-M",
+      "mbti": "INFJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE8.png"
+    },
+    {
+      "code": "INFJ-TYPE9-F",
+      "mbti": "INFJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/INFJ_TYPE9.png"
+    },
+    {
+      "code": "INFJ-TYPE9-M",
+      "mbti": "INFJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/INFJ_TYPE9.png"
+    },
+    {
+      "code": "INFP-TYPE1-F",
+      "mbti": "INFP",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE1.png"
+    },
+    {
+      "code": "INFP-TYPE1-M",
+      "mbti": "INFP",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE1.png"
+    },
+    {
+      "code": "INFP-TYPE2-F",
+      "mbti": "INFP",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE2.png"
+    },
+    {
+      "code": "INFP-TYPE2-M",
+      "mbti": "INFP",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE2.png"
+    },
+    {
+      "code": "INFP-TYPE3-F",
+      "mbti": "INFP",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE3.png"
+    },
+    {
+      "code": "INFP-TYPE3-M",
+      "mbti": "INFP",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE3.png"
+    },
+    {
+      "code": "INFP-TYPE4-F",
+      "mbti": "INFP",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE4.png"
+    },
+    {
+      "code": "INFP-TYPE4-M",
+      "mbti": "INFP",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE4.png"
+    },
+    {
+      "code": "INFP-TYPE5-F",
+      "mbti": "INFP",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE5.png"
+    },
+    {
+      "code": "INFP-TYPE5-M",
+      "mbti": "INFP",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE5.png"
+    },
+    {
+      "code": "INFP-TYPE6-F",
+      "mbti": "INFP",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE6.png"
+    },
+    {
+      "code": "INFP-TYPE6-M",
+      "mbti": "INFP",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE6.png"
+    },
+    {
+      "code": "INFP-TYPE7-F",
+      "mbti": "INFP",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE7.png"
+    },
+    {
+      "code": "INFP-TYPE7-M",
+      "mbti": "INFP",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE7.png"
+    },
+    {
+      "code": "INFP-TYPE8-F",
+      "mbti": "INFP",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE8.png"
+    },
+    {
+      "code": "INFP-TYPE8-M",
+      "mbti": "INFP",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE8.png"
+    },
+    {
+      "code": "INFP-TYPE9-F",
+      "mbti": "INFP",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/INFP_TYPE9.png"
+    },
+    {
+      "code": "INFP-TYPE9-M",
+      "mbti": "INFP",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/INFP_TYPE9.png"
+    },
+    {
+      "code": "INTJ-TYPE1-F",
+      "mbti": "INTJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE1.png"
+    },
+    {
+      "code": "INTJ-TYPE1-M",
+      "mbti": "INTJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE1.png"
+    },
+    {
+      "code": "INTJ-TYPE2-F",
+      "mbti": "INTJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE2.png"
+    },
+    {
+      "code": "INTJ-TYPE2-M",
+      "mbti": "INTJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE2.png"
+    },
+    {
+      "code": "INTJ-TYPE3-F",
+      "mbti": "INTJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE3.png"
+    },
+    {
+      "code": "INTJ-TYPE3-M",
+      "mbti": "INTJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE3.png"
+    },
+    {
+      "code": "INTJ-TYPE4-F",
+      "mbti": "INTJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE4.png"
+    },
+    {
+      "code": "INTJ-TYPE4-M",
+      "mbti": "INTJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE4.png"
+    },
+    {
+      "code": "INTJ-TYPE5-F",
+      "mbti": "INTJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE5.png"
+    },
+    {
+      "code": "INTJ-TYPE5-M",
+      "mbti": "INTJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE5.png"
+    },
+    {
+      "code": "INTJ-TYPE6-F",
+      "mbti": "INTJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE6.png"
+    },
+    {
+      "code": "INTJ-TYPE6-M",
+      "mbti": "INTJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE6.png"
+    },
+    {
+      "code": "INTJ-TYPE7-F",
+      "mbti": "INTJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE7.png"
+    },
+    {
+      "code": "INTJ-TYPE7-M",
+      "mbti": "INTJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE7.png"
+    },
+    {
+      "code": "INTJ-TYPE8-F",
+      "mbti": "INTJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE8.png"
+    },
+    {
+      "code": "INTJ-TYPE8-M",
+      "mbti": "INTJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE8.png"
+    },
+    {
+      "code": "INTJ-TYPE9-F",
+      "mbti": "INTJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/INTJ_TYPE9.png"
+    },
+    {
+      "code": "INTJ-TYPE9-M",
+      "mbti": "INTJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/INTJ_TYPE9.png"
+    },
+    {
+      "code": "INTP-TYPE1-F",
+      "mbti": "INTP",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE1.png"
+    },
+    {
+      "code": "INTP-TYPE1-M",
+      "mbti": "INTP",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE1.png"
+    },
+    {
+      "code": "INTP-TYPE2-F",
+      "mbti": "INTP",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE2.png"
+    },
+    {
+      "code": "INTP-TYPE2-M",
+      "mbti": "INTP",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE2.png"
+    },
+    {
+      "code": "INTP-TYPE3-F",
+      "mbti": "INTP",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE3.png"
+    },
+    {
+      "code": "INTP-TYPE3-M",
+      "mbti": "INTP",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE3.png"
+    },
+    {
+      "code": "INTP-TYPE4-F",
+      "mbti": "INTP",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE4.png"
+    },
+    {
+      "code": "INTP-TYPE4-M",
+      "mbti": "INTP",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE4.png"
+    },
+    {
+      "code": "INTP-TYPE5-F",
+      "mbti": "INTP",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE5.png"
+    },
+    {
+      "code": "INTP-TYPE5-M",
+      "mbti": "INTP",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE5.png"
+    },
+    {
+      "code": "INTP-TYPE6-F",
+      "mbti": "INTP",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE6.png"
+    },
+    {
+      "code": "INTP-TYPE6-M",
+      "mbti": "INTP",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE6.png"
+    },
+    {
+      "code": "INTP-TYPE7-F",
+      "mbti": "INTP",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE7.png"
+    },
+    {
+      "code": "INTP-TYPE7-M",
+      "mbti": "INTP",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE7.png"
+    },
+    {
+      "code": "INTP-TYPE8-F",
+      "mbti": "INTP",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE8.png"
+    },
+    {
+      "code": "INTP-TYPE8-M",
+      "mbti": "INTP",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE8.png"
+    },
+    {
+      "code": "INTP-TYPE9-F",
+      "mbti": "INTP",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/INTP_TYPE9.png"
+    },
+    {
+      "code": "INTP-TYPE9-M",
+      "mbti": "INTP",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/INTP_TYPE9.png"
+    },
+    {
+      "code": "ISFJ-TYPE1-F",
+      "mbti": "ISFJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE1.png"
+    },
+    {
+      "code": "ISFJ-TYPE1-M",
+      "mbti": "ISFJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE1.png"
+    },
+    {
+      "code": "ISFJ-TYPE2-F",
+      "mbti": "ISFJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE2.png"
+    },
+    {
+      "code": "ISFJ-TYPE2-M",
+      "mbti": "ISFJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE2.png"
+    },
+    {
+      "code": "ISFJ-TYPE3-F",
+      "mbti": "ISFJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE3.png"
+    },
+    {
+      "code": "ISFJ-TYPE3-M",
+      "mbti": "ISFJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE3.png"
+    },
+    {
+      "code": "ISFJ-TYPE4-F",
+      "mbti": "ISFJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE4.png"
+    },
+    {
+      "code": "ISFJ-TYPE4-M",
+      "mbti": "ISFJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE4.png"
+    },
+    {
+      "code": "ISFJ-TYPE5-F",
+      "mbti": "ISFJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE5.png"
+    },
+    {
+      "code": "ISFJ-TYPE5-M",
+      "mbti": "ISFJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE5.png"
+    },
+    {
+      "code": "ISFJ-TYPE6-F",
+      "mbti": "ISFJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE6.png"
+    },
+    {
+      "code": "ISFJ-TYPE6-M",
+      "mbti": "ISFJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE6.png"
+    },
+    {
+      "code": "ISFJ-TYPE7-F",
+      "mbti": "ISFJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE7.png"
+    },
+    {
+      "code": "ISFJ-TYPE7-M",
+      "mbti": "ISFJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE7.png"
+    },
+    {
+      "code": "ISFJ-TYPE8-F",
+      "mbti": "ISFJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE8.png"
+    },
+    {
+      "code": "ISFJ-TYPE8-M",
+      "mbti": "ISFJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE8.png"
+    },
+    {
+      "code": "ISFJ-TYPE9-F",
+      "mbti": "ISFJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ISFJ_TYPE9.png"
+    },
+    {
+      "code": "ISFJ-TYPE9-M",
+      "mbti": "ISFJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ISFJ_TYPE9.png"
+    },
+    {
+      "code": "ISFP-TYPE1-F",
+      "mbti": "ISFP",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE1.png"
+    },
+    {
+      "code": "ISFP-TYPE1-M",
+      "mbti": "ISFP",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE1.png"
+    },
+    {
+      "code": "ISFP-TYPE2-F",
+      "mbti": "ISFP",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE2.png"
+    },
+    {
+      "code": "ISFP-TYPE2-M",
+      "mbti": "ISFP",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE2.png"
+    },
+    {
+      "code": "ISFP-TYPE3-F",
+      "mbti": "ISFP",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE3.png"
+    },
+    {
+      "code": "ISFP-TYPE3-M",
+      "mbti": "ISFP",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE3.png"
+    },
+    {
+      "code": "ISFP-TYPE4-F",
+      "mbti": "ISFP",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE4.png"
+    },
+    {
+      "code": "ISFP-TYPE4-M",
+      "mbti": "ISFP",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE4.png"
+    },
+    {
+      "code": "ISFP-TYPE5-F",
+      "mbti": "ISFP",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE5.png"
+    },
+    {
+      "code": "ISFP-TYPE5-M",
+      "mbti": "ISFP",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE5.png"
+    },
+    {
+      "code": "ISFP-TYPE6-F",
+      "mbti": "ISFP",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE6.png"
+    },
+    {
+      "code": "ISFP-TYPE6-M",
+      "mbti": "ISFP",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE6.png"
+    },
+    {
+      "code": "ISFP-TYPE7-F",
+      "mbti": "ISFP",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE7.png"
+    },
+    {
+      "code": "ISFP-TYPE7-M",
+      "mbti": "ISFP",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE7.png"
+    },
+    {
+      "code": "ISFP-TYPE8-F",
+      "mbti": "ISFP",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE8.png"
+    },
+    {
+      "code": "ISFP-TYPE8-M",
+      "mbti": "ISFP",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE8.png"
+    },
+    {
+      "code": "ISFP-TYPE9-F",
+      "mbti": "ISFP",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ISFP_TYPE9.png"
+    },
+    {
+      "code": "ISFP-TYPE9-M",
+      "mbti": "ISFP",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ISFP_TYPE9.png"
+    },
+    {
+      "code": "ISTJ-TYPE1-F",
+      "mbti": "ISTJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE1.png"
+    },
+    {
+      "code": "ISTJ-TYPE1-M",
+      "mbti": "ISTJ",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE1.png"
+    },
+    {
+      "code": "ISTJ-TYPE2-F",
+      "mbti": "ISTJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE2.png"
+    },
+    {
+      "code": "ISTJ-TYPE2-M",
+      "mbti": "ISTJ",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE2.png"
+    },
+    {
+      "code": "ISTJ-TYPE3-F",
+      "mbti": "ISTJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE3.png"
+    },
+    {
+      "code": "ISTJ-TYPE3-M",
+      "mbti": "ISTJ",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE3.png"
+    },
+    {
+      "code": "ISTJ-TYPE4-F",
+      "mbti": "ISTJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE4.png"
+    },
+    {
+      "code": "ISTJ-TYPE4-M",
+      "mbti": "ISTJ",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE4.png"
+    },
+    {
+      "code": "ISTJ-TYPE5-F",
+      "mbti": "ISTJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE5.png"
+    },
+    {
+      "code": "ISTJ-TYPE5-M",
+      "mbti": "ISTJ",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE5.png"
+    },
+    {
+      "code": "ISTJ-TYPE6-F",
+      "mbti": "ISTJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE6.png"
+    },
+    {
+      "code": "ISTJ-TYPE6-M",
+      "mbti": "ISTJ",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE6.png"
+    },
+    {
+      "code": "ISTJ-TYPE7-F",
+      "mbti": "ISTJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE7.png"
+    },
+    {
+      "code": "ISTJ-TYPE7-M",
+      "mbti": "ISTJ",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE7.png"
+    },
+    {
+      "code": "ISTJ-TYPE8-F",
+      "mbti": "ISTJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE8.png"
+    },
+    {
+      "code": "ISTJ-TYPE8-M",
+      "mbti": "ISTJ",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE8.png"
+    },
+    {
+      "code": "ISTJ-TYPE9-F",
+      "mbti": "ISTJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ISTJ_TYPE9.png"
+    },
+    {
+      "code": "ISTJ-TYPE9-M",
+      "mbti": "ISTJ",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ISTJ_TYPE9.png"
+    },
+    {
+      "code": "ISTP-TYPE1-F",
+      "mbti": "ISTP",
+      "reti": "1",
+      "index": 1,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE1.png"
+    },
+    {
+      "code": "ISTP-TYPE1-M",
+      "mbti": "ISTP",
+      "reti": "1",
+      "index": 1,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE1.png"
+    },
+    {
+      "code": "ISTP-TYPE2-F",
+      "mbti": "ISTP",
+      "reti": "2",
+      "index": 2,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE2.png"
+    },
+    {
+      "code": "ISTP-TYPE2-M",
+      "mbti": "ISTP",
+      "reti": "2",
+      "index": 2,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE2.png"
+    },
+    {
+      "code": "ISTP-TYPE3-F",
+      "mbti": "ISTP",
+      "reti": "3",
+      "index": 3,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE3.png"
+    },
+    {
+      "code": "ISTP-TYPE3-M",
+      "mbti": "ISTP",
+      "reti": "3",
+      "index": 3,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE3.png"
+    },
+    {
+      "code": "ISTP-TYPE4-F",
+      "mbti": "ISTP",
+      "reti": "4",
+      "index": 4,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE4.png"
+    },
+    {
+      "code": "ISTP-TYPE4-M",
+      "mbti": "ISTP",
+      "reti": "4",
+      "index": 4,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE4.png"
+    },
+    {
+      "code": "ISTP-TYPE5-F",
+      "mbti": "ISTP",
+      "reti": "5",
+      "index": 5,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE5.png"
+    },
+    {
+      "code": "ISTP-TYPE5-M",
+      "mbti": "ISTP",
+      "reti": "5",
+      "index": 5,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE5.png"
+    },
+    {
+      "code": "ISTP-TYPE6-F",
+      "mbti": "ISTP",
+      "reti": "6",
+      "index": 6,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE6.png"
+    },
+    {
+      "code": "ISTP-TYPE6-M",
+      "mbti": "ISTP",
+      "reti": "6",
+      "index": 6,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE6.png"
+    },
+    {
+      "code": "ISTP-TYPE7-F",
+      "mbti": "ISTP",
+      "reti": "7",
+      "index": 7,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE7.png"
+    },
+    {
+      "code": "ISTP-TYPE7-M",
+      "mbti": "ISTP",
+      "reti": "7",
+      "index": 7,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE7.png"
+    },
+    {
+      "code": "ISTP-TYPE8-F",
+      "mbti": "ISTP",
+      "reti": "8",
+      "index": 8,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE8.png"
+    },
+    {
+      "code": "ISTP-TYPE8-M",
+      "mbti": "ISTP",
+      "reti": "8",
+      "index": 8,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE8.png"
+    },
+    {
+      "code": "ISTP-TYPE9-F",
+      "mbti": "ISTP",
+      "reti": "9",
+      "index": 9,
+      "gender": "female",
+      "file": "/heroes/female/ISTP_TYPE9.png"
+    },
+    {
+      "code": "ISTP-TYPE9-M",
+      "mbti": "ISTP",
+      "reti": "9",
+      "index": 9,
+      "gender": "male",
+      "file": "/heroes/male/ISTP_TYPE9.png"
+    }
+  ],
+  "tribes": [
+    {
+      "key": "aurin",
+      "file": "/assets/tribes/aurin.png"
+    },
+    {
+      "key": "default",
+      "file": "/assets/tribes/default.png"
+    },
+    {
+      "key": "dras",
+      "file": "/assets/tribes/dras.png"
+    },
+    {
+      "key": "eira",
+      "file": "/assets/tribes/eira.png"
+    },
+    {
+      "key": "lumin",
+      "file": "/assets/tribes/lumin.png"
+    },
+    {
+      "key": "neva",
+      "file": "/assets/tribes/neva.png"
+    },
+    {
+      "key": "nova",
+      "file": "/assets/tribes/nova.png"
+    },
+    {
+      "key": "sera",
+      "file": "/assets/tribes/sera.png"
+    },
+    {
+      "key": "silva",
+      "file": "/assets/tribes/silva.png"
+    },
+    {
+      "key": "soran",
+      "file": "/assets/tribes/soran.png"
+    },
+    {
+      "key": "tenbra",
+      "file": "/assets/tribes/tenbra.png"
+    },
+    {
+      "key": "varno",
+      "file": "/assets/tribes/varno.png"
+    },
+    {
+      "key": "verma",
+      "file": "/assets/tribes/verma.png"
+    }
+  ],
+  "stones": [
+    {
+      "key": "arche",
+      "file": "/assets/stones/arche.png"
+    },
+    {
+      "key": "aurea",
+      "file": "/assets/stones/aurea.png"
+    },
+    {
+      "key": "default",
+      "file": "/assets/stones/default.png"
+    },
+    {
+      "key": "elara",
+      "file": "/assets/stones/elara.png"
+    },
+    {
+      "key": "ignis",
+      "file": "/assets/stones/ignis.png"
+    },
+    {
+      "key": "lumer",
+      "file": "/assets/stones/lumer.png"
+    },
+    {
+      "key": "mechar",
+      "file": "/assets/stones/mechar.png"
+    },
+    {
+      "key": "myr",
+      "file": "/assets/stones/myr.png"
+    },
+    {
+      "key": "neia",
+      "file": "/assets/stones/neia.png"
+    },
+    {
+      "key": "noctus",
+      "file": "/assets/stones/noctus.png"
+    },
+    {
+      "key": "verdi",
+      "file": "/assets/stones/verdi.png"
+    },
+    {
+      "key": "xain",
+      "file": "/assets/stones/xain.png"
+    },
+    {
+      "key": "zarc",
+      "file": "/assets/stones/zarc.png"
+    }
+  ]
+}
