@@ -1,10 +1,20 @@
-import { calculateFourPillars, lunarToSolar, type BirthInfo, type FourPillarsDetail } from "manseryeok";
+import { calculateFourPillars, type BirthInfo, type FourPillarsDetail } from "manseryeok";
 import OpenAI from "openai";
 
-// AI 클라이언트 설정
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!
-});
+// AI 클라이언트를 lazy하게 초기화 (빌드 타임에 실행되지 않도록)
+let openaiClient: OpenAI | null = null;
+
+function getOpenAIClient(): OpenAI {
+  if (!openaiClient) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY is not configured');
+    }
+    openaiClient = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    });
+  }
+  return openaiClient;
+}
 
 /**
  * 날짜 문자열을 파싱하여 BirthInfo 객체로 변환
@@ -64,6 +74,8 @@ export async function calculateHoroscope({
 
     // 2) AI 모델에게 해석 요청 (프롬프트를 원하는 형태로 수정)
     console.log('🤖 [calculateHoroscope] Calling OpenAI API...')
+    
+    const openai = getOpenAIClient();
     
     const prompt = `
 아래는 만세력 사주 데이터입니다. 사주 정보(연주·월주·일주·시주와 오행 분포)를 해석하여
