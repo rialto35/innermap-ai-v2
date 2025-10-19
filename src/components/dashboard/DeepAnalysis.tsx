@@ -5,19 +5,87 @@
 
 'use client';
 
-export default function DeepAnalysis() {
+import ReactMarkdown from 'react-markdown';
+
+interface DeepAnalysisProps {
+  heroData?: any;
+}
+
+export default function DeepAnalysis({ heroData }: DeepAnalysisProps) {
+  // If no analysis text, show coming soon
+  if (!heroData?.analysisText) {
+    return (
+      <div className="space-y-6">
+        {/* Coming Soon Banner */}
+        <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-blue-500/10 p-12 text-center">
+          <div className="text-6xl mb-4">🔍</div>
+          <h3 className="text-2xl font-bold text-white mb-2">심층 분석</h3>
+          <p className="text-white/60 text-sm mb-6">
+            새로운 분석을 시작하면 AI 기반 심층 분석이 제공됩니다
+          </p>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 text-violet-300 text-sm">
+            <span className="animate-pulse">●</span>
+            <span>분석 대기 중</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Coming Soon Banner */}
-      <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-blue-500/10 p-12 text-center">
-        <div className="text-6xl mb-4">🔍</div>
-        <h3 className="text-2xl font-bold text-white mb-2">심층 분석</h3>
-        <p className="text-white/60 text-sm mb-6">
-          AI 기반 심층 분석 기능이 곧 제공됩니다
+      {/* AI Analysis Header */}
+      <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-blue-500/10 p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <div className="text-3xl">🤖</div>
+          <h3 className="text-2xl font-bold text-white">AI 심층 분석</h3>
+        </div>
+        <p className="text-white/60 text-sm">
+          GPT-4o 기반 맞춤형 심리 분석 및 성장 조언
         </p>
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/20 text-violet-300 text-sm">
-          <span className="animate-pulse">●</span>
-          <span>개발 중</span>
+      </div>
+
+      {/* Analysis Content */}
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+        <div className="prose prose-invert prose-violet max-w-none">
+          <ReactMarkdown
+            components={{
+              h3: ({ children }) => (
+                <h3 className="text-xl font-bold text-white mt-6 mb-3 flex items-center gap-2">
+                  <span className="text-violet-400">▸</span>
+                  {children}
+                </h3>
+              ),
+              h4: ({ children }) => (
+                <h4 className="text-lg font-semibold text-white/90 mt-4 mb-2">
+                  {children}
+                </h4>
+              ),
+              p: ({ children }) => (
+                <p className="text-white/80 leading-relaxed mb-4">
+                  {children}
+                </p>
+              ),
+              ul: ({ children }) => (
+                <ul className="space-y-2 mb-4">
+                  {children}
+                </ul>
+              ),
+              li: ({ children }) => (
+                <li className="flex items-start gap-2 text-white/80">
+                  <span className="text-violet-400 mt-1">•</span>
+                  <span>{children}</span>
+                </li>
+              ),
+              strong: ({ children }) => (
+                <strong className="text-white font-semibold">
+                  {children}
+                </strong>
+              ),
+            }}
+          >
+            {heroData.analysisText}
+          </ReactMarkdown>
         </div>
       </div>
 
