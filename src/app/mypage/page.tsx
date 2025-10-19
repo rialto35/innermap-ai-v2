@@ -190,17 +190,9 @@ function DashboardContent() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">{userName}님의 여정</h1>
-          <p className="text-white/60">당신의 내면 세계를 탐험하세요</p>
-        </div>
-        <Link
-          href="/analyze"
-          className="px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white font-semibold rounded-xl hover:scale-105 transition shadow-lg shadow-violet-500/20"
-        >
-          신규 분석 시작
-        </Link>
+      <div>
+        <h1 className="text-3xl font-bold text-white mb-2">{userName}님의 여정</h1>
+        <p className="text-white/60">당신의 내면 세계를 탐험하세요</p>
       </div>
 
       {/* Main Content: Hero Card + Sidebar */}
