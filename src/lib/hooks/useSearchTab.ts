@@ -8,7 +8,7 @@
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useCallback } from 'react';
 
-export type TabValue = 'inner9' | 'report' | 'deep';
+export type TabValue = 'inner9' | 'report' | 'deep' | 'fortune';
 
 export function useSearchTab(defaultTab: TabValue = 'inner9') {
   const searchParams = useSearchParams();

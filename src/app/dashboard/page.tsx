@@ -31,6 +31,11 @@ const DeepAnalysis = dynamic(() => import('@/components/dashboard/DeepAnalysis')
   loading: () => <TabLoadingState />,
 });
 
+const FortuneCard = dynamic(() => import('@/components/dashboard/FortuneCard'), {
+  ssr: false,
+  loading: () => <TabLoadingState />,
+});
+
 function TabLoadingState() {
   return (
     <div className="min-h-[400px] flex items-center justify-center">
@@ -304,6 +309,7 @@ function DashboardContent() {
         )}
         {currentTab === 'report' && <DetailedReport heroData={heroData} />}
         {currentTab === 'deep' && <DeepAnalysis />}
+        {currentTab === 'fortune' && <FortuneCard />}
       </DashboardTabs>
     </div>
   );

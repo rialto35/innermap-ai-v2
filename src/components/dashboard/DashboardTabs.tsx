@@ -19,6 +19,7 @@ function DashboardTabsContent({ children }: DashboardTabsProps) {
     { value: 'inner9', label: 'Inner9', icon: '🧭' },
     { value: 'report', label: '상세 리포트', icon: '📊' },
     { value: 'deep', label: '심층 분석', icon: '🔍' },
+    { value: 'fortune', label: '운세', icon: '🔮' },
   ];
 
   return (
