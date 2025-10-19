@@ -21,15 +21,31 @@ export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
     const body = (await req.json()) as Partial<AnalyzeInput>;
     
+    console.log('📊 [API /analyze] Request body:', JSON.stringify(body, null, 2));
+    
     if (!body?.big5) {
+      console.log('❌ [API /analyze] Missing big5 data');
       return NextResponse.json({ ok: false, error: 'MISSING_BIG5' }, { status: 400 });
     }
 
     // 최소 검증
     const { O, C, E, A, N } = body.big5 as any;
+    console.log('📊 [API /analyze] Big5 values:', { O, C, E, A, N });
+    
     if ([O, C, E, A, N].some((v) => typeof v !== 'number')) {
+      console.log('❌ [API /analyze] Invalid Big5 values - not all numbers');
       return NextResponse.json({ ok: false, error: 'INVALID_BIG5' }, { status: 400 });
     }
+
+    console.log('📊 [API /analyze] Calling runAnalysis with:', {
+      big5: { O: O / 100, C: C / 100, E: E / 100, A: A / 100, N: N / 100 },
+      mbti: body.mbti,
+      reti: body.reti,
+      dob: body.dob,
+      locale: body.locale ?? 'ko-KR',
+      age: body.age ?? 30,
+      gender: body.gender ?? 'male',
+    });
 
     const out = await runAnalysis({
       big5: { O: O / 100, C: C / 100, E: E / 100, A: A / 100, N: N / 100 },
@@ -37,7 +53,11 @@ export async function POST(req: Request) {
       reti: body.reti,
       dob: body.dob,
       locale: body.locale ?? 'ko-KR',
+      age: body.age ?? 30, // 기본값 설정
+      gender: body.gender ?? 'male', // 기본값 설정
     });
+    
+    console.log('✅ [API /analyze] runAnalysis completed successfully');
 
     // Compute deep analysis metrics
     console.log('📊 [API /analyze] Computing deep analysis metrics...');
@@ -149,7 +169,8 @@ export async function POST(req: Request) {
       }
     });
   } catch (e: any) {
-    console.error('Inner9 analysis error:', e);
+    console.error('❌ [API /analyze] Inner9 analysis error:', e);
+    console.error('❌ [API /analyze] Error stack:', e?.stack);
     return NextResponse.json(
       { ok: false, error: 'ENGINE_ERROR', detail: e?.message },
       { status: 500 }

@@ -67,13 +67,37 @@ function DashboardContent() {
 
   const runInner9Demo = useCallback(async () => {
     try {
-      const res = await fetch('/api/analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 } }),
-      });
-      const j = await res.json();
-      if (j.ok) setInner9Data(j.data);
+      // 실제 사용자의 검사 결과를 가져와서 Inner9 분석 실행
+      const userRes = await fetch('/api/imcore/me');
+      const userData = await userRes.json();
+      
+      if (userData.big5) {
+        // 사용자의 실제 Big5 점수를 사용
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            big5: {
+              O: userData.big5.openness * 100,
+              C: userData.big5.conscientiousness * 100,
+              E: userData.big5.extraversion * 100,
+              A: userData.big5.agreeableness * 100,
+              N: userData.big5.neuroticism * 100
+            }
+          }),
+        });
+        const j = await res.json();
+        if (j.ok) setInner9Data(j.data);
+      } else {
+        // 검사 결과가 없으면 데모 데이터 사용
+        const res = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 } }),
+        });
+        const j = await res.json();
+        if (j.ok) setInner9Data(j.data);
+      }
     } catch (error) {
       console.error('Inner9 demo error:', error);
     }

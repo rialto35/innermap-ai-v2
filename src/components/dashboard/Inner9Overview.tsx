@@ -113,7 +113,48 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
             <span>📖</span>
             <span>당신의 이야기</span>
           </h3>
-          <p className="text-white/80 leading-relaxed">{inner9Data.narrative.summary}</p>
+          <p className="text-white/80 leading-relaxed mb-4">{inner9Data.narrative.summary}</p>
+          
+          {/* Strengths & Growth Areas */}
+          {(inner9Data.narrative.strengths || inner9Data.narrative.growthAreas) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {/* Strengths */}
+              {inner9Data.narrative.strengths && (
+                <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
+                  <h4 className="text-sm font-semibold text-green-300 mb-2 flex items-center gap-1">
+                    <span>💪</span>
+                    <span>강점 영역</span>
+                  </h4>
+                  <div className="space-y-2">
+                    {inner9Data.narrative.strengths.slice(0, 3).map((strength: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between">
+                        <span className="text-sm text-white/80">{strength.dimension}</span>
+                        <span className="text-sm font-bold text-green-300">{strength.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              {/* Growth Areas */}
+              {inner9Data.narrative.growthAreas && (
+                <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+                  <h4 className="text-sm font-semibold text-blue-300 mb-2 flex items-center gap-1">
+                    <span>🌱</span>
+                    <span>성장 영역</span>
+                  </h4>
+                  <div className="space-y-2">
+                    {inner9Data.narrative.growthAreas.slice(0, 3).map((area: any, idx: number) => (
+                      <div key={idx} className="flex items-center justify-between">
+                        <span className="text-sm text-white/80">{area.dimension}</span>
+                        <span className="text-sm font-bold text-blue-300">{area.score}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
