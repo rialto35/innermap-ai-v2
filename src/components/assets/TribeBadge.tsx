@@ -27,7 +27,14 @@ export function TribeBadge({
   useEffect(() => {
     setLoading(true);
     getTribeImagePath(tribe)
-      .then(setSrc)
+      .then((path) => {
+        console.log(`TribeBadge: tribe="${tribe}" -> path="${path}"`);
+        setSrc(path);
+      })
+      .catch((err) => {
+        console.error(`TribeBadge error for tribe="${tribe}":`, err);
+        setSrc("/assets/tribes/default.png");
+      })
       .finally(() => setLoading(false));
   }, [tribe]);
 

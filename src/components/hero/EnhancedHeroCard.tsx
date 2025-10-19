@@ -1,10 +1,11 @@
 /**
  * EnhancedHeroCard Component
- * 영웅 카드 with 부족/결정석 시각화
+ * 영웅 카드 with 부족/결정석 시각화 + 오늘의 운세
  */
 
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import HeroImage from '@/components/assets/HeroImage';
 import { TribeBadge } from '@/components/assets/TribeBadge';
@@ -23,6 +24,7 @@ interface EnhancedHeroCardProps {
   heroCode?: string; // ENFJ-TYPE1-M format
   tribeKey?: string; // balance, creation, etc.
   stoneKey?: string; // arche, kairos, etc.
+  birthDate?: string; // YYYY-MM-DD for daily luck
 }
 
 export default function EnhancedHeroCard({
@@ -37,62 +39,123 @@ export default function EnhancedHeroCard({
   heroCode,
   tribeKey,
   stoneKey,
+  birthDate,
 }: EnhancedHeroCardProps) {
+  const [luck, setLuck] = useState<any>(null);
+  const [loadingLuck, setLoadingLuck] = useState(false);
+  
   const expPct = Math.min(100, Math.round((hero.exp.current / hero.exp.next) * 100));
   const tribeColors = getTribeColors(tribeKey || tribe?.nameEn || 'default');
 
   // Generate heroCode if not provided
   const computedHeroCode =
     heroCode ||
-    `${hero.mbti}-TYPE${hero.reti?.code?.replace('R', '') || '1'}-${genderPreference[0].toUpperCase()}`;
+    `${hero.mbti}-TYPE${hero.reti?.code?.replace('R', '') || hero.reti || '1'}-${genderPreference[0].toUpperCase()}`;
+
+  // Fetch daily luck
+  useEffect(() => {
+    if (birthDate) {
+      setLoadingLuck(true);
+      fetch(`/api/luck?dob=${birthDate}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.ok) setLuck(data.data);
+        })
+        .catch(console.error)
+        .finally(() => setLoadingLuck(false));
+    }
+  }, [birthDate]);
 
   return (
     <div className="rounded-2xl bg-zinc-900/80 border border-zinc-800 p-6 shadow-xl">
-      {/* Hero Profile Section */}
-      <div className="flex flex-col sm:flex-row items-center gap-6 mb-6">
-        {/* Hero Image */}
-        <div className="relative">
-          <HeroImage heroCode={computedHeroCode} width={180} height={180} priority />
+      {/* Main Layout: Hero Info + Daily Luck */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Left: Hero Profile (2 columns) */}
+        <div className="lg:col-span-2">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
+            {/* Hero Image */}
+            <div className="relative flex-shrink-0">
+              <HeroImage heroCode={computedHeroCode} width={180} height={180} priority />
+            </div>
+
+            {/* Hero Info & Badges */}
+            <div className="flex-1 text-center sm:text-left">
+              <h2 className="text-2xl font-bold text-white mb-2">{hero.name}</h2>
+              <p className="text-white/60 text-sm mb-4">{hero.subtitle || hero.tagline}</p>
+
+              {/* Tribe & Stone Badges */}
+              <div className="flex items-center justify-center sm:justify-start gap-4 mb-4">
+                {tribeKey && (
+                  <div className="flex flex-col items-center gap-1">
+                    <TribeBadge tribe={tribeKey} size={72} showLabel={false} />
+                    <span className="text-xs text-white/50">부족</span>
+                  </div>
+                )}
+                {stoneKey && (
+                  <div className="flex flex-col items-center gap-1">
+                    <StoneBadge stone={stoneKey} size={72} variant="natal" showLabel={false} />
+                    <span className="text-xs text-white/50">결정석</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+                <span
+                  className={`px-3 py-1 rounded-lg text-sm font-medium bg-gradient-to-r ${tribeColors.gradient} text-white`}
+                >
+                  Lv.{hero.level}
+                </span>
+                <span className="px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700 text-sm">
+                  MBTI {hero.mbti}
+                </span>
+                <span className="px-3 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-600/40 text-sm">
+                  RETI {hero.reti?.code || `R${hero.reti}`}
+                </span>
+                {gem && (
+                  <span className="px-3 py-1 rounded-lg bg-sky-500/15 text-sky-300 border border-sky-600/40 text-sm">
+                    {gem.name}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
-        {/* Hero Info & Badges */}
-        <div className="flex-1 text-center sm:text-left">
-          <h2 className="text-2xl font-bold text-white mb-2">{hero.name}</h2>
-          <p className="text-white/60 text-sm mb-4">{hero.subtitle || hero.tagline}</p>
-
-          {/* Tribe & Stone Badges */}
-          <div className="flex items-center justify-center sm:justify-start gap-4 mb-4">
-            {tribeKey && (
-              <div className="flex flex-col items-center gap-1">
-                <TribeBadge tribe={tribeKey} size={72} />
-                <span className="text-xs text-white/50">부족</span>
+        {/* Right: Daily Luck (1 column) */}
+        <div className="lg:col-span-1">
+          <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-5 h-full">
+            <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+              <span>🌟</span>
+              <span>오늘의 운세</span>
+            </h3>
+            
+            {loadingLuck ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-400" />
               </div>
-            )}
-            {stoneKey && (
-              <div className="flex flex-col items-center gap-1">
-                <StoneBadge stone={stoneKey} size={72} variant="natal" />
-                <span className="text-xs text-white/50">결정석</span>
+            ) : luck ? (
+              <>
+                <div className="flex items-center gap-2 mb-3">
+                  {[...Array(5)].map((_, i) => (
+                    <div
+                      key={i}
+                      className={`h-8 w-8 rounded-full border-2 transition-all ${
+                        i < luck.score
+                          ? 'border-amber-400 bg-amber-400/30 scale-110'
+                          : 'border-white/10 bg-white/5'
+                      }`}
+                    />
+                  ))}
+                </div>
+                <div className="text-2xl font-bold text-amber-300 mb-2">{luck.score}/5</div>
+                <p className="text-white/80 text-sm leading-relaxed">{luck.message}</p>
+                <p className="mt-3 text-xs text-white/50">{luck.date}</p>
+              </>
+            ) : (
+              <div className="text-white/60 text-sm">
+                생년월일을 입력하면 오늘의 운세를 확인할 수 있습니다
               </div>
-            )}
-          </div>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
-            <span
-              className={`px-3 py-1 rounded-lg text-sm font-medium bg-gradient-to-r ${tribeColors.gradient} text-white`}
-            >
-              Lv.{hero.level}
-            </span>
-            <span className="px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700 text-sm">
-              MBTI {hero.mbti}
-            </span>
-            <span className="px-3 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-600/40 text-sm">
-              RETI {hero.reti?.code || `R${hero.reti}`}
-            </span>
-            {gem && (
-              <span className="px-3 py-1 rounded-lg bg-sky-500/15 text-sky-300 border border-sky-600/40 text-sm">
-                {gem.name}
-              </span>
             )}
           </div>
         </div>
@@ -201,4 +264,3 @@ export default function EnhancedHeroCard({
     </div>
   );
 }
-

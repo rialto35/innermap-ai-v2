@@ -218,6 +218,7 @@ function DashboardContent() {
         testResultId={heroData.testResultId}
         tribeKey={heroData.tribe?.nameEn || 'lumin'}
         stoneKey={heroData.gem?.nameEn || 'arche'}
+        birthDate={heroData.birthDate || '1990-01-01'}
       />
 
       {/* Tabbed Content */}

@@ -29,7 +29,14 @@ export function StoneBadge({
   useEffect(() => {
     setLoading(true);
     getStoneImagePath(stone)
-      .then(setSrc)
+      .then((path) => {
+        console.log(`StoneBadge: stone="${stone}" -> path="${path}"`);
+        setSrc(path);
+      })
+      .catch((err) => {
+        console.error(`StoneBadge error for stone="${stone}":`, err);
+        setSrc("/assets/stones/default.png");
+      })
       .finally(() => setLoading(false));
   }, [stone]);
 
