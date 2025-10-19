@@ -11,11 +11,14 @@ import { join } from 'path';
 const requiredEnvVars = [
   'NEXTAUTH_URL',
   'NEXTAUTH_SECRET',
-  'GOOGLE_CLIENT_ID',
-  'GOOGLE_CLIENT_SECRET',
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'SUPABASE_SERVICE_ROLE_KEY'
+];
+
+const optionalAuthVars = [
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET'
 ];
 
 const optionalEnvVars = [
@@ -47,10 +50,17 @@ function checkEnvVars() {
     console.log('✓ CI environment detected, checking process.env');
     const missing = [];
     const warnings = [];
+    const authWarnings = [];
     
     for (const envVar of requiredEnvVars) {
       if (!process.env[envVar]) {
         missing.push(envVar);
+      }
+    }
+    
+    for (const envVar of optionalAuthVars) {
+      if (!process.env[envVar]) {
+        authWarnings.push(envVar);
       }
     }
     
@@ -64,6 +74,11 @@ function checkEnvVars() {
       console.error('❌ Missing required environment variables:');
       missing.forEach(envVar => console.error(`   - ${envVar}`));
       return false;
+    }
+    
+    if (authWarnings.length > 0) {
+      console.warn('⚠️  Missing authentication variables (app will work but auth features disabled):');
+      authWarnings.forEach(envVar => console.warn(`   - ${envVar}`));
     }
     
     if (warnings.length > 0) {
