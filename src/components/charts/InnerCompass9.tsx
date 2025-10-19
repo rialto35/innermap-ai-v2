@@ -44,17 +44,19 @@ export default function InnerCompass9({ data, color = '#8b5cf6' }: Props) {
 /**
  * Convert Inner9 object to chart data format
  */
+import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
+
 export function toChartData(inner9: Record<string, number>): ChartDataPoint[] {
   const labelMap: Record<string, string> = {
-    creation: '창조성',
-    will: '의지력',
-    sensitivity: '감수성',
-    harmony: '공감력',
-    expression: '표현력',
-    insight: '통찰력',
-    resilience: '회복력',
-    balance: '균형감',
-    growth: '성장력',
+    creation: INNER9_DESCRIPTIONS.creation.label,
+    will: INNER9_DESCRIPTIONS.will.label,
+    sensitivity: INNER9_DESCRIPTIONS.sensitivity.label,
+    harmony: INNER9_DESCRIPTIONS.harmony.label,
+    expression: INNER9_DESCRIPTIONS.expression.label,
+    insight: INNER9_DESCRIPTIONS.insight.label,
+    resilience: INNER9_DESCRIPTIONS.resilience.label,
+    balance: INNER9_DESCRIPTIONS.balance.label,
+    growth: INNER9_DESCRIPTIONS.growth.label,
   };
 
   return Object.entries(inner9).map(([k, v]) => ({

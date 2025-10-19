@@ -7,6 +7,7 @@
 
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
+import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
 
 const InnerCompass9 = dynamic(() => import('@/components/charts/InnerCompass9'), {
   ssr: false,
@@ -38,15 +39,15 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       };
 
       const dimensions = [
-        { key: 'creation', label: '창조', value: normalize(src.creation) },
-        { key: 'will', label: '의지', value: normalize(src.will) },
-        { key: 'sensitivity', label: '감수성', value: normalize(src.sensitivity) },
-        { key: 'harmony', label: '조화', value: normalize(src.harmony) },
-        { key: 'expression', label: '표현', value: normalize(src.expression) },
-        { key: 'insight', label: '통찰', value: normalize(src.insight) },
-        { key: 'resilience', label: '회복력', value: normalize(src.resilience) },
-        { key: 'balance', label: '균형', value: normalize(src.balance) },
-        { key: 'growth', label: '성장', value: normalize(src.growth) },
+        { key: 'creation', label: INNER9_DESCRIPTIONS.creation.label, value: normalize(src.creation) },
+        { key: 'will', label: INNER9_DESCRIPTIONS.will.label, value: normalize(src.will) },
+        { key: 'sensitivity', label: INNER9_DESCRIPTIONS.sensitivity.label, value: normalize(src.sensitivity) },
+        { key: 'harmony', label: INNER9_DESCRIPTIONS.harmony.label, value: normalize(src.harmony) },
+        { key: 'expression', label: INNER9_DESCRIPTIONS.expression.label, value: normalize(src.expression) },
+        { key: 'insight', label: INNER9_DESCRIPTIONS.insight.label, value: normalize(src.insight) },
+        { key: 'resilience', label: INNER9_DESCRIPTIONS.resilience.label, value: normalize(src.resilience) },
+        { key: 'balance', label: INNER9_DESCRIPTIONS.balance.label, value: normalize(src.balance) },
+        { key: 'growth', label: INNER9_DESCRIPTIONS.growth.label, value: normalize(src.growth) },
       ];
       setChartData(dimensions);
     }

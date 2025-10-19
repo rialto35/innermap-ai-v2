@@ -12,17 +12,19 @@ export interface Inner9Narrative {
   growthAreas: Array<{ dimension: string; score: number }>;
 }
 
-// 한글 라벨 매핑
+import { INNER9_DESCRIPTIONS, type Inner9Key } from '../../constants/inner9';
+
+// 한글 라벨 매핑 (상수에서 가져오기)
 const dimensionLabels: Record<string, string> = {
-  creation: '창조성',
-  will: '의지력',
-  sensitivity: '감수성',
-  harmony: '조화',
-  expression: '표현력',
-  insight: '통찰력',
-  resilience: '회복력',
-  balance: '균형',
-  growth: '성장'
+  creation: INNER9_DESCRIPTIONS.creation.label,
+  will: INNER9_DESCRIPTIONS.will.label,
+  sensitivity: INNER9_DESCRIPTIONS.sensitivity.label,
+  harmony: INNER9_DESCRIPTIONS.harmony.label,
+  expression: INNER9_DESCRIPTIONS.expression.label,
+  insight: INNER9_DESCRIPTIONS.insight.label,
+  resilience: INNER9_DESCRIPTIONS.resilience.label,
+  balance: INNER9_DESCRIPTIONS.balance.label,
+  growth: INNER9_DESCRIPTIONS.growth.label
 };
 
 export function generateInner9Narrative(scores: Record<string, number>): Inner9Narrative {
