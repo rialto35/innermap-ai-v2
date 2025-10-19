@@ -29,6 +29,14 @@ export async function GET(_req: NextRequest) {
     .maybeSingle()
 
   if (subError) {
+    // If subscriptions table doesn't exist, return null data (no subscription)
+    if (subError.code === 'PGRST205') {
+      console.log('Subscriptions table not found, returning null subscription');
+      return NextResponse.json(
+        { ok: true, data: null },
+        { headers: { 'Cache-Control': 'no-store' } }
+      )
+    }
     console.error('Subscription query error:', subError);
     return NextResponse.json({ ok: false, error: 'FAILED_SUBSCRIPTION_QUERY' }, { status: 500 })
   }
