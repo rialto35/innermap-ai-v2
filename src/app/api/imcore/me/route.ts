@@ -7,6 +7,8 @@ import { HEROES_144 } from '@/lib/data/heroes144'
 import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
 import { computeBig5Percentiles, computeMBTIRatios } from '@/lib/psychometrics'
+import { computeInner9Scores } from '@/core/im-core/inner9'
+import { runAnalysis } from '@/core/im-core'
 
 export const dynamic = 'force-dynamic'
 
@@ -90,6 +92,13 @@ export async function GET() {
       const defaultBig5 = { O: 0.70, C: 0.50, E: 0.80, A: 0.90, N: 0.20 }
       const defaultBig5Percentiles = computeBig5Percentiles(defaultBig5)
       const defaultMBTIRatios = computeMBTIRatios(defaultHero.mbti)
+      // Compute Inner9 using engine for default preview
+      let defaultInner9: any = undefined
+      try {
+        const analysis = await runAnalysis({ big5: defaultBig5, mbti: defaultHero.mbti as any, locale: 'ko-KR' })
+        defaultInner9 = analysis.inner9
+      } catch {}
+      const defaultInner9Scores = computeInner9Scores(defaultBig5Percentiles, defaultMBTIRatios)
 
       const responseData = {
         user: {
@@ -109,6 +118,8 @@ export async function GET() {
         mbti: { type: defaultHero.mbti, confidence: { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 } },
         reti: { top1: [`r${defaultHero.reti}`, 0.5], top2: [`r${defaultHero.reti}`, 0.5] },
         big5: { O: 70, C: 50, E: 80, A: 90, N: 20 },
+        inner9: defaultInner9,
+        inner9_scores: defaultInner9Scores,
         big5Percentiles: defaultBig5Percentiles,
         mbtiRatios: defaultMBTIRatios,
         growth: { innate: 50, acquired: 50, conscious: 50, unconscious: 50, growth: 50, stability: 50, harmony: 50, individual: 50 },
@@ -178,6 +189,7 @@ export async function GET() {
     }
     const savedBig5Percentiles = computeBig5Percentiles(savedBig5)
     const savedMBTIRatios = computeMBTIRatios(latestResult.mbti_type)
+    const savedInner9Scores = computeInner9Scores(savedBig5Percentiles, savedMBTIRatios)
 
     const responseData = {
       user: {
@@ -211,6 +223,7 @@ export async function GET() {
       },
       big5Percentiles: savedBig5Percentiles,
       mbtiRatios: savedMBTIRatios,
+      inner9_scores: savedInner9Scores,
       growth: {
         innate: latestResult.growth_innate,
         acquired: latestResult.growth_acquired,

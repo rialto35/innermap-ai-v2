@@ -26,18 +26,27 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
-    if (inner9Data?.inner9) {
-      // Transform Inner9 data to chart format
+    // Support multiple shapes: snake_case, camelCase, and raw inner9
+    const src = inner9Data?.inner9_scores || inner9Data?.inner9Scores || inner9Data?.inner9;
+    if (src) {
+      const normalize = (v: any) => {
+        const num = Number(v ?? 0);
+        if (Number.isNaN(num)) return 0;
+        // If value looks like 0..1, convert to percentage
+        const val = num <= 1 ? num * 100 : num;
+        return Math.max(0, Math.min(100, Math.round(val)));
+      };
+
       const dimensions = [
-        { key: 'creation', label: '창조', value: inner9Data.inner9.creation },
-        { key: 'will', label: '의지', value: inner9Data.inner9.will },
-        { key: 'sensitivity', label: '감수성', value: inner9Data.inner9.sensitivity },
-        { key: 'harmony', label: '조화', value: inner9Data.inner9.harmony },
-        { key: 'expression', label: '표현', value: inner9Data.inner9.expression },
-        { key: 'insight', label: '통찰', value: inner9Data.inner9.insight },
-        { key: 'resilience', label: '회복력', value: inner9Data.inner9.resilience },
-        { key: 'balance', label: '균형', value: inner9Data.inner9.balance },
-        { key: 'growth', label: '성장', value: inner9Data.inner9.growth },
+        { key: 'creation', label: '창조', value: normalize(src.creation) },
+        { key: 'will', label: '의지', value: normalize(src.will) },
+        { key: 'sensitivity', label: '감수성', value: normalize(src.sensitivity) },
+        { key: 'harmony', label: '조화', value: normalize(src.harmony) },
+        { key: 'expression', label: '표현', value: normalize(src.expression) },
+        { key: 'insight', label: '통찰', value: normalize(src.insight) },
+        { key: 'resilience', label: '회복력', value: normalize(src.resilience) },
+        { key: 'balance', label: '균형', value: normalize(src.balance) },
+        { key: 'growth', label: '성장', value: normalize(src.growth) },
       ];
       setChartData(dimensions);
     }

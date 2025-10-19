@@ -14,6 +14,7 @@ import {
   computeMBTIRatios, 
   generateAnalysisText 
 } from '@/lib/psychometrics';
+import { computeInner9Scores } from '@/core/im-core/inner9';
 
 export async function POST(req: Request) {
   try {
@@ -31,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const out = await runAnalysis({
-      big5: { O, C, E, A, N },
+      big5: { O: O / 100, C: C / 100, E: E / 100, A: A / 100, N: N / 100 },
       mbti: body.mbti,
       reti: body.reti,
       dob: body.dob,
@@ -40,8 +41,9 @@ export async function POST(req: Request) {
 
     // Compute deep analysis metrics
     console.log('📊 [API /analyze] Computing deep analysis metrics...');
-    const big5Percentiles = computeBig5Percentiles({ O, C, E, A, N });
+    const big5Percentiles = computeBig5Percentiles({ O: O / 100, C: C / 100, E: E / 100, A: A / 100, N: N / 100 });
     const mbtiRatios = body.mbti ? computeMBTIRatios(body.mbti) : { EI: 50, SN: 50, TF: 50, JP: 50 };
+    const inner9Scores = computeInner9Scores(big5Percentiles, mbtiRatios);
     
     // Generate AI analysis text (async)
     let analysisText = '';
@@ -121,6 +123,7 @@ export async function POST(req: Request) {
         // Deep analysis fields
         big5_percentiles: big5Percentiles,
         mbti_ratios: mbtiRatios,
+        inner9_scores: inner9Scores,
         analysis_text: analysisText,
       })
       .select('id')
@@ -141,6 +144,7 @@ export async function POST(req: Request) {
         ...out,
         big5Percentiles,
         mbtiRatios,
+        inner9Scores,
         analysisText,
       }
     });
