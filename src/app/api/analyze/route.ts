@@ -131,6 +131,7 @@ export async function POST(req: Request) {
         mbti_scores: body.mbti ? { type: body.mbti } : { type: null },
         reti_scores: typeof body.reti === 'number' ? { score: body.reti } : { score: null },
         inner_nine: out.inner9,
+        inner9_scores: inner9Scores,
         model_version: out.modelVersion,
         engine_version: out.engineVersion,
         hero_code: out.hero?.code ?? null,
@@ -143,7 +144,6 @@ export async function POST(req: Request) {
         // Deep analysis fields
         big5_percentiles: big5Percentiles,
         mbti_ratios: mbtiRatios,
-        inner9_scores: inner9Scores,
         analysis_text: analysisText,
       })
       .select('id')

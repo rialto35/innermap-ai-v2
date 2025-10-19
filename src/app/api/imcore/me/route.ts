@@ -8,6 +8,7 @@ import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
 import { computeBig5Percentiles, computeMBTIRatios } from '@/lib/psychometrics'
 import { computeInner9Scores } from '@/core/im-core/inner9'
+import { supabaseAdmin } from '@/lib/supabase'
 import { runAnalysis } from '@/core/im-core'
 
 export const dynamic = 'force-dynamic'
@@ -74,6 +75,27 @@ export async function GET() {
     console.log('Fetching latest test result for user:', user.id)
     const latestResult = await getLatestTestResult(user.id, 'imcore')
     console.log('Latest test result:', latestResult ? 'Found' : 'Not found')
+
+    // 최신 Inner9 분석 결과 조회 (results 테이블에서)
+    let latestInner9Result = null;
+    if (latestResult) {
+      try {
+        const { data: inner9Data, error: inner9Error } = await supabaseAdmin
+          .from('results')
+          .select('inner9_scores, inner_nine, created_at')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        
+        if (!inner9Error && inner9Data) {
+          latestInner9Result = inner9Data;
+          console.log('Latest Inner9 result:', latestInner9Result);
+        }
+      } catch (error) {
+        console.error('Error fetching Inner9 result:', error);
+      }
+    }
 
     // 검사 결과가 없는 경우 기본값 반환
     if (!latestResult) {
@@ -215,15 +237,15 @@ export async function GET() {
         top2: latestResult.reti_top2 ? [latestResult.reti_top2, latestResult.reti_scores[latestResult.reti_top2]] : null
       },
       big5: {
-        O: latestResult.big5_openness,
-        C: latestResult.big5_conscientiousness,
-        E: latestResult.big5_extraversion,
-        A: latestResult.big5_agreeableness,
-        N: latestResult.big5_neuroticism
+        O: latestResult.big5_openness ?? null,
+        C: latestResult.big5_conscientiousness ?? null,
+        E: latestResult.big5_extraversion ?? null,
+        A: latestResult.big5_agreeableness ?? null,
+        N: latestResult.big5_neuroticism ?? null
       },
       big5Percentiles: savedBig5Percentiles,
       mbtiRatios: savedMBTIRatios,
-      inner9_scores: savedInner9Scores,
+      inner9_scores: latestInner9Result?.inner9_scores || savedInner9Scores,
       growth: {
         innate: latestResult.growth_innate,
         acquired: latestResult.growth_acquired,

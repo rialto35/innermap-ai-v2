@@ -52,7 +52,10 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
     }
   }, [inner9Data]);
 
-  if (!inner9Data) {
+  // 데이터가 없거나 모든 값이 0인 경우
+  const hasValidData = chartData && chartData.some((dim: any) => dim.value > 0);
+  
+  if (!inner9Data || !hasValidData) {
     return (
       <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">
         <div className="mb-6">

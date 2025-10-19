@@ -71,18 +71,18 @@ function DashboardContent() {
       const userRes = await fetch('/api/imcore/me');
       const userData = await userRes.json();
       
-      if (userData.big5) {
+      if (userData.big5 && userData.big5.O !== null && userData.big5.C !== null && userData.big5.E !== null && userData.big5.A !== null && userData.big5.N !== null) {
         // 사용자의 실제 Big5 점수를 사용
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
             big5: {
-              O: userData.big5.openness * 100,
-              C: userData.big5.conscientiousness * 100,
-              E: userData.big5.extraversion * 100,
-              A: userData.big5.agreeableness * 100,
-              N: userData.big5.neuroticism * 100
+              O: userData.big5.O,
+              C: userData.big5.C,
+              E: userData.big5.E,
+              A: userData.big5.A,
+              N: userData.big5.N
             }
           }),
         });
