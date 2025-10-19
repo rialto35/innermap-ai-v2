@@ -114,7 +114,7 @@ export async function GET() {
       },
       tribe: {
         name: defaultTribe.tribe.nameKo,
-        nameEn: defaultTribe.tribe.nameEn?.toLowerCase() || 'lumin',
+        nameEn: defaultTribe.tribe.nameEn?.split(' ')[0].toLowerCase() || 'lumin',
         color: defaultTribe.tribe.color,
         essence: defaultTribe.tribe.essence || {
           coreValue: defaultTribe.tribe.coreValue,
@@ -210,7 +210,7 @@ export async function GET() {
       },
       tribe: {
         name: tribe.tribe.nameKo,
-        nameEn: tribe.tribe.nameEn?.toLowerCase() || 'lumin',
+        nameEn: tribe.tribe.nameEn?.split(' ')[0].toLowerCase() || 'lumin',
         color: tribe.tribe.color,
         essence: tribe.tribe.essence || {
           coreValue: tribe.tribe.coreValue,
