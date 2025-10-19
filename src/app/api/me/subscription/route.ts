@@ -22,13 +22,14 @@ export async function GET(_req: NextRequest) {
 
   const { data: subscription, error: subError } = await supabaseAdmin
     .from('subscriptions')
-    .select('status, current_period_end, cancel_at_period_end, updated_at, portal_url, receipt_url')
+    .select('status, current_period_end, cancel_at_period_end, updated_at')
     .eq('user_id', user.id)
     .in('status', ['active', 'trialing', 'past_due', 'canceled', 'incomplete', 'unpaid'])
     .order('updated_at', { ascending: false })
     .maybeSingle()
 
   if (subError) {
+    console.error('Subscription query error:', subError);
     return NextResponse.json({ ok: false, error: 'FAILED_SUBSCRIPTION_QUERY' }, { status: 500 })
   }
 
@@ -40,8 +41,6 @@ export async function GET(_req: NextRequest) {
             status: subscription.status,
             current_period_end: subscription.current_period_end,
             cancel_at_period_end: subscription.cancel_at_period_end ?? false,
-            portal_url: subscription.portal_url ?? null,
-            receipt_url: subscription.receipt_url ?? null,
           }
         : null,
     },
