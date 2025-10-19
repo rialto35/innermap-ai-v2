@@ -14,6 +14,15 @@ const HoroscopeBodySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
+    // Check if OpenAI API key is configured
+    if (!process.env.OPENAI_API_KEY) {
+      console.error('[Horoscope API] OPENAI_API_KEY is not configured')
+      return NextResponse.json(
+        { error: 'Horoscope feature is not available. Please contact administrator.' },
+        { status: 503 }
+      )
+    }
+
     const session = await getServerSession(authOptions)
     
     if (!session?.user?.email) {
