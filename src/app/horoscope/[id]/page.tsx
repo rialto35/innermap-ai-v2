@@ -35,23 +35,30 @@ export default function HoroscopeDetailPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // TODO: 실제 API 구현 시 /api/horoscope/[id] 엔드포인트 생성 필요
-    // 현재는 latest를 사용
     fetchHoroscope()
   }, [params.id])
 
   const fetchHoroscope = async () => {
     try {
-      const res = await fetch('/api/horoscope/latest', { cache: 'no-store' })
+      const res = await fetch(`/api/horoscope/${params.id}`, { cache: 'no-store' })
+      
+      if (res.status === 404) {
+        router.push('/dashboard?tab=fortune')
+        return
+      }
+
       const data = await res.json()
+      
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to fetch horoscope')
+      }
       
       if (data.horoscope) {
         setHoroscope(data.horoscope)
-      } else {
-        router.push('/horoscope/register')
       }
     } catch (err) {
       console.error('Failed to fetch horoscope:', err)
+      router.push('/dashboard?tab=fortune')
     } finally {
       setLoading(false)
     }

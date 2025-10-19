@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import HoroscopeInputModal from '@/components/horoscope/HoroscopeInputModal'
 
 interface HoroscopeData {
   id: string
@@ -33,11 +34,7 @@ export default function FortuneCard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchLatestHoroscope()
-  }, [])
-
-  const fetchLatestHoroscope = async () => {
+  const fetchLatestHoroscope = useCallback(async () => {
     try {
       setLoading(true)
       const res = await fetch('/api/horoscope/latest', { cache: 'no-store' })
@@ -54,7 +51,11 @@ export default function FortuneCard() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchLatestHoroscope()
+  }, [fetchLatestHoroscope])
 
   if (loading) {
     return (
@@ -89,13 +90,7 @@ export default function FortuneCard() {
           <br />
           생년월일과 출생 시간을 입력하여 나만의 운세를 확인하세요.
         </p>
-        <Link
-          href="/horoscope/register"
-          className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold rounded-xl hover:scale-105 transition shadow-lg"
-        >
-          <span>✨</span>
-          <span>운세 등록하기</span>
-        </Link>
+        <HoroscopeInputModal onSuccess={fetchLatestHoroscope} />
       </div>
     )
   }

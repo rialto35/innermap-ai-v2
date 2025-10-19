@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",
+    "@hookform/resolvers": "^5.2.2",
     "@notionhq/client": "^4.0.2",
     "@supabase/supabase-js": "^2.75.0",
     "@tailwindcss/typography": "^0.5.19",
@@ -31,6 +32,7 @@
     "openai": "^5.23.2",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "react-hook-form": "^7.65.0",
     "react-markdown": "^10.1.0",
     "react-to-print": "^3.1.1",
     "recharts": "^3.2.1",
