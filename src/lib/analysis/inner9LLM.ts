@@ -5,15 +5,35 @@
 
 import OpenAI from "openai";
 
-const client = new OpenAI({ 
-  apiKey: process.env.OPENAI_API_KEY! 
-});
+/**
+ * Get OpenAI client (server-side only)
+ */
+function getOpenAIClient(): OpenAI | null {
+  if (typeof window !== 'undefined') {
+    // Client-side: return null to avoid environment variable issues
+    return null;
+  }
+  
+  if (!process.env.OPENAI_API_KEY) {
+    console.warn('OPENAI_API_KEY not configured');
+    return null;
+  }
+  
+  return new OpenAI({ 
+    apiKey: process.env.OPENAI_API_KEY 
+  });
+}
 
 export async function llmPolish(
   summary: ReturnType<typeof import('./inner9Narrative').summarize>,
   scores: Record<string, number>
 ): Promise<string> {
   try {
+    const client = getOpenAIClient();
+    if (!client) {
+      return "";
+    }
+
     const prompt = `
 너는 전문 코치야. 아래 요약과 점수를 바탕으로 3문장 이내 한국어 코칭 피드백을 작성해.
 숫자는 그대로 사용하고 과장 금지. 친근하지만 전문적으로.
@@ -42,8 +62,13 @@ export async function llmPolish(
 }
 
 /**
- * Check if LLM enhancement is available
+ * Check if LLM enhancement is available (server-side only)
  */
 export function isLLMAvailable(): boolean {
+  if (typeof window !== 'undefined') {
+    // Client-side: always return false
+    return false;
+  }
+  
   return !!process.env.OPENAI_API_KEY;
 }

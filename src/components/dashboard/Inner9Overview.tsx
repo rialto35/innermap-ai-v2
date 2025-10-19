@@ -9,8 +9,6 @@ import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
 import { summarize } from '@/lib/analysis/inner9Narrative';
-import { llmPolish, isLLMAvailable } from '@/lib/analysis/inner9LLM';
-import { getInner9Config } from '@/config/inner9';
 
 const InnerCompass9 = dynamic(() => import('@/components/charts/InnerCompass9'), {
   ssr: false,
@@ -60,10 +58,22 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       const base = summarize(src);
       setNarrative(base);
       
-      // LLM enhancement (if available)
-      if (isLLMAvailable() && getInner9Config().useLLMEnhancement) {
-        llmPolish(base, src).then(setAiEnhancement);
-      }
+      // Try to get LLM enhancement from server
+      fetch('/api/analyze/enhance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ scores: src })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.aiEnhancement) {
+          setAiEnhancement(data.aiEnhancement);
+        }
+      })
+      .catch(error => {
+        console.log('LLM enhancement not available:', error);
+        // Continue without LLM enhancement
+      });
     }
   }, [inner9Data]);
 
