@@ -52,6 +52,17 @@ export default function EnhancedHeroCard({
     heroCode ||
     `${hero.mbti}-TYPE${hero.reti?.code?.replace('R', '') || hero.reti || '1'}-${genderPreference[0].toUpperCase()}`;
 
+  // Debug logging
+  useEffect(() => {
+    console.log('EnhancedHeroCard props:', {
+      tribeKey,
+      stoneKey,
+      heroCode: computedHeroCode,
+      'tribe?.nameEn': tribe?.nameEn,
+      'gem?.nameEn': gem?.nameEn
+    });
+  }, [tribeKey, stoneKey, computedHeroCode, tribe, gem]);
+
   // Fetch daily luck
   useEffect(() => {
     if (birthDate) {
