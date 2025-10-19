@@ -8,6 +8,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { runAnalysis } from '@/core/im-core';
+import { computeInner9Scores } from '@/core/im-core/inner9';
+import { Inner9Schema } from '@/lib/schemas/inner9';
+import { getInner9Config } from '@/config/inner9';
 import type { AnalyzeInput } from '@/core/im-core/types';
 import { 
   computeBig5Percentiles, 
@@ -63,7 +66,24 @@ export async function POST(req: Request) {
     console.log('📊 [API /analyze] Computing deep analysis metrics...');
     const big5Percentiles = computeBig5Percentiles({ O: O / 100, C: C / 100, E: E / 100, A: A / 100, N: N / 100 });
     const mbtiRatios = body.mbti ? computeMBTIRatios(body.mbti) : { EI: 50, SN: 50, TF: 50, JP: 50 };
-    const inner9Scores = computeInner9Scores(big5Percentiles, mbtiRatios);
+    
+    // Enhanced Inner9 calculation with type weighting
+    const config = getInner9Config();
+    const inner9Scores = computeInner9Scores(
+      big5Percentiles,
+      body.mbti as any,
+      body.reti as any,
+      config.useTypeWeights
+    );
+    
+    // Validate Inner9 scores
+    try {
+      Inner9Schema.parse(inner9Scores);
+      console.log('✅ [API /analyze] Inner9 scores validated');
+    } catch (error) {
+      console.error('❌ [API /analyze] Inner9 validation failed:', error);
+      return NextResponse.json({ ok: false, error: 'INNER9_VALIDATION_FAILED' }, { status: 500 });
+    }
     
     // Generate AI analysis text (async)
     let analysisText = '';
@@ -116,6 +136,22 @@ export async function POST(req: Request) {
       color: out.hero?.color ?? null,
       score: out.hero?.score ?? null,
     };
+
+    // Log Inner9 scores for monitoring
+    console.info('inner9-save', { 
+      user: userId, 
+      creation: inner9Scores.creation, 
+      will: inner9Scores.will,
+      sensitivity: inner9Scores.sensitivity,
+      harmony: inner9Scores.harmony,
+      expression: inner9Scores.expression,
+      insight: inner9Scores.insight,
+      resilience: inner9Scores.resilience,
+      balance: inner9Scores.balance,
+      growth: inner9Scores.growth,
+      mbti: body.mbti,
+      reti: body.reti
+    });
 
     const { data: resultData, error: insertError } = await supabaseAdmin
       .from('results')

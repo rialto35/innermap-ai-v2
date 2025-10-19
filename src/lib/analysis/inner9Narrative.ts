@@ -27,6 +27,31 @@ const dimensionLabels: Record<string, string> = {
   growth: INNER9_DESCRIPTIONS.growth.label
 };
 
+/**
+ * Rule-based 1st level summary with threshold-based labeling
+ */
+export function summarize(scores: Record<string, number>) {
+  const entries = Object.entries(scores);
+  const sorted = [...entries].sort((a, b) => b[1] - a[1]);
+  const top3 = sorted.slice(0, 3);
+  const low3 = sorted.slice(-3);
+  const avg = Math.round(entries.reduce((a, [, v]) => a + v, 0) / entries.length);
+
+  // 임계치 기반 레이블
+  const label = (v: number) => 
+    v >= 75 ? "매우 높음" : 
+    v >= 60 ? "높음" : 
+    v >= 40 ? "보통" : 
+    v >= 25 ? "낮음" : "매우 낮음";
+
+  return {
+    headline: `평균 ${avg}점, 강점은 ${top3.map(([k]) => INNER9_DESCRIPTIONS[k as any].label).join("·")}, 성장영역은 ${low3.map(([k]) => INNER9_DESCRIPTIONS[k as any].label).join("·")}입니다.`,
+    strengths: top3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
+    growth: low3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
+    average: avg
+  };
+}
+
 export function generateInner9Narrative(scores: Record<string, number>): Inner9Narrative {
   const entries = Object.entries(scores);
   const sorted = entries.sort((a, b) => b[1] - a[1]);

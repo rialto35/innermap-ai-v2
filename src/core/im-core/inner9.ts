@@ -1,99 +1,112 @@
 /**
- * Inner9 score computation from Big5 percentiles and MBTI ratios
- * Enhanced with proper calculations and NaN protection
+ * Inner9 score computation with MBTI/RETI weighting
+ * Enhanced with type-based adjustments and robust validation
  */
 
-export type Big5Percentiles = {
-  O: number; C: number; E: number; A: number; N: number;
-}
+import { clamp100, safeNumber } from "@/lib/schemas/inner9";
+import type { Big5Percentiles } from "@/core/im-core/types";
 
-export type MbtiRatios = {
-  EI: number; SN: number; TF: number; JP: number;
-}
+export type MbtiType = `${"I"|"E"}${"N"|"S"}${"T"|"F"}${"J"|"P"}`;
+export type RetiType = 1|2|3|4|5|6|7|8|9;
 
-export type Inner9Scores = {
-  creation: number;     // 창조
-  will: number;         // 의지
-  sensitivity: number;  // 감수성
-  harmony: number;      // 조화
-  expression: number;   // 표현
-  insight: number;      // 통찰
-  resilience: number;   // 회복력
-  balance: number;      // 균형
-  growth: number;       // 성장
+export type Inner9Base = {
+  creation: number;
+  will: number;
+  sensitivity: number;
+  harmony: number;
+  expression: number;
+  insight: number;
+  resilience: number;
+  balance: number;
+  growth: number;
 };
 
-function clamp01(x: number): number {
-  if (!Number.isFinite(x)) return 0;
-  return Math.max(0, Math.min(100, Math.round(x)));
-}
-
-function safeNumber(value: any): number {
-  const num = Number(value);
-  return Number.isFinite(num) ? num : 0;
-}
-
 /**
- * Enhanced Inner9 calculation with proper formulas
- * Based on psychological research and domain expertise
+ * Compute base Inner9 scores from Big5 percentiles
  */
-export function computeInner9Scores(big5: Big5Percentiles, mbti: MbtiRatios): Inner9Scores {
-  // Input validation and NaN protection
+export function computeInner9Base(big5: Big5Percentiles): Inner9Base {
   const O = safeNumber(big5.O);
   const C = safeNumber(big5.C);
   const E = safeNumber(big5.E);
   const A = safeNumber(big5.A);
   const N = safeNumber(big5.N);
 
-  // Core dimensions (direct mapping)
-  const creation = clamp01(O);
-  const will = clamp01(C);
-  const sensitivity = clamp01(N);  // 높을수록 예민
-  const harmony = clamp01(A);
-  const expression = clamp01(E);
+  const creation = O;
+  const will = C;
+  const sensitivity = N;
+  const harmony = A;
+  const expression = E;
 
-  // Derived dimensions (calculated)
-  const insight = clamp01((O + (100 - N) * 0.5));  // 창조성 + 정서안정성
-  const resilience = clamp01(100 - N);  // 신경성의 역
-  const balance = clamp01((O + C + E + A + (100 - N)) / 5);  // 전체 균형
-  const growth = clamp01((O * 0.4 + C * 0.3 + (100 - N) * 0.3));  // 성장 잠재력
+  const insight = (O + (100 - N) * 0.5);
+  const resilience = (100 - N);
+  const balance = (O + C + E + A + (100 - N)) / 5;
+  const growth = (O * 0.4 + C * 0.3 + (100 - N) * 0.3);
 
-  // Final normalization to ensure all values are 0-100 integers
-  const normalize = (v: number) => Math.round(Math.min(100, Math.max(0, v)));
-
-  const normalizedScores = {
-    creation: normalize(creation),
-    will: normalize(will),
-    sensitivity: normalize(sensitivity),
-    harmony: normalize(harmony),
-    expression: normalize(expression),
-    insight: normalize(insight),
-    resilience: normalize(resilience),
-    balance: normalize(balance),
-    growth: normalize(growth),
-  };
-
-  console.log('🔍 [Inner9] Computed scores:', normalizedScores);
-
-  return normalizedScores;
+  const raw = { creation, will, sensitivity, harmony, expression, insight, resilience, balance, growth };
+  
+  // NaN/Infinity 보호 + 반올림 + 0~100 clamp
+  const safe = Object.fromEntries(
+    Object.entries(raw).map(([k, v]) => [k, clamp100(Number.isFinite(v) ? v : 0)])
+  );
+  
+  return safe as Inner9Base;
 }
 
 /**
- * Validate Inner9 scores for data integrity
+ * Compute Inner9 scores with MBTI/RETI type weighting
  */
-export function validateInner9Scores(scores: Inner9Scores): boolean {
-  const values = Object.values(scores);
-  return values.every(v => Number.isFinite(v) && v >= 0 && v <= 100);
+export function computeInner9Scores(
+  big5: Big5Percentiles,
+  mbti?: MbtiType,
+  reti?: RetiType,
+  enableTypeWeights = true
+): Inner9Base {
+  const base = computeInner9Base(big5);
+  
+  if (!enableTypeWeights || !mbti || !reti) {
+    return base;
+  }
+
+  // --- MBTI 가중 ---
+  let insightAdj = 1.0;
+  let growthAdj = 1.0;
+  
+  const is = (ch: string) => mbti.includes(ch);
+
+  if (is("N")) insightAdj += 0.10;
+  if (is("S")) { insightAdj -= 0.05; growthAdj += 0.10; }
+  if (is("T")) insightAdj += 0.05;
+  if (is("F")) growthAdj += 0.05;
+  if (is("J")) growthAdj += 0.10;
+  if (is("P")) { insightAdj += 0.05; growthAdj -= 0.05; }
+
+  // --- RETI 가중 ---
+  const logic = [1, 5, 9];
+  const express = [2, 3, 7];
+  const will = [4, 6, 8];
+  
+  if (logic.includes(reti)) insightAdj += 0.10;
+  if (express.includes(reti)) growthAdj += 0.10;
+  if (will.includes(reti)) { insightAdj += 0.05; growthAdj += 0.05; }
+
+  const out = { ...base };
+  out.insight = clamp100(base.insight * insightAdj);
+  out.growth = clamp100(base.growth * growthAdj);
+  
+  console.log('🔍 [Inner9] Type-weighted scores:', {
+    mbti, reti, insightAdj, growthAdj,
+    insight: out.insight, growth: out.growth
+  });
+
+  return out;
 }
 
 /**
- * Get default Inner9 scores (neutral values)
+ * Legacy compatibility - use computeInner9Scores instead
+ * @deprecated Use computeInner9Scores with proper parameters
  */
-export function getDefaultInner9Scores(): Inner9Scores {
-  return {
-    creation: 50, will: 50, sensitivity: 50, harmony: 50, expression: 50,
-    insight: 50, resilience: 50, balance: 50, growth: 50
-  };
+export function computeInner9ScoresLegacy(big5: any, mbti: any): Inner9Base {
+  return computeInner9Base(big5);
 }
 
 

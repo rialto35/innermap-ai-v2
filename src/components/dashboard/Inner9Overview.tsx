@@ -8,6 +8,9 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
+import { summarize } from '@/lib/analysis/inner9Narrative';
+import { llmPolish, isLLMAvailable } from '@/lib/analysis/inner9LLM';
+import { getInner9Config } from '@/config/inner9';
 
 const InnerCompass9 = dynamic(() => import('@/components/charts/InnerCompass9'), {
   ssr: false,
@@ -25,6 +28,8 @@ interface Inner9OverviewProps {
 
 export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9OverviewProps) {
   const [chartData, setChartData] = useState<any>(null);
+  const [narrative, setNarrative] = useState<any>(null);
+  const [aiEnhancement, setAiEnhancement] = useState<string>('');
 
   useEffect(() => {
     // Support multiple shapes: snake_case, camelCase, and raw inner9
@@ -50,6 +55,15 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
         { key: 'growth', label: INNER9_DESCRIPTIONS.growth.label, value: normalize(src.growth) },
       ];
       setChartData(dimensions);
+      
+      // Generate hybrid narrative
+      const base = summarize(src);
+      setNarrative(base);
+      
+      // LLM enhancement (if available)
+      if (isLLMAvailable() && getInner9Config().useLLMEnhancement) {
+        llmPolish(base, src).then(setAiEnhancement);
+      }
     }
   }, [inner9Data]);
 
@@ -110,55 +124,72 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
         ))}
       </div>
 
-      {/* Narrative Summary */}
-      {inner9Data.narrative?.summary && (
+      {/* Enhanced Narrative Summary */}
+      {narrative && (
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <span>📖</span>
             <span>당신의 이야기</span>
           </h3>
-          <p className="text-white/80 leading-relaxed mb-4">{inner9Data.narrative.summary}</p>
           
-          {/* Strengths & Growth Areas */}
-          {(inner9Data.narrative.strengths || inner9Data.narrative.growthAreas) && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              {/* Strengths */}
-              {inner9Data.narrative.strengths && (
-                <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
-                  <h4 className="text-sm font-semibold text-green-300 mb-2 flex items-center gap-1">
-                    <span>💪</span>
-                    <span>강점 영역</span>
-                  </h4>
-                  <div className="space-y-2">
-                    {inner9Data.narrative.strengths.slice(0, 3).map((strength: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between">
-                        <span className="text-sm text-white/80">{strength.dimension}</span>
-                        <span className="text-sm font-bold text-green-300">{strength.score}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Growth Areas */}
-              {inner9Data.narrative.growthAreas && (
-                <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
-                  <h4 className="text-sm font-semibold text-blue-300 mb-2 flex items-center gap-1">
-                    <span>🌱</span>
-                    <span>성장 영역</span>
-                  </h4>
-                  <div className="space-y-2">
-                    {inner9Data.narrative.growthAreas.slice(0, 3).map((area: any, idx: number) => (
-                      <div key={idx} className="flex items-center justify-between">
-                        <span className="text-sm text-white/80">{area.dimension}</span>
-                        <span className="text-sm font-bold text-blue-300">{area.score}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+          {/* Rule-based summary */}
+          <p className="text-white/80 leading-relaxed mb-4">{narrative.headline}</p>
+          
+          {/* AI enhancement */}
+          {aiEnhancement && (
+            <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-4 mb-4">
+              <h4 className="text-sm font-semibold text-purple-300 mb-2 flex items-center gap-1">
+                <span>🤖</span>
+                <span>AI 코칭 피드백</span>
+              </h4>
+              <p className="text-sm text-white/80 leading-relaxed">{aiEnhancement}</p>
             </div>
           )}
+          
+          {/* Strengths & Growth Areas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            {/* Strengths */}
+            {narrative.strengths && (
+              <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
+                <h4 className="text-sm font-semibold text-green-300 mb-2 flex items-center gap-1">
+                  <span>💪</span>
+                  <span>강점 영역</span>
+                </h4>
+                <div className="space-y-2">
+                  {narrative.strengths.map((strength: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <span className="text-sm text-white/80">{INNER9_DESCRIPTIONS[strength.key as any]?.label || strength.key}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-green-300">{strength.score}</span>
+                        <span className="text-xs text-green-200">{strength.label}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Growth Areas */}
+            {narrative.growth && (
+              <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
+                <h4 className="text-sm font-semibold text-blue-300 mb-2 flex items-center gap-1">
+                  <span>🌱</span>
+                  <span>성장 영역</span>
+                </h4>
+                <div className="space-y-2">
+                  {narrative.growth.map((area: any, idx: number) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <span className="text-sm text-white/80">{INNER9_DESCRIPTIONS[area.key as any]?.label || area.key}</span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-bold text-blue-300">{area.score}</span>
+                        <span className="text-xs text-blue-200">{area.label}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
