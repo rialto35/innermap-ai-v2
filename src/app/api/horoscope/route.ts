@@ -45,6 +45,12 @@ export async function POST(req: NextRequest) {
 
     const data = validationResult.data
 
+    console.log('🔮 [Horoscope API] Starting calculation for:', {
+      solarBirth: data.solarBirth,
+      birthTime: data.birthTime,
+      location: data.location
+    })
+
     // 실제 만세력 계산 및 AI 해석 수행
     const { saju, analysis } = await calculateHoroscope({
       solarBirth: data.solarBirth,
@@ -52,6 +58,11 @@ export async function POST(req: NextRequest) {
       birthTime: data.birthTime,
       location: data.location,
     })
+
+    console.log('✅ [Horoscope API] Calculation complete')
+    console.log('📊 [Horoscope API] Saju data:', JSON.stringify(saju, null, 2))
+    console.log('🤖 [Horoscope API] AI analysis length:', analysis.length, 'chars')
+    console.log('📝 [Horoscope API] AI analysis preview:', analysis.substring(0, 200))
 
     const sajuData = saju
     const dailyFortune = analysis

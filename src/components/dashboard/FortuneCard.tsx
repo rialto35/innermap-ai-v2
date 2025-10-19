@@ -183,13 +183,27 @@ export default function FortuneCard() {
         </div>
       </div>
 
-      {/* 상세 보기 링크 */}
-      <Link
-        href={`/horoscope/${horoscope.id}`}
-        className="block w-full text-center py-2 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-sm font-medium transition"
-      >
-        상세 운세 보기 →
-      </Link>
+      {/* 액션 버튼들 */}
+      <div className="flex gap-3">
+        <Link
+          href={`/horoscope/${horoscope.id}`}
+          className="flex-1 text-center py-2 px-4 rounded-lg bg-white/10 hover:bg-white/20 text-white/80 hover:text-white text-sm font-medium transition"
+        >
+          상세 운세 보기 →
+        </Link>
+        <div className="flex-shrink-0">
+          <HoroscopeInputModal 
+            onSuccess={fetchLatestHoroscope}
+            isReregistration={true}
+            defaultValues={{
+              solarBirth: solarBirth,
+              lunarBirth: horoscope.lunarBirth || undefined,
+              birthTime: birthTime,
+              location: horoscope.location || undefined,
+            }}
+          />
+        </div>
+      </div>
     </div>
   )
 }

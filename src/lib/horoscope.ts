@@ -44,14 +44,27 @@ export async function calculateHoroscope({
   location?: string;
 }) {
   try {
+    console.log('🔮 [calculateHoroscope] Starting...')
+    
     // 1) 만세력 데이터 계산
     const birthInfo = lunarBirth
       ? parseBirthInfo(lunarBirth, birthTime, true)
       : parseBirthInfo(solarBirth, birthTime, false);
 
+    console.log('📅 [calculateHoroscope] Birth info:', birthInfo)
+
     const saju = calculateFourPillars(birthInfo);
 
+    console.log('📊 [calculateHoroscope] Saju calculated:', {
+      year: saju.yearHanja,
+      month: saju.monthHanja,
+      day: saju.dayHanja,
+      hour: saju.hourHanja
+    })
+
     // 2) AI 모델에게 해석 요청 (프롬프트를 원하는 형태로 수정)
+    console.log('🤖 [calculateHoroscope] Calling OpenAI API...')
+    
     const prompt = `
 아래는 만세력 사주 데이터입니다. 사주 정보(연주·월주·일주·시주와 오행 분포)를 해석하여
 성격 특징, 강점, 약점, 오늘의 운세를 간결하게 작성해 주세요.
@@ -74,6 +87,10 @@ export async function calculateHoroscope({
     });
 
     const analysis = completion.choices[0].message?.content?.trim() ?? "";
+
+    console.log('✅ [calculateHoroscope] OpenAI response received')
+    console.log('📝 [calculateHoroscope] Analysis length:', analysis.length, 'chars')
+    console.log('📝 [calculateHoroscope] Analysis preview:', analysis.substring(0, 200))
 
     return { saju, analysis };
   } catch (error) {

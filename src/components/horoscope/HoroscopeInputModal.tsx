@@ -16,9 +16,20 @@ type FormData = z.infer<typeof FormSchema>
 
 interface HoroscopeInputModalProps {
   onSuccess?: () => void
+  defaultValues?: {
+    solarBirth?: string
+    lunarBirth?: string
+    birthTime?: string
+    location?: string
+  }
+  isReregistration?: boolean
 }
 
-export default function HoroscopeInputModal({ onSuccess }: HoroscopeInputModalProps) {
+export default function HoroscopeInputModal({ 
+  onSuccess, 
+  defaultValues,
+  isReregistration = false 
+}: HoroscopeInputModalProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -30,6 +41,7 @@ export default function HoroscopeInputModal({ onSuccess }: HoroscopeInputModalPr
     reset,
   } = useForm<FormData>({
     resolver: zodResolver(FormSchema),
+    defaultValues: defaultValues || undefined,
   })
 
   async function onSubmit(values: FormData) {
@@ -69,10 +81,14 @@ export default function HoroscopeInputModal({ onSuccess }: HoroscopeInputModalPr
       {/* Trigger Button */}
       <button
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-semibold rounded-xl hover:scale-105 transition shadow-lg"
+        className={`inline-flex items-center gap-2 px-4 py-2 text-white font-medium rounded-lg hover:scale-105 transition shadow-lg ${
+          isReregistration
+            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-sm'
+            : 'bg-gradient-to-r from-purple-500 to-indigo-500 px-6 py-3 font-semibold rounded-xl'
+        }`}
       >
-        <span>✨</span>
-        <span>운세 등록하기</span>
+        <span>{isReregistration ? '🔄' : '✨'}</span>
+        <span>{isReregistration ? '재등록' : '운세 등록하기'}</span>
       </button>
 
       {/* Modal */}
@@ -89,10 +105,12 @@ export default function HoroscopeInputModal({ onSuccess }: HoroscopeInputModalPr
             <div className="p-6 border-b border-white/10">
               <h2 className="text-2xl font-bold text-white flex items-center gap-2">
                 <span>🔮</span>
-                <span>운세 등록</span>
+                <span>{isReregistration ? '운세 재등록' : '운세 등록'}</span>
               </h2>
               <p className="mt-2 text-sm text-white/60">
-                생년월일과 출생 시간을 입력하세요
+                {isReregistration 
+                  ? '새로운 정보로 운세를 다시 등록하세요' 
+                  : '생년월일과 출생 시간을 입력하세요'}
               </p>
             </div>
 
