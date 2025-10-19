@@ -216,8 +216,8 @@ function DashboardContent() {
         weaknesses={heroData.weaknesses}
         genderPreference={heroData.genderPreference || 'male'}
         testResultId={heroData.testResultId}
-        tribeKey={heroData.tribe?.nameEn || 'balance'}
-        stoneKey={heroData.gem?.name?.toLowerCase() || 'arche'}
+        tribeKey={heroData.tribe?.nameEn || 'lumin'}
+        stoneKey={heroData.gem?.nameEn || 'arche'}
       />
 
       {/* Tabbed Content */}

@@ -104,22 +104,23 @@ export async function GET() {
         reti: { top1: [`r${defaultHero.reti}`, 0.5], top2: [`r${defaultHero.reti}`, 0.5] },
         big5: { O: 70, C: 50, E: 80, A: 90, N: 20 },
         growth: { innate: 50, acquired: 50, conscious: 50, unconscious: 50, growth: 50, stability: 50, harmony: 50, individual: 50 },
-        gem: {
-          name: defaultStone.name,
-          icon: defaultStone.icon || '💎',
-          keywords: defaultStone.keywords || ['성장', '발전'],
-          summary: defaultStone.summary || defaultStone.description,
-          color: defaultStone.color || '#8B5CF6'
-        },
-        tribe: {
-          name: defaultTribe.tribe.nameKo,
-          nameEn: defaultTribe.tribe.nameEn,
-          color: defaultTribe.tribe.color,
-          essence: defaultTribe.tribe.essence || {
-            coreValue: defaultTribe.tribe.coreValue,
-            philosophy: defaultTribe.tribe.description
-          }
-        },
+      gem: {
+        name: defaultStone.name,
+        nameEn: defaultStone.nameEn?.toLowerCase() || 'arche',
+        icon: defaultStone.icon || '💎',
+        keywords: defaultStone.keywords || ['성장', '발전'],
+        summary: defaultStone.summary || defaultStone.description,
+        color: defaultStone.color || '#8B5CF6'
+      },
+      tribe: {
+        name: defaultTribe.tribe.nameKo,
+        nameEn: defaultTribe.tribe.nameEn?.toLowerCase() || 'lumin',
+        color: defaultTribe.tribe.color,
+        essence: defaultTribe.tribe.essence || {
+          coreValue: defaultTribe.tribe.coreValue,
+          philosophy: defaultTribe.tribe.description
+        }
+      },
         ...extractStrengthsWeaknesses(defaultHero.abilities),
         genderPreference: 'male',
         hasTestResult: false
@@ -201,6 +202,7 @@ export async function GET() {
       },
       gem: {
         name: stone.name,
+        nameEn: stone.nameEn?.toLowerCase() || 'arche',
         icon: stone.icon || '💎',
         keywords: stone.keywords || ['성장', '발전'],
         summary: stone.summary || stone.description,
@@ -208,7 +210,7 @@ export async function GET() {
       },
       tribe: {
         name: tribe.tribe.nameKo,
-        nameEn: tribe.tribe.nameEn,
+        nameEn: tribe.tribe.nameEn?.toLowerCase() || 'lumin',
         color: tribe.tribe.color,
         essence: tribe.tribe.essence || {
           coreValue: tribe.tribe.coreValue,
