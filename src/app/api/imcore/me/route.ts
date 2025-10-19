@@ -6,6 +6,7 @@ import { getLatestTestResult } from '@/lib/db/testResults'
 import { HEROES_144 } from '@/lib/data/heroes144'
 import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
+import { computeBig5Percentiles, computeMBTIRatios } from '@/lib/psychometrics'
 
 export const dynamic = 'force-dynamic'
 
@@ -85,6 +86,11 @@ export async function GET() {
         neuroticism: 20
       })
 
+      // Calculate percentiles and ratios for default data
+      const defaultBig5 = { O: 0.70, C: 0.50, E: 0.80, A: 0.90, N: 0.20 }
+      const defaultBig5Percentiles = computeBig5Percentiles(defaultBig5)
+      const defaultMBTIRatios = computeMBTIRatios(defaultHero.mbti)
+
       const responseData = {
         user: {
           id: user.id,
@@ -103,6 +109,8 @@ export async function GET() {
         mbti: { type: defaultHero.mbti, confidence: { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 } },
         reti: { top1: [`r${defaultHero.reti}`, 0.5], top2: [`r${defaultHero.reti}`, 0.5] },
         big5: { O: 70, C: 50, E: 80, A: 90, N: 20 },
+        big5Percentiles: defaultBig5Percentiles,
+        mbtiRatios: defaultMBTIRatios,
         growth: { innate: 50, acquired: 50, conscious: 50, unconscious: 50, growth: 50, stability: 50, harmony: 50, individual: 50 },
       gem: {
         name: defaultStone.name,
@@ -160,6 +168,17 @@ export async function GET() {
       neuroticism: latestResult.big5_neuroticism
     })
 
+    // Calculate percentiles and ratios from saved data
+    const savedBig5 = {
+      O: latestResult.big5_openness / 100,
+      C: latestResult.big5_conscientiousness / 100,
+      E: latestResult.big5_extraversion / 100,
+      A: latestResult.big5_agreeableness / 100,
+      N: latestResult.big5_neuroticism / 100
+    }
+    const savedBig5Percentiles = computeBig5Percentiles(savedBig5)
+    const savedMBTIRatios = computeMBTIRatios(latestResult.mbti_type)
+
     const responseData = {
       user: {
         id: user.id,
@@ -190,6 +209,8 @@ export async function GET() {
         A: latestResult.big5_agreeableness,
         N: latestResult.big5_neuroticism
       },
+      big5Percentiles: savedBig5Percentiles,
+      mbtiRatios: savedMBTIRatios,
       growth: {
         innate: latestResult.growth_innate,
         acquired: latestResult.growth_acquired,

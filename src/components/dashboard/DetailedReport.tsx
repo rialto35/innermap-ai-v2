@@ -9,6 +9,7 @@ import Big5RadarChart from '@/components/Big5RadarChart';
 import GrowthVectorChart from '@/components/GrowthVectorChart';
 import Big5PercentileChart from '@/components/charts/Big5PercentileChart';
 import MBTIRatiosChart from '@/components/charts/MBTIRatiosChart';
+import Inner9Graphs from '@/components/analysis/Inner9Graphs';
 
 interface DetailedReportProps {
   heroData: any;
@@ -85,18 +86,12 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
         </div>
       </div>
 
-      {/* Big5 Percentiles */}
-      {heroData.big5Percentiles && (
-        <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6">
-          <Big5PercentileChart percentiles={heroData.big5Percentiles} />
-        </div>
-      )}
-
-      {/* MBTI Ratios */}
-      {heroData.mbtiRatios && heroData.hero?.mbti && (
-        <div className="rounded-2xl border border-blue-500/20 bg-blue-500/5 p-6">
-          <MBTIRatiosChart ratios={heroData.mbtiRatios} mbtiType={heroData.hero.mbti} />
-        </div>
+      {/* Inner9 Graphs (Combined Big5 Percentiles + MBTI Ratios) */}
+      {heroData.big5Percentiles && heroData.mbtiRatios && (
+        <Inner9Graphs
+          big5Percentiles={heroData.big5Percentiles}
+          mbtiRatios={heroData.mbtiRatios}
+        />
       )}
 
       {/* MBTI & RETI Info */}
