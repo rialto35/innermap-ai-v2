@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic'
 
 // 메모리 캐시 (개발용 - 프로덕션에서는 Redis 등 사용 권장)
 const cache = new Map<string, { data: any; timestamp: number }>()
-const CACHE_DURATION = 30000 // 30초 캐시
+const CACHE_DURATION = 0 // 개발 중 캐시 비활성화 (프로덕션에서는 30000으로 변경)
 
 // abilities 기반으로 strengths/weaknesses 추출
 function extractStrengthsWeaknesses(abilities: { openness: number; conscientiousness: number; extraversion: number; agreeableness: number; neuroticism: number }) {
