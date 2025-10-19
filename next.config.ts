@@ -16,6 +16,22 @@ const nextConfig: NextConfig = {
       { source: '/_next/image', destination: '/heroes/default.svg' },
     ];
   },
+  async headers() {
+    return [
+      {
+        source: "/assets/:path*",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" }
+        ]
+      },
+      {
+        source: "/manifest/assets.json",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=3600, stale-while-revalidate=86400" }
+        ]
+      }
+    ];
+  },
 };
 
 export default nextConfig;
