@@ -190,35 +190,112 @@ function DashboardContent() {
           <h1 className="text-3xl font-bold text-white mb-2">{userName}님의 여정</h1>
           <p className="text-white/60">당신의 내면 세계를 탐험하세요</p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link
-            href="/analyze"
-            className="px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white font-semibold rounded-xl hover:scale-105 transition shadow-lg shadow-violet-500/20"
-          >
-            신규 분석 시작
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="px-4 py-2 text-sm text-red-400 hover:text-red-300 border border-red-400/30 hover:border-red-300/50 rounded-lg transition"
-          >
-            로그아웃
-          </button>
-        </div>
+        <Link
+          href="/analyze"
+          className="px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white font-semibold rounded-xl hover:scale-105 transition shadow-lg shadow-violet-500/20"
+        >
+          신규 분석 시작
+        </Link>
       </div>
 
-      {/* Hero Highlight Card */}
-      <EnhancedHeroCard
-        hero={heroData.hero}
-        gem={heroData.gem}
-        tribe={heroData.tribe}
-        growth={heroData.growth}
-        strengths={heroData.strengths}
-        weaknesses={heroData.weaknesses}
-        genderPreference={heroData.genderPreference || 'male'}
-        testResultId={heroData.testResultId}
-        tribeKey={heroData.tribe?.nameEn || 'lumin'}
-        stoneKey={heroData.gem?.nameEn || 'arche'}
-      />
+      {/* Main Content: Hero Card + Sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Hero Card (2 columns) */}
+        <div className="lg:col-span-2">
+          <EnhancedHeroCard
+            hero={heroData.hero}
+            gem={heroData.gem}
+            tribe={heroData.tribe}
+            growth={heroData.growth}
+            strengths={heroData.strengths}
+            weaknesses={heroData.weaknesses}
+            genderPreference={heroData.genderPreference || 'male'}
+            testResultId={heroData.testResultId}
+            tribeKey={heroData.tribe?.nameEn || 'lumin'}
+            stoneKey={heroData.gem?.nameEn || 'arche'}
+            birthDate={heroData.birthDate || '1990-01-01'}
+          />
+        </div>
+
+        {/* Right: Sidebar (1 column) */}
+        <div className="lg:col-span-1 space-y-4">
+          {/* 계정 관리 */}
+          <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
+            <h3 className="text-lg font-semibold text-violet-300 mb-4">계정 관리</h3>
+            <div className="flex flex-col gap-2 text-sm">
+              <span className="text-white/80">{session?.user?.name || userName}</span>
+              <span className="text-white/50">{session?.user?.email}</span>
+              <button
+                onClick={handleLogout}
+                className="mt-3 rounded-xl border border-red-400/30 px-3 py-2 text-sm text-red-300 transition hover:border-red-300/60 hover:text-red-200"
+              >
+                로그아웃
+              </button>
+            </div>
+          </div>
+
+          {/* 추천 퀘스트 */}
+          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+            <h3 className="text-lg font-semibold text-emerald-300 mb-4">추천 퀘스트</h3>
+            <div className="space-y-3">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center justify-between text-xs text-white/50 mb-2">
+                  <span>#quest-1</span>
+                  <span className="rounded-full px-2 py-1 bg-emerald-500/10 text-emerald-200">EASY</span>
+                </div>
+                <div className="text-sm font-medium text-white/90 mb-1">매일 10분 아이디어 노트 작성</div>
+                <p className="text-xs text-white/60 mb-2">자유로운 발상을 기록하며 사고 확장 하기</p>
+                <Link
+                  href="/analyze"
+                  className="inline-flex items-center gap-1 text-xs text-emerald-300 hover:text-emerald-200"
+                >
+                  설명하기 →
+                </Link>
+              </div>
+
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center justify-between text-xs text-white/50 mb-2">
+                  <span>#quest-2</span>
+                  <span className="rounded-full px-2 py-1 bg-amber-500/10 text-amber-200">MID</span>
+                </div>
+                <div className="text-sm font-medium text-white/90 mb-1">감정 코칭 세션 예약</div>
+                <p className="text-xs text-white/60 mb-2">프로 코치와 1:1 세션으로 감정 밸런스 잡기</p>
+                <Link
+                  href="/analyze"
+                  className="inline-flex items-center gap-1 text-xs text-amber-300 hover:text-amber-200"
+                >
+                  설명하기 →
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* 리포트 도구 */}
+          <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-5">
+            <h3 className="text-lg font-semibold text-sky-300 mb-4">리포트 도구</h3>
+            <div className="flex flex-col gap-2 text-sm">
+              <Link
+                href="/report"
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
+              >
+                리포트 목록 보기
+              </Link>
+              <Link
+                href="/report"
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
+              >
+                공유 링크 관리
+              </Link>
+              <Link
+                href="/report"
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
+              >
+                PDF 다운로드 기록
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Tabbed Content */}
       <DashboardTabs>
