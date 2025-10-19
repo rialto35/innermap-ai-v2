@@ -34,27 +34,39 @@ export async function getManifest(): Promise<AssetManifest> {
 
 export async function getHeroImagePath(heroCode: string) {
   const m = await getManifest();
-  return m.heroes.find(h => h.code === heroCode)?.file ?? "/assets/heroes/_fallback.png";
+  const found = m.heroes.find(h => h.code === heroCode)?.file;
+  if (found) return found;
+  console.warn(`Hero not found: "${heroCode}"`);
+  return "/heroes/male/ENFP_TYPE1.png"; // Default hero image
 }
 
 export async function findHeroByProfile(mbti: string, reti?: string, index?: number, gender?: "male"|"female") {
   const m = await getManifest();
   const MBTI = mbti.toUpperCase();
-  return m.heroes.find(h =>
+  const found = m.heroes.find(h =>
     h.mbti === MBTI &&
     (reti ? h.reti === String(reti) : true) &&
     (typeof index === "number" ? h.index === index : true) &&
     (gender ? h.gender === gender : true)
-  )?.file ?? "/assets/heroes/_fallback.png";
+  )?.file;
+  if (found) return found;
+  console.warn(`Hero not found: mbti="${mbti}", reti="${reti}", index=${index}, gender="${gender}"`);
+  return "/heroes/male/ENFP_TYPE1.png"; // Default hero image
 }
 
 export async function getTribeImagePath(key: string) {
   const m = await getManifest();
-  return m.tribes.find(t => t.key === key.toLowerCase())?.file ?? "/assets/tribes/_fallback.png";
+  const found = m.tribes.find(t => t.key === key.toLowerCase())?.file;
+  if (found) return found;
+  console.warn(`Tribe not found: "${key}", available:`, m.tribes.map(t => t.key).join(', '));
+  return "/assets/tribes/default.png";
 }
 
 export async function getStoneImagePath(key: string) {
   const m = await getManifest();
-  return m.stones.find(s => s.key === key.toLowerCase())?.file ?? "/assets/stones/_fallback.png";
+  const found = m.stones.find(s => s.key === key.toLowerCase())?.file;
+  if (found) return found;
+  console.warn(`Stone not found: "${key}", available:`, m.stones.map(s => s.key).join(', '));
+  return "/assets/stones/default.png";
 }
 
