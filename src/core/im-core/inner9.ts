@@ -58,15 +58,24 @@ export function computeInner9Scores(big5: Big5Percentiles, mbti: MbtiRatios): In
   const balance = clamp01((O + C + E + A + (100 - N)) / 5);  // 전체 균형
   const growth = clamp01((O * 0.4 + C * 0.3 + (100 - N) * 0.3));  // 성장 잠재력
 
-  console.log('🔍 [Inner9] Computed scores:', {
-    creation, will, sensitivity, harmony, expression,
-    insight, resilience, balance, growth
-  });
+  // Final normalization to ensure all values are 0-100 integers
+  const normalize = (v: number) => Math.round(Math.min(100, Math.max(0, v)));
 
-  return { 
-    creation, will, sensitivity, harmony, expression, 
-    insight, resilience, balance, growth 
+  const normalizedScores = {
+    creation: normalize(creation),
+    will: normalize(will),
+    sensitivity: normalize(sensitivity),
+    harmony: normalize(harmony),
+    expression: normalize(expression),
+    insight: normalize(insight),
+    resilience: normalize(resilience),
+    balance: normalize(balance),
+    growth: normalize(growth),
   };
+
+  console.log('🔍 [Inner9] Computed scores:', normalizedScores);
+
+  return normalizedScores;
 }
 
 /**
