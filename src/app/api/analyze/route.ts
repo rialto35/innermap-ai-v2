@@ -17,7 +17,6 @@ import {
   computeMBTIRatios, 
   generateAnalysisText 
 } from '@/lib/psychometrics';
-import { computeInner9Scores } from '@/core/im-core/inner9';
 
 export async function POST(req: Request) {
   try {
