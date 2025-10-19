@@ -21,7 +21,7 @@ export function TribeBadge({
   className = "",
   showLabel = false 
 }: TribeBadgeProps) {
-  const [src, setSrc] = useState("/assets/tribes/_fallback.png");
+  const [src, setSrc] = useState("/assets/tribes/default.png");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -52,7 +52,7 @@ export function TribeBadge({
           width={size} 
           height={size}
           className={`rounded-full ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-          onError={() => setSrc("/assets/tribes/_fallback.png")}
+          onError={() => setSrc("/assets/tribes/default.png")}
         />
       </div>
       {showLabel && (

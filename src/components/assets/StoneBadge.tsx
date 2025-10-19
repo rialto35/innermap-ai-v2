@@ -23,7 +23,7 @@ export function StoneBadge({
   showLabel = false,
   variant 
 }: StoneBadgeProps) {
-  const [src, setSrc] = useState("/assets/stones/_fallback.png");
+  const [src, setSrc] = useState("/assets/stones/default.png");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -56,7 +56,7 @@ export function StoneBadge({
           width={size} 
           height={size}
           className={`rounded-lg ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-          onError={() => setSrc("/assets/stones/_fallback.png")}
+          onError={() => setSrc("/assets/stones/default.png")}
         />
       </div>
       {showLabel && (

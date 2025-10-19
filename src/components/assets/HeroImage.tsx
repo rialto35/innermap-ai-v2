@@ -25,7 +25,7 @@ export default function HeroImage({
   className = "",
   priority = false 
 }: HeroImageProps) {
-  const [src, setSrc] = useState<string>("/assets/heroes/_fallback.png");
+  const [src, setSrc] = useState<string>("/heroes/male/ENFP_TYPE1.png");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function HeroImage({
         height={height} 
         priority={priority}
         className={`rounded-lg ${loading ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
-        onError={() => setSrc("/assets/heroes/_fallback.png")} 
+        onError={() => setSrc("/heroes/male/ENFP_TYPE1.png")} 
       />
     </div>
   );
