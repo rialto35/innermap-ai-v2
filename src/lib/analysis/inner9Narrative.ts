@@ -45,7 +45,7 @@ export function summarize(scores: Record<string, number>) {
     v >= 25 ? "낮음" : "매우 낮음";
 
   return {
-    headline: `평균 ${avg}점, 강점은 ${top3.map(([k]) => INNER9_DESCRIPTIONS[k as any].label).join("·")}, 성장영역은 ${low3.map(([k]) => INNER9_DESCRIPTIONS[k as any].label).join("·")}입니다.`,
+    headline: `평균 ${avg}점, 강점은 ${top3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}, 성장영역은 ${low3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}입니다.`,
     strengths: top3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
     growth: low3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
     average: avg
@@ -109,7 +109,7 @@ export function generateRichNarrative(scores: Record<string, number>) {
   const storyElements = generateStoryElements(topDimension, lowDimension, avg);
   
   return {
-    headline: `평균 ${avg}점, 강점은 ${top3.map(([k]) => INNER9_DESCRIPTIONS[k as any].label).join("·")}, 성장영역은 ${low3.map(([k]) => INNER9_DESCRIPTIONS[k as any].label).join("·")}입니다.`,
+    headline: `평균 ${avg}점, 강점은 ${top3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}, 성장영역은 ${low3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}입니다.`,
     strengths: top3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
     growth: low3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
     average: avg,
@@ -146,13 +146,13 @@ function generateStoryElements(topDimension: [string, number], lowDimension: [st
     dominantTrait: {
       key: topKey,
       score: topScore,
-      description: INNER9_DESCRIPTIONS[topKey as any]?.oneLine || '',
+      description: INNER9_DESCRIPTIONS[topKey as keyof typeof INNER9_DESCRIPTIONS]?.oneLine || '',
       impact: getTraitImpact(topKey, topScore)
     },
     growthArea: {
       key: lowKey,
       score: lowScore,
-      description: INNER9_DESCRIPTIONS[lowKey as any]?.oneLine || '',
+      description: INNER9_DESCRIPTIONS[lowKey as keyof typeof INNER9_DESCRIPTIONS]?.oneLine || '',
       potential: getGrowthPotential(lowKey, lowScore)
     },
     overallBalance: avg >= 60 ? 'high' : avg >= 40 ? 'moderate' : 'developing'
@@ -205,11 +205,11 @@ export function generateDetailedStory(topDimension: [string, number], lowDimensi
   const lowScore = lowDimension[1];
   
   const stories: Record<string, string> = {
-    visionary: `당신은 ${INNER9_DESCRIPTIONS[topKey as any]?.label} 영역에서 ${topScore}점의 뛰어난 능력을 보이며, 특히 통찰력과 표현력이 조화를 이룬 비전형 인재입니다. ${INNER9_DESCRIPTIONS[lowKey as any]?.label} 영역(${lowScore}점)에서는 더 큰 성장 가능성이 기다리고 있어, 이 부분을 발전시킨다면 더욱 완성도 높은 리더가 될 수 있습니다.`,
-    achiever: `체계적이고 목표 지향적인 성향이 강한 성취형 인재로, ${INNER9_DESCRIPTIONS[topKey as any]?.label}에서 ${topScore}점의 탁월한 성과를 보입니다. ${INNER9_DESCRIPTIONS[lowKey as any]?.label} 영역(${lowScore}점)의 발전을 통해 더욱 균형 잡힌 성장을 이룰 수 있습니다.`,
-    empath: `타인에 대한 깊은 이해와 공감 능력이 뛰어난 감성형 인재입니다. ${INNER9_DESCRIPTIONS[topKey as any]?.label} 영역에서 ${topScore}점의 섬세한 감성을 보이며, ${INNER9_DESCRIPTIONS[lowKey as any]?.label} 영역(${lowScore}점)의 발전으로 더욱 완성도 높은 인간관계를 구축할 수 있습니다.`,
-    innovator: `창의적 사고와 지속적 성장에 대한 열정이 뛰어난 혁신형 인재입니다. ${INNER9_DESCRIPTIONS[topKey as any]?.label}에서 ${topScore}점의 독창성을 보이며, ${INNER9_DESCRIPTIONS[lowKey as any]?.label} 영역(${lowScore}점)의 발전을 통해 더욱 완성도 높은 혁신을 이룰 수 있습니다.`,
-    balanced: `전반적으로 균형 잡힌 성향을 보이는 조화형 인재입니다. ${INNER9_DESCRIPTIONS[topKey as any]?.label} 영역에서 ${topScore}점의 강점을 보이며, ${INNER9_DESCRIPTIONS[lowKey as any]?.label} 영역(${lowScore}점)의 발전을 통해 더욱 완성도 높은 인재가 될 수 있습니다.`
+    visionary: `당신은 ${INNER9_DESCRIPTIONS[topKey as keyof typeof INNER9_DESCRIPTIONS]?.label} 영역에서 ${topScore}점의 뛰어난 능력을 보이며, 특히 통찰력과 표현력이 조화를 이룬 비전형 인재입니다. ${INNER9_DESCRIPTIONS[lowKey as keyof typeof INNER9_DESCRIPTIONS]?.label} 영역(${lowScore}점)에서는 더 큰 성장 가능성이 기다리고 있어, 이 부분을 발전시킨다면 더욱 완성도 높은 리더가 될 수 있습니다.`,
+    achiever: `체계적이고 목표 지향적인 성향이 강한 성취형 인재로, ${INNER9_DESCRIPTIONS[topKey as keyof typeof INNER9_DESCRIPTIONS]?.label}에서 ${topScore}점의 탁월한 성과를 보입니다. ${INNER9_DESCRIPTIONS[lowKey as keyof typeof INNER9_DESCRIPTIONS]?.label} 영역(${lowScore}점)의 발전을 통해 더욱 균형 잡힌 성장을 이룰 수 있습니다.`,
+    empath: `타인에 대한 깊은 이해와 공감 능력이 뛰어난 감성형 인재입니다. ${INNER9_DESCRIPTIONS[topKey as keyof typeof INNER9_DESCRIPTIONS]?.label} 영역에서 ${topScore}점의 섬세한 감성을 보이며, ${INNER9_DESCRIPTIONS[lowKey as keyof typeof INNER9_DESCRIPTIONS]?.label} 영역(${lowScore}점)의 발전으로 더욱 완성도 높은 인간관계를 구축할 수 있습니다.`,
+    innovator: `창의적 사고와 지속적 성장에 대한 열정이 뛰어난 혁신형 인재입니다. ${INNER9_DESCRIPTIONS[topKey as keyof typeof INNER9_DESCRIPTIONS]?.label}에서 ${topScore}점의 독창성을 보이며, ${INNER9_DESCRIPTIONS[lowKey as keyof typeof INNER9_DESCRIPTIONS]?.label} 영역(${lowScore}점)의 발전을 통해 더욱 완성도 높은 혁신을 이룰 수 있습니다.`,
+    balanced: `전반적으로 균형 잡힌 성향을 보이는 조화형 인재입니다. ${INNER9_DESCRIPTIONS[topKey as keyof typeof INNER9_DESCRIPTIONS]?.label} 영역에서 ${topScore}점의 강점을 보이며, ${INNER9_DESCRIPTIONS[lowKey as keyof typeof INNER9_DESCRIPTIONS]?.label} 영역(${lowScore}점)의 발전을 통해 더욱 완성도 높은 인재가 될 수 있습니다.`
   };
   
   return stories[personalityType] || stories.balanced;
