@@ -360,7 +360,7 @@ function DashboardContent() {
         {currentTab === 'inner9' && (
           <Inner9Overview inner9Data={inner9Data} onRunDemo={runInner9Demo} />
         )}
-        {currentTab === 'report' && <DetailedReport heroData={heroData} />}
+        {currentTab === 'report' && <DetailedReport heroData={heroData} inner9Data={inner9Data} />}
         {currentTab === 'deep' && <DeepAnalysis heroData={heroData} />}
         {currentTab === 'fortune' && <FortuneCard />}
       </DashboardTabs>
