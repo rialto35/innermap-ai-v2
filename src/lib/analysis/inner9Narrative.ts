@@ -84,36 +84,6 @@ export function generateInner9Narrative(scores: Record<string, number>): Inner9N
   };
 }
 
-/**
- * Generate detailed story based on score patterns
- */
-export function generateDetailedStory(scores: Record<string, number>): string {
-  const narrative = generateInner9Narrative(scores);
-  const { highlight, weak, average } = narrative;
-  
-  const highlightLabel = dimensionLabels[highlight[0]] || highlight[0];
-  const weakLabel = dimensionLabels[weak[0]] || weak[0];
-  
-  let story = `당신의 내면 지도에서 가장 두드러진 특징은 ${highlightLabel}입니다. `;
-  
-  if (highlight[1] >= 80) {
-    story += `이 영역에서 매우 높은 수준(${highlight[1]}점)을 보여주며, `;
-  } else if (highlight[1] >= 60) {
-    story += `이 영역에서 상당한 강점(${highlight[1]}점)을 보여주며, `;
-  }
-  
-  story += `반면 ${weakLabel} 영역에서는 발전의 여지(${weak[1]}점)가 있습니다. `;
-  
-  if (average >= 70) {
-    story += `전반적으로 높은 수준의 균형을 유지하고 있습니다.`;
-  } else if (average >= 50) {
-    story += `전반적으로 안정적인 패턴을 보여주고 있습니다.`;
-  } else {
-    story += `전반적으로 성장의 기회가 많은 상태입니다.`;
-  }
-  
-  return story;
-}
 
 /**
  * Generate rich, personalized narrative with personality type and detailed story
@@ -228,7 +198,7 @@ function getGrowthPotential(trait: string, score: number) {
   return potentials[trait] || "이 영역의 발전을 통해 더욱 균형 잡힌 인재가 될 수 있습니다.";
 }
 
-function generateDetailedStory(topDimension: [string, number], lowDimension: [string, number], avg: number, personalityType: string) {
+export function generateDetailedStory(topDimension: [string, number], lowDimension: [string, number], avg: number, personalityType: string) {
   const topKey = topDimension[0];
   const topScore = topDimension[1];
   const lowKey = lowDimension[0];
