@@ -8,7 +8,8 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
-import { summarize } from '@/lib/analysis/inner9Narrative';
+import { summarize, generateRichNarrative } from '@/lib/analysis/inner9Narrative';
+import DimensionCard from '@/components/inner9/DimensionCard';
 
 const InnerCompass9 = dynamic(() => import('@/components/charts/InnerCompass9'), {
   ssr: false,
@@ -28,6 +29,29 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   const [chartData, setChartData] = useState<any>(null);
   const [narrative, setNarrative] = useState<any>(null);
   const [aiEnhancement, setAiEnhancement] = useState<string>('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+
+  // 분석 시뮬레이션 함수
+  const simulateAnalysis = async () => {
+    setIsAnalyzing(true);
+    setAnalysisProgress(0);
+    
+    const steps = [
+      { progress: 20, message: "Big5 데이터 분석 중..." },
+      { progress: 40, message: "MBTI/RETI 가중치 적용 중..." },
+      { progress: 60, message: "Inner9 점수 계산 중..." },
+      { progress: 80, message: "내러티브 생성 중..." },
+      { progress: 100, message: "분석 완료!" }
+    ];
+    
+    for (const step of steps) {
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setAnalysisProgress(step.progress);
+    }
+    
+    setIsAnalyzing(false);
+  };
 
   useEffect(() => {
     // Support multiple shapes: snake_case, camelCase, and raw inner9
@@ -55,8 +79,8 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       setChartData(dimensions);
       
       // Generate hybrid narrative
-      const base = summarize(src);
-      setNarrative(base);
+      const richNarrative = generateRichNarrative(src);
+      setNarrative(richNarrative);
       
       // Try to get LLM enhancement from server
       fetch('/api/analyze/enhance', {
@@ -80,6 +104,36 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   // 데이터가 없거나 모든 값이 0인 경우
   const hasValidData = chartData && chartData.some((dim: any) => dim.value > 0);
   
+  // 로딩 상태 UI
+  if (isAnalyzing) {
+    return (
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">
+        <div className="mb-6">
+          <div className="text-6xl mb-4 animate-pulse">🧭</div>
+          <h3 className="text-xl font-semibold text-white mb-2">Inner9 분석 중</h3>
+          <p className="text-white/60 text-sm mb-4">당신의 내면을 깊이 탐색하고 있습니다...</p>
+          
+          {/* 진행률 바 */}
+          <div className="w-full bg-slate-700 rounded-full h-2 mb-4">
+            <div 
+              className="bg-gradient-to-r from-violet-500 to-blue-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${analysisProgress}%` }}
+            />
+          </div>
+          
+          <p className="text-sm text-white/40">
+            {analysisProgress < 20 && "Big5 데이터 분석 중..."}
+            {analysisProgress >= 20 && analysisProgress < 40 && "MBTI/RETI 가중치 적용 중..."}
+            {analysisProgress >= 40 && analysisProgress < 60 && "Inner9 점수 계산 중..."}
+            {analysisProgress >= 60 && analysisProgress < 80 && "내러티브 생성 중..."}
+            {analysisProgress >= 80 && analysisProgress < 100 && "최종 결과 생성 중..."}
+            {analysisProgress === 100 && "분석 완료!"}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!inner9Data || !hasValidData) {
     return (
       <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">
@@ -92,10 +146,14 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
         </div>
         {onRunDemo && (
           <button
-            onClick={onRunDemo}
-            className="px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium rounded-xl hover:scale-105 transition"
+            onClick={() => {
+              simulateAnalysis();
+              onRunDemo();
+            }}
+            disabled={isAnalyzing}
+            className="px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium rounded-xl hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Inner9 데모 실행
+            {isAnalyzing ? '분석 중...' : 'Inner9 데모 실행'}
           </button>
         )}
       </div>
@@ -116,21 +174,13 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       {/* Dimension Breakdown */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {chartData?.map((dim: any) => (
-          <div
+          <DimensionCard
             key={dim.key}
-            className="rounded-xl border border-white/10 bg-white/5 p-4 hover:bg-white/10 transition"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-white/80">{dim.label}</span>
-              <span className="text-lg font-bold text-violet-300">{Math.round(dim.value)}</span>
-            </div>
-            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-violet-500 to-blue-500 transition-all duration-500"
-                style={{ width: `${dim.value}%` }}
-              />
-            </div>
-          </div>
+            dimensionKey={dim.key}
+            label={dim.label}
+            value={dim.value}
+            color="#8B5CF6"
+          />
         ))}
       </div>
 
@@ -141,6 +191,30 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
             <span>📖</span>
             <span>당신의 이야기</span>
           </h3>
+          
+          {/* Personality Type Badge */}
+          {narrative.personalityType && (
+            <div className="mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full border border-purple-500/30">
+                <span className="text-purple-300 text-sm font-medium">
+                  {narrative.personalityType === 'visionary' && '🔮 비전형'}
+                  {narrative.personalityType === 'achiever' && '🎯 성취형'}
+                  {narrative.personalityType === 'empath' && '💝 감성형'}
+                  {narrative.personalityType === 'innovator' && '🚀 혁신형'}
+                  {narrative.personalityType === 'balanced' && '⚖️ 조화형'}
+                </span>
+              </div>
+            </div>
+          )}
+          
+          {/* Detailed Story */}
+          {narrative.detailedStory && (
+            <div className="mb-4 p-4 bg-gradient-to-r from-slate-800/50 to-slate-700/50 rounded-lg border border-white/10">
+              <p className="text-white/90 text-sm leading-relaxed">
+                {narrative.detailedStory}
+              </p>
+            </div>
+          )}
           
           {/* Rule-based summary */}
           <p className="text-white/80 leading-relaxed mb-4">{narrative.headline}</p>
