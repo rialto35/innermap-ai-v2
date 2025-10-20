@@ -5,10 +5,9 @@ interface DimensionCardProps {
   dimensionKey: string;
   label: string;
   value: number;
-  color?: string;
 }
 
-export default function DimensionCard({ dimensionKey, label, value, color = "#8B5CF6" }: DimensionCardProps) {
+export default function DimensionCard({ dimensionKey, label, value }: DimensionCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   
   const description = INNER9_DESCRIPTIONS[dimensionKey as Inner9Key];

@@ -8,7 +8,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
-import { summarize, generateRichNarrative } from '@/lib/analysis/inner9Narrative';
+import { generateRichNarrative } from '@/lib/analysis/inner9Narrative';
 import DimensionCard from '@/components/inner9/DimensionCard';
 
 const InnerCompass9 = dynamic(() => import('@/components/charts/InnerCompass9'), {
@@ -179,7 +179,6 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
             dimensionKey={dim.key}
             label={dim.label}
             value={dim.value}
-            color="#8B5CF6"
           />
         ))}
       </div>

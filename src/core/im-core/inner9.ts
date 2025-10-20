@@ -4,7 +4,7 @@
  */
 
 import { clamp100, safeNumber } from "@/lib/schemas/inner9";
-import type { Big5Percentiles } from "@/core/im-core/types";
+import type { Big5 } from "@/core/im-core/types";
 
 export type MbtiType = `${"I"|"E"}${"N"|"S"}${"T"|"F"}${"J"|"P"}`;
 export type RetiType = 1|2|3|4|5|6|7|8|9;
@@ -24,7 +24,7 @@ export type Inner9Base = {
 /**
  * Compute base Inner9 scores from Big5 percentiles
  */
-export function computeInner9Base(big5: Big5Percentiles): Inner9Base {
+export function computeInner9Base(big5: Record<keyof Big5, number>): Inner9Base {
   const O = safeNumber(big5.O);
   const C = safeNumber(big5.C);
   const E = safeNumber(big5.E);
@@ -56,7 +56,7 @@ export function computeInner9Base(big5: Big5Percentiles): Inner9Base {
  * Compute Inner9 scores with MBTI/RETI type weighting
  */
 export function computeInner9Scores(
-  big5: Big5Percentiles,
+  big5: Record<keyof Big5, number>,
   mbti?: MbtiType,
   reti?: RetiType,
   enableTypeWeights = true
