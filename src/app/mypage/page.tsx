@@ -67,6 +67,12 @@ function DashboardContent() {
 
   const runInner9Demo = useCallback(async () => {
     try {
+      // 이미 데이터가 있으면 재사용
+      if (inner9Data) {
+        console.log('Using cached Inner9 data');
+        return;
+      }
+
       // 실제 사용자의 검사 결과를 가져와서 Inner9 분석 실행
       const userRes = await fetch('/api/imcore/me');
       const userData = await userRes.json();
@@ -87,7 +93,11 @@ function DashboardContent() {
           }),
         });
         const j = await res.json();
-        if (j.ok) setInner9Data(j.data);
+        if (j.ok) {
+          setInner9Data(j.data);
+          // 로컬 스토리지에 캐시 저장
+          localStorage.setItem('inner9_data_cache', JSON.stringify(j.data));
+        }
       } else {
         // 검사 결과가 없으면 데모 데이터 사용
         const res = await fetch('/api/analyze', {
@@ -96,12 +106,16 @@ function DashboardContent() {
           body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 } }),
         });
         const j = await res.json();
-        if (j.ok) setInner9Data(j.data);
+        if (j.ok) {
+          setInner9Data(j.data);
+          // 로컬 스토리지에 캐시 저장
+          localStorage.setItem('inner9_data_cache', JSON.stringify(j.data));
+        }
       }
     } catch (error) {
       console.error('Inner9 demo error:', error);
     }
-  }, []);
+  }, [inner9Data]);
 
   const fetchHeroData = useCallback(async () => {
     if (heroData) return;
@@ -180,7 +194,22 @@ function DashboardContent() {
     if (status === 'authenticated' && !heroData) {
       fetchHeroData();
     }
-  }, [status, router, fetchHeroData, heroData]);
+
+    // Inner9 캐시된 데이터 확인
+    if (status === 'authenticated' && !inner9Data) {
+      const cached = localStorage.getItem('inner9_data_cache');
+      if (cached) {
+        try {
+          const data = JSON.parse(cached);
+          setInner9Data(data);
+          console.log('Loaded cached Inner9 data');
+        } catch (error) {
+          console.error('Error parsing cached Inner9 data:', error);
+          localStorage.removeItem('inner9_data_cache');
+        }
+      }
+    }
+  }, [status, router, fetchHeroData, heroData, inner9Data]);
 
   if (status === 'loading' || loading) {
     return (
