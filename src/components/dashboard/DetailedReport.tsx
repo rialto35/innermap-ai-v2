@@ -8,8 +8,6 @@
 import { useState } from 'react';
 import Big5RadarChart from '@/components/Big5RadarChart';
 import GrowthVectorChart from '@/components/GrowthVectorChart';
-import Big5PercentileChart from '@/components/charts/Big5PercentileChart';
-import MBTIRatiosChart from '@/components/charts/MBTIRatiosChart';
 import Inner9Graphs from '@/components/analysis/Inner9Graphs';
 import big5Data from '@/data/big5.json';
 import { detailedMBTIAnalysis, detailedRETIAnalysis } from '@/data/detailedAnalysis.js';
@@ -27,7 +25,7 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
   const [showRETIDetails, setShowRETIDetails] = useState(false);
 
   // 성장 벡터 계산 함수
-  function calculateGrowthVectors(inner9Data: any, heroData: any) {
+  function calculateGrowthVectors(inner9Data: any) {
     const inner9 = inner9Data?.inner9_scores || {};
     
     // Inner9의 9가지 차원을 8가지 성장 벡터로 매핑
@@ -101,10 +99,10 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
             <div className="grid grid-cols-5 gap-2 mt-4 text-xs">
               {['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'].map(trait => (
                 <div key={trait} className="p-2 bg-white/5 rounded">
-                  <div className="font-medium">{big5Data.traits[trait].name}</div>
-                  <div className="text-white/60">{big5Data.traits[trait].description}</div>
-                  <div className="mt-1 text-emerald-300">높음: {big5Data.traits[trait].high}</div>
-                  <div className="text-amber-300">낮음: {big5Data.traits[trait].low}</div>
+                  <div className="font-medium">{big5Data.traits[trait as keyof typeof big5Data.traits].name}</div>
+                  <div className="text-white/60">{big5Data.traits[trait as keyof typeof big5Data.traits].description}</div>
+                  <div className="mt-1 text-emerald-300">높음: {big5Data.traits[trait as keyof typeof big5Data.traits].high}</div>
+                  <div className="text-amber-300">낮음: {big5Data.traits[trait as keyof typeof big5Data.traits].low}</div>
                 </div>
               ))}
             </div>
@@ -117,7 +115,7 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
               <span>📈</span>
               <span>성장 벡터</span>
             </h3>
-            <GrowthVectorChart growth={heroData.growth || calculateGrowthVectors(inner9Data, heroData)} />
+            <GrowthVectorChart growth={heroData.growth || calculateGrowthVectors(inner9Data)} />
           </div>
         )}
       </div>
