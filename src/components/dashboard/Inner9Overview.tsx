@@ -168,7 +168,7 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
                 <div className="space-y-2">
                   {narrative.strengths.map((strength: any, idx: number) => (
                     <div key={idx} className="flex items-center justify-between">
-                      <span className="text-sm text-white/80">{INNER9_DESCRIPTIONS[strength.key as any]?.label || strength.key}</span>
+                      <span className="text-sm text-white/80">{INNER9_DESCRIPTIONS[strength.key as keyof typeof INNER9_DESCRIPTIONS]?.label || strength.key}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-green-300">{strength.score}</span>
                         <span className="text-xs text-green-200">{strength.label}</span>
@@ -189,7 +189,7 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
                 <div className="space-y-2">
                   {narrative.growth.map((area: any, idx: number) => (
                     <div key={idx} className="flex items-center justify-between">
-                      <span className="text-sm text-white/80">{INNER9_DESCRIPTIONS[area.key as any]?.label || area.key}</span>
+                      <span className="text-sm text-white/80">{INNER9_DESCRIPTIONS[area.key as keyof typeof INNER9_DESCRIPTIONS]?.label || area.key}</span>
                       <div className="flex items-center gap-2">
                         <span className="text-sm font-bold text-blue-300">{area.score}</span>
                         <span className="text-xs text-blue-200">{area.label}</span>
