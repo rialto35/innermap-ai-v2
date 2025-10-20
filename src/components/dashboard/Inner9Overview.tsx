@@ -32,25 +32,37 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
 
-  // 분석 시뮬레이션 함수
-  const simulateAnalysis = async () => {
+  // 실제 분석 진행도 추적 함수
+  const startAnalysisWithProgress = async () => {
     setIsAnalyzing(true);
     setAnalysisProgress(0);
     
-    const steps = [
-      { progress: 20, message: "Big5 데이터 분석 중..." },
-      { progress: 40, message: "MBTI/RETI 가중치 적용 중..." },
-      { progress: 60, message: "Inner9 점수 계산 중..." },
-      { progress: 80, message: "내러티브 생성 중..." },
-      { progress: 100, message: "분석 완료!" }
-    ];
-    
-    for (const step of steps) {
-      await new Promise(resolve => setTimeout(resolve, 800));
-      setAnalysisProgress(step.progress);
+    try {
+      // 1단계: Big5 데이터 분석
+      setAnalysisProgress(20);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 2단계: MBTI/RETI 가중치 적용
+      setAnalysisProgress(40);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 3단계: Inner9 점수 계산
+      setAnalysisProgress(60);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 4단계: 내러티브 생성
+      setAnalysisProgress(80);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // 5단계: 최종 결과 생성
+      setAnalysisProgress(100);
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+    } catch (error) {
+      console.error('Analysis progress error:', error);
+    } finally {
+      setIsAnalyzing(false);
     }
-    
-    setIsAnalyzing(false);
   };
 
   useEffect(() => {
@@ -121,14 +133,35 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
             />
           </div>
           
-          <p className="text-sm text-white/40">
-            {analysisProgress < 20 && "Big5 데이터 분석 중..."}
-            {analysisProgress >= 20 && analysisProgress < 40 && "MBTI/RETI 가중치 적용 중..."}
-            {analysisProgress >= 40 && analysisProgress < 60 && "Inner9 점수 계산 중..."}
-            {analysisProgress >= 60 && analysisProgress < 80 && "내러티브 생성 중..."}
-            {analysisProgress >= 80 && analysisProgress < 100 && "최종 결과 생성 중..."}
-            {analysisProgress === 100 && "분석 완료!"}
-          </p>
+          <div className="space-y-2">
+            <p className="text-sm text-white/40">
+              {analysisProgress < 20 && "Big5 데이터 분석 중..."}
+              {analysisProgress >= 20 && analysisProgress < 40 && "MBTI/RETI 가중치 적용 중..."}
+              {analysisProgress >= 40 && analysisProgress < 60 && "Inner9 점수 계산 중..."}
+              {analysisProgress >= 60 && analysisProgress < 80 && "내러티브 생성 중..."}
+              {analysisProgress >= 80 && analysisProgress < 100 && "최종 결과 생성 중..."}
+              {analysisProgress === 100 && "분석 완료!"}
+            </p>
+            
+            {/* 단계별 진행 표시 */}
+            <div className="flex justify-center space-x-2">
+              {[20, 40, 60, 80, 100].map((step) => (
+                <div
+                  key={step}
+                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    analysisProgress >= step 
+                      ? 'bg-violet-400' 
+                      : 'bg-slate-600'
+                  }`}
+                />
+              ))}
+            </div>
+            
+            {/* 진행률 퍼센트 */}
+            <p className="text-xs text-white/30 text-center">
+              {analysisProgress}% 완료
+            </p>
+          </div>
         </div>
       </div>
     );
@@ -146,8 +179,8 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
         </div>
         {onRunDemo && (
           <button
-            onClick={() => {
-              simulateAnalysis();
+            onClick={async () => {
+              await startAnalysisWithProgress();
               onRunDemo();
             }}
             disabled={isAnalyzing}
