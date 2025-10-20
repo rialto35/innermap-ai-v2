@@ -275,10 +275,10 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
             {heroData.hero?.mbti}
           </div>
           <div className="text-lg text-white/80 mb-2">
-            {detailedMBTIAnalysis[heroData.hero?.mbti]?.koreanName}
+            {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.koreanName}
           </div>
           <p className="text-sm text-white/60 mb-4">
-            {detailedMBTIAnalysis[heroData.hero?.mbti]?.detailedDescription}
+            {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.detailedDescription}
           </p>
           
           <button 
@@ -293,7 +293,7 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
               <div>
                 <div className="font-medium text-emerald-300 mb-1">강점</div>
                 <ul className="list-disc list-inside text-white/70 space-y-1">
-                  {detailedMBTIAnalysis[heroData.hero?.mbti]?.strengths.map((s, i) => (
+                  {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.strengths.map((s, i) => (
                     <li key={i}>{s}</li>
                   ))}
                 </ul>
@@ -301,7 +301,7 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
               <div>
                 <div className="font-medium text-amber-300 mb-1">도전 과제</div>
                 <ul className="list-disc list-inside text-white/70 space-y-1">
-                  {detailedMBTIAnalysis[heroData.hero?.mbti]?.challenges.map((c, i) => (
+                  {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.challenges.map((c, i) => (
                     <li key={i}>{c}</li>
                   ))}
                 </ul>
@@ -309,7 +309,7 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
               <div>
                 <div className="font-medium text-blue-300 mb-1">추천 직업</div>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {detailedMBTIAnalysis[heroData.hero?.mbti]?.careerPaths.map((career, i) => (
+                  {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.careerPaths.map((career, i) => (
                     <span key={i} className="px-2 py-1 bg-blue-500/20 rounded text-blue-300 text-xs">
                       {career}
                     </span>
@@ -319,7 +319,7 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
               <div>
                 <div className="font-medium text-white/80 mb-1">관계 패턴</div>
                 <p className="text-white/70">
-                  {detailedMBTIAnalysis[heroData.hero?.mbti]?.relationships}
+                  {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.relationships}
                 </p>
               </div>
             </div>
@@ -333,10 +333,10 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
             {heroData.hero?.reti?.code} ({heroData.hero?.reti?.score?.toFixed(2)})
           </div>
           <div className="text-lg text-white/80 mb-2">
-            {detailedRETIAnalysis[heroData.hero?.reti?.code]?.koreanName}
+            {detailedRETIAnalysis[heroData.hero?.reti?.code as keyof typeof detailedRETIAnalysis]?.koreanName}
           </div>
           <p className="text-sm text-white/60 mb-4">
-            {detailedRETIAnalysis[heroData.hero?.reti?.code]?.detailedDescription}
+            {detailedRETIAnalysis[heroData.hero?.reti?.code as keyof typeof detailedRETIAnalysis]?.detailedDescription}
           </p>
           
           <button 
@@ -351,7 +351,7 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
               <div>
                 <div className="font-medium text-white/80 mb-1">핵심 특성</div>
                 <div className="flex flex-wrap gap-2">
-                  {detailedRETIAnalysis[heroData.hero?.reti?.code]?.coreTraits.map((trait, i) => (
+                  {detailedRETIAnalysis[heroData.hero?.reti?.code as keyof typeof detailedRETIAnalysis]?.coreTraits.map((trait, i) => (
                     <span key={i} className="px-2 py-1 bg-white/10 rounded text-white/80 text-xs">
                       {trait}
                     </span>
@@ -361,7 +361,7 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
               <div>
                 <div className="font-medium text-amber-300 mb-1">성장 과제</div>
                 <ul className="list-disc list-inside text-white/70 space-y-1">
-                  {detailedRETIAnalysis[heroData.hero?.reti?.code]?.challenges.map((c, i) => (
+                  {detailedRETIAnalysis[heroData.hero?.reti?.code as keyof typeof detailedRETIAnalysis]?.challenges.map((c, i) => (
                     <li key={i}>{c}</li>
                   ))}
                 </ul>
