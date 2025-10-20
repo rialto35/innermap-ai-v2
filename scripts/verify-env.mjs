@@ -13,10 +13,7 @@ const requiredEnvVars = [
   'NEXTAUTH_SECRET',
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  'SUPABASE_SERVICE_ROLE_KEY'
-];
-
-const optionalAuthVars = [
+  'SUPABASE_SERVICE_ROLE_KEY',
   'GOOGLE_CLIENT_ID',
   'GOOGLE_CLIENT_SECRET'
 ];
@@ -58,12 +55,6 @@ function checkEnvVars() {
       }
     }
     
-    for (const envVar of optionalAuthVars) {
-      if (!process.env[envVar]) {
-        authWarnings.push(envVar);
-      }
-    }
-    
     for (const envVar of optionalEnvVars) {
       if (!process.env[envVar]) {
         warnings.push(envVar);
@@ -73,12 +64,11 @@ function checkEnvVars() {
     if (missing.length > 0) {
       console.error('❌ Missing required environment variables:');
       missing.forEach(envVar => console.error(`   - ${envVar}`));
+      console.error('\n💡 Important:');
+      console.error('   - NEXTAUTH_URL must be set to your production domain (e.g., https://innermap-ai-v2.vercel.app)');
+      console.error('   - NEXTAUTH_SECRET must be a random string (generate with: openssl rand -base64 32)');
+      console.error('   - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET from Google Cloud Console');
       return false;
-    }
-    
-    if (authWarnings.length > 0) {
-      console.warn('⚠️  Missing authentication variables (app will work but auth features disabled):');
-      authWarnings.forEach(envVar => console.warn(`   - ${envVar}`));
     }
     
     if (warnings.length > 0) {
