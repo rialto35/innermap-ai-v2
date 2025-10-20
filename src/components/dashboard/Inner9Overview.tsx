@@ -54,7 +54,13 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       setAnalysisProgress(80);
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // 5단계: 최종 결과 생성
+      // 5단계: AI 분석 생성 (실제 API 호출과 연동)
+      setAnalysisProgress(90);
+      
+      // 실제 API 호출이 여기서 발생하고, generateAnalysisText가 실행됨
+      // 이 시점에서 로딩 상태를 유지해야 함
+      
+      // 6단계: 최종 결과 생성
       setAnalysisProgress(100);
       await new Promise(resolve => setTimeout(resolve, 300));
       
@@ -139,7 +145,8 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
               {analysisProgress >= 20 && analysisProgress < 40 && "MBTI/RETI 가중치 적용 중..."}
               {analysisProgress >= 40 && analysisProgress < 60 && "Inner9 점수 계산 중..."}
               {analysisProgress >= 60 && analysisProgress < 80 && "내러티브 생성 중..."}
-              {analysisProgress >= 80 && analysisProgress < 100 && "최종 결과 생성 중..."}
+              {analysisProgress >= 80 && analysisProgress < 90 && "AI 분석 생성 중..."}
+              {analysisProgress >= 90 && analysisProgress < 100 && "🤖 [generateAnalysisText] Starting AI analysis generation..."}
               {analysisProgress === 100 && "분석 완료!"}
             </p>
             
@@ -180,8 +187,41 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
         {onRunDemo && (
           <button
             onClick={async () => {
-              await startAnalysisWithProgress();
-              onRunDemo();
+              setIsAnalyzing(true);
+              setAnalysisProgress(0);
+              
+              try {
+                // 1단계: Big5 데이터 분석
+                setAnalysisProgress(20);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // 2단계: MBTI/RETI 가중치 적용
+                setAnalysisProgress(40);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // 3단계: Inner9 점수 계산
+                setAnalysisProgress(60);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // 4단계: 내러티브 생성
+                setAnalysisProgress(80);
+                await new Promise(resolve => setTimeout(resolve, 300));
+                
+                // 5단계: AI 분석 생성 (실제 API 호출)
+                setAnalysisProgress(90);
+                
+                // 실제 API 호출 - generateAnalysisText가 실행되는 시점
+                await onRunDemo();
+                
+                // 6단계: 완료
+                setAnalysisProgress(100);
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+              } catch (error) {
+                console.error('Analysis error:', error);
+              } finally {
+                setIsAnalyzing(false);
+              }
             }}
             disabled={isAnalyzing}
             className="px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium rounded-xl hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
