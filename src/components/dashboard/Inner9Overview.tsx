@@ -122,53 +122,62 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   // 데이터가 없거나 모든 값이 0인 경우
   const hasValidData = chartData && chartData.some((dim: any) => dim.value > 0);
   
-  // 로딩 상태 UI
+  // 로딩 상태 UI (컴팩트 버전)
   if (isAnalyzing) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
         <div className="mb-6">
-          <div className="text-6xl mb-4 animate-pulse">🧭</div>
-          <h3 className="text-xl font-semibold text-white mb-2">Inner9 분석 중</h3>
-          <p className="text-white/60 text-sm mb-4">당신의 내면을 깊이 탐색하고 있습니다...</p>
+          {/* 애니메이션 - 크기 축소 */}
+          <div className="mb-6 relative">
+            <div className="w-16 h-16 mx-auto">
+              <div className="absolute inset-0 border-3 border-violet-500/30 rounded-full"></div>
+              <div className="absolute inset-0 border-3 border-violet-500 border-t-transparent rounded-full animate-spin"></div>
+            </div>
+          </div>
+
+          {/* 텍스트 - 크기 축소 */}
+          <h3 className="text-xl font-semibold text-white mb-2">
+            AI가 당신을 분석하고 있습니다
+          </h3>
+          <p className="text-white/60 text-sm mb-4">
+            Inner9 9가지 차원으로 당신의 내면을 탐색하는 중...
+          </p>
           
+          {/* 현재 상태 */}
+          <p className="text-violet-400 text-sm mb-4">
+            {analysisProgress < 20 && "Big5 데이터 분석 중..."}
+            {analysisProgress >= 20 && analysisProgress < 40 && "MBTI/RETI 가중치 적용 중..."}
+            {analysisProgress >= 40 && analysisProgress < 60 && "Inner9 점수 계산 중..."}
+            {analysisProgress >= 60 && analysisProgress < 80 && "내러티브 생성 중..."}
+            {analysisProgress >= 80 && analysisProgress < 90 && "AI 분석 생성 중..."}
+            {analysisProgress >= 90 && analysisProgress < 100 && "AI가 최종 분석을 완성하고 있습니다..."}
+            {analysisProgress === 100 && "분석 완료!"}
+          </p>
+
           {/* 진행률 바 */}
-          <div className="w-full bg-slate-700 rounded-full h-2 mb-4">
+          <div className="w-full bg-slate-700/30 rounded-full h-2 mb-4">
             <div 
               className="bg-gradient-to-r from-violet-500 to-blue-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${analysisProgress}%` }}
             />
           </div>
-          
-          <div className="space-y-2">
-            <p className="text-sm text-white/40">
-              {analysisProgress < 20 && "Big5 데이터 분석 중..."}
-              {analysisProgress >= 20 && analysisProgress < 40 && "MBTI/RETI 가중치 적용 중..."}
-              {analysisProgress >= 40 && analysisProgress < 60 && "Inner9 점수 계산 중..."}
-              {analysisProgress >= 60 && analysisProgress < 80 && "내러티브 생성 중..."}
-              {analysisProgress >= 80 && analysisProgress < 90 && "AI 분석 생성 중..."}
-              {analysisProgress >= 90 && analysisProgress < 100 && "🤖 [generateAnalysisText] Starting AI analysis generation..."}
-              {analysisProgress === 100 && "분석 완료!"}
-            </p>
-            
-            {/* 단계별 진행 표시 */}
-            <div className="flex justify-center space-x-2">
-              {[20, 40, 60, 80, 100].map((step) => (
-                <div
-                  key={step}
-                  className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    analysisProgress >= step 
-                      ? 'bg-violet-400' 
-                      : 'bg-slate-600'
-                  }`}
-                />
-              ))}
-            </div>
-            
-            {/* 진행률 퍼센트 */}
-            <p className="text-xs text-white/30 text-center">
-              {analysisProgress}% 완료
-            </p>
+
+          {/* 진행 단계 - 컴팩트 */}
+          <div className="flex justify-center space-x-2 mb-2">
+            {[20, 40, 60, 80, 100].map((step) => (
+              <div
+                key={step}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  analysisProgress >= step 
+                    ? 'bg-violet-400' 
+                    : 'bg-slate-600'
+                }`}
+              />
+            ))}
           </div>
+          <p className="text-xs text-white/40">
+            {analysisProgress}% 완료
+          </p>
         </div>
       </div>
     );
