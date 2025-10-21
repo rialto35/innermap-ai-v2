@@ -224,7 +224,7 @@ export default function ResultPage({ params }: PageProps) {
       
       {/* 모바일 하단 바 */}
       <ResultBottomBar
-        heroThumb={result.hero.image}
+        heroThumb={(result.hero as any).image || '/heroes/default.svg'}
         title={result.hero.name}
         subtitle={`${result.mbti.type} • Type ${result.reti.primaryType}`}
         shareUrl={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://innermap-ai-v2.vercel.app'}/results/${id}`}
