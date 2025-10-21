@@ -15,7 +15,7 @@ export const fetchCache = 'default-no-store';
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import dynamic from 'next/dynamic';
+import dynamicImport from 'next/dynamic';
 import { motion } from 'framer-motion';
 import PageContainer from '@/components/layout/PageContainer';
 import PageSection from '@/components/layout/PageSection';
@@ -25,8 +25,8 @@ import ResultBottomBar from '@/components/mobile/ResultBottomBar';
 import type { ResultSnapshot } from '@innermap/engine';
 
 // Dynamic imports for charts (client-only)
-const Big5RadarChart = dynamic(() => import('@/components/Big5RadarChart'), { ssr: false });
-const GrowthVectorChart = dynamic(() => import('@/components/GrowthVectorChart'), { ssr: false });
+const Big5RadarChart = dynamicImport(() => import('@/components/Big5RadarChart'), { ssr: false });
+const GrowthVectorChart = dynamicImport(() => import('@/components/GrowthVectorChart'), { ssr: false });
 
 interface PageProps {
   params: Promise<{ id: string }>;
