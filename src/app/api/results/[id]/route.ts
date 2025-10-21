@@ -11,6 +11,10 @@ import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import type { ErrorResponse } from '@innermap/types';
 
+// 캐시 완전 차단 설정
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -115,7 +119,14 @@ export async function GET(
       createdAt: result.created_at
     };
 
-    return NextResponse.json(snapshot);
+    return NextResponse.json(snapshot, {
+      headers: {
+        'content-type': 'application/json',
+        'cache-control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'pragma': 'no-cache',
+        'expires': '0'
+      }
+    });
 
   } catch (error) {
     console.error('[GET /api/results/:id] Error:', error);

@@ -7,6 +7,11 @@
 
 'use client';
 
+// 캐시 완전 차단 설정
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'default-no-store';
+
 import { use, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -16,6 +21,7 @@ import PageContainer from '@/components/layout/PageContainer';
 import PageSection from '@/components/layout/PageSection';
 import SectionCard from '@/components/layout/SectionCard';
 import ResultSkeleton from '@/components/ui/ResultSkeleton';
+import ResultBottomBar from '@/components/mobile/ResultBottomBar';
 import type { ResultSnapshot } from '@innermap/engine';
 
 // Dynamic imports for charts (client-only)
@@ -49,7 +55,14 @@ export default function ResultPage({ params }: PageProps) {
       try {
         setLoading(true);
         console.log('Fetching result for ID:', id);
-        const response = await fetch(`/api/results/${id}`);
+        const response = await fetch(`/api/results/${id}`, {
+          cache: 'no-store',
+          next: { revalidate: 0 },
+          headers: {
+            'x-im-client': 'web',
+            'cache-control': 'no-cache'
+          }
+        });
         
         console.log('Response status:', response.status);
         
@@ -106,8 +119,9 @@ export default function ResultPage({ params }: PageProps) {
   }
 
   return (
-    <PageContainer>
-      <div className="flex flex-col gap-6">
+    <>
+      <PageContainer>
+        <div className="flex flex-col gap-6 pb-24"> {/* 하단 바 높이만큼 여유 */}
         <PageSection
           title="분석 결과 요약"
           description="MBTI · RETI · Big5 기반 인사이트"
@@ -205,8 +219,17 @@ export default function ResultPage({ params }: PageProps) {
             </SectionCard>
           </div>
         </PageSection>
-      </div>
-    </PageContainer>
+        </div>
+      </PageContainer>
+      
+      {/* 모바일 하단 바 */}
+      <ResultBottomBar
+        heroThumb={result.hero.image}
+        title={result.hero.name}
+        subtitle={`${result.mbti.type} • Type ${result.reti.primaryType}`}
+        shareUrl={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://innermap-ai-v2.vercel.app'}/results/${id}`}
+      />
+    </>
   )
 }
 

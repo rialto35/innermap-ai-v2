@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 
 interface NavItem {
   href: string
@@ -24,6 +25,12 @@ const navItems: NavItem[] = [
     active: (pathname) => pathname === '/analyze' || pathname.startsWith('/test'),
   },
   {
+    href: '/results',
+    icon: '📊',
+    label: '내결과',
+    active: (pathname) => pathname.startsWith('/results') || pathname.startsWith('/result'),
+  },
+  {
     href: '/dashboard?tab=fortune',
     icon: '🔮',
     label: '운세',
@@ -39,6 +46,15 @@ const navItems: NavItem[] = [
 
 export default function BottomNav() {
   const pathname = usePathname()
+  const { data: session } = useSession()
+
+  // 로그인 상태에 따라 네비게이션 항목 필터링
+  const filteredNavItems = navItems.filter(item => {
+    if (item.href === '/results') {
+      return !!session // 로그인한 사용자만 "내결과" 표시
+    }
+    return true
+  })
 
   return (
     <>
@@ -51,8 +67,8 @@ export default function BottomNav() {
         role="navigation"
         aria-label="모바일 내비게이션"
       >
-        <div className="flex items-center justify-around px-2 py-3">
-          {navItems.map((item) => {
+        <div className="flex items-center justify-around px-1 py-2">
+          {filteredNavItems.map((item) => {
             const isActive = item.active ? item.active(pathname) : pathname === item.href
 
             return (
@@ -60,8 +76,8 @@ export default function BottomNav() {
                 key={item.href}
                 href={item.href}
                 className={`
-                  flex flex-col items-center justify-center gap-1 px-4 py-2 rounded-lg transition-all
-                  min-h-[44px] min-w-[44px]
+                  flex flex-col items-center justify-center gap-0.5 px-2 py-1.5 rounded-lg transition-all
+                  min-h-[44px] flex-1 max-w-[60px]
                   ${
                     isActive
                       ? 'text-purple-400 bg-purple-500/10'
@@ -71,10 +87,10 @@ export default function BottomNav() {
                 aria-label={item.label}
                 aria-current={isActive ? 'page' : undefined}
               >
-                <span className="text-xl" role="img" aria-hidden="true">
+                <span className="text-lg" role="img" aria-hidden="true">
                   {item.icon}
                 </span>
-                <span className="text-xs font-medium">{item.label}</span>
+                <span className="text-[10px] font-medium leading-tight text-center">{item.label}</span>
               </Link>
             )
           })}

@@ -1,6 +1,14 @@
 import { AuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 
+// 환경 변수 디버그 (개발 환경에서만)
+if (process.env.NODE_ENV === 'development') {
+  console.log('🔍 NextAuth 환경 변수 확인:');
+  console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? '✅ 설정됨' : '❌ 누락');
+  console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? '✅ 설정됨' : '❌ 누락');
+  console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
+}
+
 export const authOptions: AuthOptions = {
   providers: [
     GoogleProvider({
@@ -21,6 +29,11 @@ export const authOptions: AuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   debug: process.env.NODE_ENV === 'development',
+  // 환경별 URL 자동 설정
+  ...(process.env.NODE_ENV === 'development' && {
+    // 개발 환경에서는 localhost 사용
+    url: process.env.NEXTAUTH_URL || 'http://localhost:3000'
+  }),
   pages: {
     signIn: '/login',
     error: '/login',
