@@ -171,6 +171,23 @@ export async function GET() {
     const savedBig5Percentiles = computeBig5Percentiles(savedBig5)
     const savedMBTIRatios = computeMBTIRatios(latestResult.mbti_type)
     const savedInner9Scores = computeInner9Scores(savedBig5Percentiles, latestResult.mbti_type as any, undefined, false)
+    
+    // Inner9 분석 실행 (results 테이블에 없으면 실시간 계산)
+    let savedInner9: any = latestInner9Result?.inner_nine
+    if (!savedInner9) {
+      try {
+        const analysis = await runAnalysis({ 
+          big5: savedBig5, 
+          mbti: latestResult.mbti_type as any, 
+          locale: 'ko-KR' 
+        })
+        savedInner9 = analysis.inner9
+        console.log('Inner9 calculated from test_results data')
+      } catch (error) {
+        console.error('Error calculating Inner9:', error)
+        savedInner9 = null
+      }
+    }
 
     const responseData = {
       user: {
@@ -204,7 +221,7 @@ export async function GET() {
       },
       big5Percentiles: savedBig5Percentiles,
       mbtiRatios: savedMBTIRatios,
-      inner9: latestInner9Result?.inner_nine || null,
+      inner9: savedInner9,
       inner9_scores: latestInner9Result?.inner9_scores || savedInner9Scores,
       growth: {
         innate: latestResult.growth_innate,
