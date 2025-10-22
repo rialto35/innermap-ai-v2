@@ -11,11 +11,11 @@ export const fetchCache = 'default-no-store'
 import ResultPageClient from './ResultPageClient'
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
-export default function ResultPage({ params }: PageProps) {
-  const { id } = params
+export default async function ResultPage({ params }: PageProps) {
+  const { id } = await params
   return <ResultPageClient id={id} />
 }
 
