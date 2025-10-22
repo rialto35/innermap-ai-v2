@@ -140,6 +140,7 @@ export const authOptions: AuthOptions = {
   pages: {
     signIn: '/login',
     error: '/login',
+    newUser: '/welcome',
   },
   cookies: {
     sessionToken: {
@@ -153,12 +154,41 @@ export const authOptions: AuthOptions = {
     },
   },
   callbacks: {
-    async jwt({ token, account, profile }) {
+    async signIn({ user, account, profile }) {
+      // 신규 사용자 체크를 위해 DB 조회
+      if (account) {
+        try {
+          const { supabaseAdmin } = await import('@/lib/supabase')
+          const provider = account.provider
+          const providerId = account.providerAccountId
+          
+          // 해당 프로바이더 계정이 이미 존재하는지 확인
+          const { data: existingUser } = await supabaseAdmin
+            .from('users')
+            .select('id')
+            .eq('provider', provider)
+            .eq('provider_id', providerId)
+            .maybeSingle()
+          
+          // 신규 사용자면 토큰에 플래그 추가
+          if (!existingUser) {
+            ;(user as any).isNewUser = true
+          }
+        } catch (error) {
+          console.error('Error checking new user:', error)
+        }
+      }
+      return true
+    },
+    async jwt({ token, account, profile, user }) {
       if (account) {
         ;(token as any).provider = account.provider
         if (account.providerAccountId) {
           ;(token as any).providerId = account.providerAccountId
         }
+      }
+      if (user && (user as any).isNewUser) {
+        ;(token as any).isNewUser = true
       }
       if (profile && typeof profile === 'object') {
         const p = profile as Record<string, unknown>
@@ -176,6 +206,7 @@ export const authOptions: AuthOptions = {
       if (!s.user.image && typeof pic === 'string') s.user.image = pic
       s.provider = (token as any).provider
       if ((token as any).providerId) s.providerId = (token as any).providerId
+      if ((token as any).isNewUser) s.isNewUser = true
       return s
     },
   },
