@@ -90,8 +90,35 @@ export async function GET() {
 
     // 최신 검사 결과 조회
     console.log('Fetching latest test result for user:', user.id)
-    const latestResult = await getLatestTestResult(user.id, 'imcore')
+    let latestResult = await getLatestTestResult(user.id, 'imcore')
     console.log('Latest test result:', latestResult ? 'Found' : 'Not found')
+
+    // 교차-프로바이더 폴백: 동일 원시 이메일의 다른 계정 검사 결과 재사용
+    if (!latestResult) {
+      const rawEmail = (session?.user?.email || '').trim()
+      if (rawEmail) {
+        try {
+          const emailCandidates = [rawEmail, `google:${rawEmail}`, `naver:${rawEmail}`, `kakao:${rawEmail}`]
+          const { data: candidates, error: candErr } = await supabaseAdmin
+            .from('users')
+            .select('id,email')
+            .in('email', emailCandidates)
+
+          if (!candErr && candidates && candidates.length > 0) {
+            for (const cand of candidates) {
+              const r = await getLatestTestResult(cand.id, 'imcore')
+              if (r) {
+                latestResult = r
+                console.log('Using fallback result from user:', cand.id, cand.email)
+                break
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Cross-provider fallback error:', e)
+        }
+      }
+    }
 
     // 최신 Inner9 분석 결과 조회 (results 테이블에서)
     let latestInner9Result = null;
