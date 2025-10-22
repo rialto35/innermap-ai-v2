@@ -44,7 +44,15 @@ export async function GET() {
     // 세션 안전 추출
     const provider = (session as any)?.provider
     const providerId = (session as any)?.providerId
-    const email = session?.user?.email || (provider && providerId ? `${provider}:${providerId}` : undefined)
+    // 이메일이 같아도 소셜별로 계정을 분리하기 위해 prefix된 effectiveEmail 사용
+    const email = (() => {
+      const raw = session?.user?.email
+      if (provider && provider !== 'google') {
+        if (raw) return `${provider}:${raw}`
+        if (providerId) return `${provider}:${providerId}`
+      }
+      return raw || (provider && providerId ? `${provider}:${providerId}` : undefined)
+    })()
     const name = session?.user?.name || null
     const image = session?.user?.image || null
 

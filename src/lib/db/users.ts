@@ -15,17 +15,42 @@ export async function findOrCreateUser(data: {
   providerId?: string
 }): Promise<User | null> {
   try {
-    console.log('findOrCreateUser called with:', { email: data.email, provider: data.provider })
-    // 기존 사용자 조회
-    console.log('Querying existing user...')
-    const { data: existingUser, error: findError } = await supabaseAdmin
-      .from('users')
-      .select('*')
-      .eq('email', data.email)
-      .single()
-    
-    if (findError && findError.code !== 'PGRST116') {
-      console.error('Error finding user:', findError)
+    // 이메일 충돌 방지: 구글 외의 프로바이더는 email 키에 provider prefix 부여
+    // 예) naver:rialto35@naver.com, kakao:<null> -> kakao:4505950801
+    const effectiveEmail = (() => {
+      const hasEmail = typeof data.email === 'string' && data.email.length > 0
+      if (data.provider && data.provider !== 'google') {
+        if (hasEmail) return `${data.provider}:${data.email}`
+        if (data.providerId) return `${data.provider}:${data.providerId}`
+      }
+      return hasEmail ? data.email : `${data.provider}:${data.providerId || 'unknown'}`
+    })()
+
+    console.log('findOrCreateUser called with:', { email: data.email, provider: data.provider, providerId: data.providerId, effectiveEmail })
+
+    // 1) provider + providerId 우선 조회
+    let existingUser: User | null = null
+    if (data.provider && data.providerId) {
+      const { data: byProvider, error: providerFindError } = await supabaseAdmin
+        .from('users')
+        .select('*')
+        .eq('provider', data.provider)
+        .eq('provider_id', data.providerId)
+        .maybeSingle()
+      if (!providerFindError && byProvider) existingUser = byProvider as any
+    }
+
+    // 2) 이메일 키로 조회 (prefix 적용)
+    if (!existingUser) {
+      const { data: byEmail, error: emailFindError } = await supabaseAdmin
+        .from('users')
+        .select('*')
+        .eq('email', effectiveEmail)
+        .maybeSingle()
+      if (!emailFindError && byEmail) existingUser = byEmail as any
+      else if (emailFindError && (emailFindError as any).code !== 'PGRST116') {
+        console.error('Error finding user by email:', emailFindError)
+      }
     }
 
     if (existingUser) {
@@ -37,7 +62,7 @@ export async function findOrCreateUser(data: {
           image: data.image || existingUser.image,
           updated_at: new Date().toISOString()
         })
-        .eq('id', existingUser.id)
+        .eq('id', (existingUser as any).id)
         .select()
         .single()
 
@@ -53,7 +78,7 @@ export async function findOrCreateUser(data: {
     const { data: newUser, error: createError } = await supabaseAdmin
       .from('users')
       .insert({
-        email: data.email,
+        email: effectiveEmail,
         name: data.name,
         image: data.image,
         provider: data.provider,

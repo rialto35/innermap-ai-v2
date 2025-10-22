@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email) {
+    if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -39,11 +39,19 @@ export async function POST(request: NextRequest) {
     }
 
     // 사용자 조회 또는 생성
+    const provider = (session as any).provider || 'google'
+    const providerId = (session as any).providerId
+    const rawEmail = session.user?.email || null
+    const effectiveEmail = provider !== 'google'
+      ? (rawEmail ? `${provider}:${rawEmail}` : `${provider}:${providerId}`)
+      : (rawEmail as string)
+
     const user = await findOrCreateUser({
-      email: session.user.email,
-      name: session.user.name,
-      image: session.user.image,
-      provider: (session as any).provider || 'google'
+      email: effectiveEmail,
+      name: session.user?.name,
+      image: session.user?.image,
+      provider,
+      providerId
     })
 
     if (!user) {
