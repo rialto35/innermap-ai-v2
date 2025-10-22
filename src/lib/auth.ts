@@ -97,17 +97,18 @@ const createNaverProvider = () => ({
   },
 })
 
-// 환경 변수 디버그 (프로덕션 포함 - 임시)
-console.log('🔍 NextAuth 환경 변수 확인:');
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? '✅ 설정됨' : '❌ 누락');
-console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? '✅ 설정됨' : '❌ 누락');
-console.log('KAKAO_CLIENT_ID:', process.env.KAKAO_CLIENT_ID ? '✅ 설정됨' : '❌ 누락');
-console.log('KAKAO_CLIENT_SECRET:', process.env.KAKAO_CLIENT_SECRET ? '✅ 설정됨' : '❌ 누락');
-console.log('NAVER_CLIENT_ID:', process.env.NAVER_CLIENT_ID ? '✅ 설정됨' : '❌ 누락');
-console.log('NAVER_CLIENT_SECRET:', process.env.NAVER_CLIENT_SECRET ? '✅ 설정됨' : '❌ 누락');
-console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL);
-console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? '✅ 설정됨' : '❌ 누락');
+// 환경 변수 디버그 (개발 환경에서만)
+if (process.env.NODE_ENV === 'development') {
+  console.log('🔍 NextAuth 환경 변수 확인:')
+  console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? '✅ 설정됨' : '❌ 누락')
+  console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? '✅ 설정됨' : '❌ 누락')
+  console.log('KAKAO_CLIENT_ID:', process.env.KAKAO_CLIENT_ID ? '✅ 설정됨' : '❌ 누락')
+  console.log('KAKAO_CLIENT_SECRET:', process.env.KAKAO_CLIENT_SECRET ? '✅ 설정됨' : '❌ 누락')
+  console.log('NAVER_CLIENT_ID:', process.env.NAVER_CLIENT_ID ? '✅ 설정됨' : '❌ 누락')
+  console.log('NAVER_CLIENT_SECRET:', process.env.NAVER_CLIENT_SECRET ? '✅ 설정됨' : '❌ 누락')
+  console.log('NEXTAUTH_URL:', process.env.NEXTAUTH_URL)
+  console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? '✅ 설정됨' : '❌ 누락')
+}
 
 export const authOptions: AuthOptions = {
   providers: [
@@ -130,7 +131,7 @@ export const authOptions: AuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  debug: true, // 프로덕션에서도 디버그 활성화 (임시)
+  debug: process.env.NODE_ENV === 'development',
   // 환경별 URL 자동 설정
   ...(process.env.NODE_ENV === 'development' && {
     // 개발 환경에서는 localhost 사용
