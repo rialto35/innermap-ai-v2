@@ -13,7 +13,7 @@ export async function findOrCreateUser(data: {
   image?: string | null
   provider: string
   providerId?: string
-}): Promise<User | null> {
+}): Promise<{ user: User | null; isNewUser: boolean }> {
   try {
     // 이메일 충돌 방지: 구글 외의 프로바이더는 email 키에 provider prefix 부여
     // 예) naver:rialto35@naver.com, kakao:<null> -> kakao:4505950801
@@ -70,10 +70,10 @@ export async function findOrCreateUser(data: {
 
       if (updateError) {
         console.error('Error updating user:', updateError)
-        return existingUser
+        return { user: existingUser, isNewUser: false }
       }
 
-      return updatedUser
+      return { user: updatedUser, isNewUser: false }
     }
 
     // 새 사용자 생성
@@ -91,7 +91,7 @@ export async function findOrCreateUser(data: {
 
     if (createError) {
       console.error('Error creating user:', createError)
-      return null
+      return { user: null, isNewUser: false }
     }
 
     // 기본 설정 생성
@@ -101,10 +101,10 @@ export async function findOrCreateUser(data: {
         user_id: newUser.id
       })
 
-    return newUser
+    return { user: newUser, isNewUser: true }
   } catch (error) {
     console.error('Error in findOrCreateUser:', error)
-    return null
+    return { user: null, isNewUser: false }
   }
 }
 

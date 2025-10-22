@@ -54,6 +54,7 @@ function DashboardContent() {
   const [heroData, setHeroData] = useState<any>(null);
   const [inner9Data, setInner9Data] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isNewUser, setIsNewUser] = useState(false);
 
   const handleLogout = async () => {
     try {
@@ -149,6 +150,16 @@ function DashboardContent() {
       const data = await response.json();
       sessionStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
       setHeroData(data);
+      
+      // 신규 사용자이고 검사 결과가 없으면 웰컴 페이지로 리다이렉트
+      if (!data.hasTestResult) {
+        const welcomeShown = sessionStorage.getItem('welcome_shown');
+        if (!welcomeShown) {
+          sessionStorage.setItem('welcome_shown', 'true');
+          router.push('/welcome');
+          return;
+        }
+      }
     } catch (error) {
       console.error('Error fetching hero data:', error);
       // Fallback data

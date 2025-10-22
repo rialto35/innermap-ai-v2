@@ -34,7 +34,7 @@ export async function GET(
     const { id } = await params;
     
     console.log('[GET /api/results/:id] Fetching result for ID:', id);
-    console.log('[GET /api/results/:id] User email:', session.user.email);
+    console.log('[GET /api/results/:id] User email:', session.user?.email);
 
     // Fetch from Supabase (using test_results table with Service Role Key)
     const { data: result, error } = await supabaseAdmin
