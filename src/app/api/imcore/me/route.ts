@@ -114,31 +114,8 @@ export async function GET() {
       }
     }
 
-    // 검사 결과가 없는 경우 기본값 반환
+    // 검사 결과가 없는 경우 최소한의 사용자 정보만 반환
     if (!latestResult) {
-      // 기본 영웅 (ENFP-7)
-      const defaultHero = HEROES_144.find(h => h.mbti === 'ENFP' && h.reti === '7') || HEROES_144[0]
-      const defaultTribe = getTribeFromBirthDate('1990-01-01')
-      const defaultStone = recommendStone({
-        openness: 70,
-        conscientiousness: 50,
-        extraversion: 80,
-        agreeableness: 90,
-        neuroticism: 20
-      })
-
-      // Calculate percentiles and ratios for default data
-      const defaultBig5 = { O: 0.70, C: 0.50, E: 0.80, A: 0.90, N: 0.20 }
-      const defaultBig5Percentiles = computeBig5Percentiles(defaultBig5)
-      const defaultMBTIRatios = computeMBTIRatios(defaultHero.mbti)
-      // Compute Inner9 using engine for default preview
-      let defaultInner9: any = undefined
-      try {
-        const analysis = await runAnalysis({ big5: defaultBig5, mbti: defaultHero.mbti as any, locale: 'ko-KR' })
-        defaultInner9 = analysis.inner9
-      } catch {}
-      const defaultInner9Scores = computeInner9Scores(defaultBig5Percentiles, defaultHero.mbti as any, undefined, false)
-
       const responseData = {
         user: {
           id: user.id,
@@ -146,41 +123,6 @@ export async function GET() {
           email: user.email,
           image: user.image || image || undefined
         },
-        hero: {
-          name: defaultHero.name,
-          mbti: defaultHero.mbti,
-          reti: defaultHero.reti,
-          tagline: defaultHero.tagline || defaultHero.description,
-          level: user.level,
-          exp: { current: user.exp_current, next: user.exp_next }
-        },
-        mbti: { type: defaultHero.mbti, confidence: { EI: 0.5, SN: 0.5, TF: 0.5, JP: 0.5 } },
-        reti: { top1: [`r${defaultHero.reti}`, 0.5], top2: [`r${defaultHero.reti}`, 0.5] },
-        big5: { O: 70, C: 50, E: 80, A: 90, N: 20 },
-        inner9: defaultInner9,
-        inner9_scores: defaultInner9Scores,
-        big5Percentiles: defaultBig5Percentiles,
-        mbtiRatios: defaultMBTIRatios,
-        growth: { innate: 50, acquired: 50, conscious: 50, unconscious: 50, growth: 50, stability: 50, harmony: 50, individual: 50 },
-      gem: {
-        name: defaultStone.name,
-        nameEn: defaultStone.nameEn?.toLowerCase() || 'arche',
-        icon: defaultStone.icon || '💎',
-        keywords: defaultStone.keywords || ['성장', '발전'],
-        summary: defaultStone.summary || defaultStone.description,
-        color: defaultStone.color || '#8B5CF6'
-      },
-      tribe: {
-        name: defaultTribe.tribe.nameKo,
-        nameEn: defaultTribe.tribe.nameEn?.split(' ')[0].toLowerCase() || 'lumin',
-        color: defaultTribe.tribe.color,
-        essence: defaultTribe.tribe.essence || {
-          coreValue: defaultTribe.tribe.coreValue,
-          philosophy: defaultTribe.tribe.description
-        }
-      },
-        ...extractStrengthsWeaknesses(defaultHero.abilities),
-        genderPreference: 'male',
         hasTestResult: false
       }
 

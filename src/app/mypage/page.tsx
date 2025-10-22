@@ -157,34 +157,13 @@ function DashboardContent() {
       }
     } catch (error) {
       console.error('Error fetching hero data:', error);
-      // Fallback data
+      // 에러 발생 시 빈 데이터로 설정 (검사 필요 상태)
       setHeroData({
         user: {
           name: session?.user?.name || 'Guest',
           email: session?.user?.email || '',
         },
-        hero: {
-          name: '비전의 불꽃',
-          subtitle: '감정의 에너지로 세상을 움직이는 영혼의 점화자',
-          level: 12,
-          exp: { current: 340, next: 500 },
-          mbti: 'ENFP',
-          reti: { code: 'R7', score: 1.8 },
-        },
-        gem: {
-          name: '아우레아',
-          keywords: ['균형', '평형', '통합'],
-          summary: '조화로운 중심을 만드는 결정.',
-          color: '#8B5CF6',
-        },
-        tribe: {
-          name: '화염의 부족',
-          nameEn: 'flame',
-          color: '#F59E0B',
-        },
-        growth: { innate: 62, acquired: 74, harmony: 68, individual: 55 },
-        strengths: ['영감 전파', '공감 리더십', '창의적 시도'],
-        weaknesses: ['지속성 저하', '우선순위 분산', '감정 과몰입'],
+        hasTestResult: false
       });
     } finally {
       setLoading(false);
