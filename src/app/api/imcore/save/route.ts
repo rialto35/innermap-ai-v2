@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       email: session.user.email,
       name: session.user.name,
       image: session.user.image,
-      provider: 'google'
+      provider: (session as any).provider || 'google'
     })
 
     if (!user) {

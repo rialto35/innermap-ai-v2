@@ -4,20 +4,20 @@ import Link from 'next/link'
 
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70">
-      <div className="mx-auto max-w-6xl px-4 py-8">
+    <footer className="border-t border-slate-200 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70" suppressHydrationWarning>
+      <div className="mx-auto max-w-6xl px-4 py-8" suppressHydrationWarning>
         {/* 상단 CTA 제거됨 - StartTestCTA로 대체 */}
 
         {/* 하단 링크 그리드 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-slate-200">
-          <div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 border-t border-slate-200" suppressHydrationWarning>
+          <div suppressHydrationWarning>
             <h3 className="font-bold text-slate-900 mb-3">InnerMap AI</h3>
             <p className="text-sm text-slate-600">
               AI 기반 심리 분석 플랫폼<br/>
               당신의 내면을 지도화합니다
             </p>
           </div>
-          <div>
+          <div suppressHydrationWarning>
             <h3 className="font-bold text-slate-900 mb-3">바로가기</h3>
             <ul className="space-y-2 text-sm text-slate-600">
               <li><Link href="/analyze" className="hover:text-slate-900">검사하기</Link></li>
@@ -26,10 +26,10 @@ export default function Footer() {
               <li><Link href="/insight" className="hover:text-slate-900">인사이트</Link></li>
             </ul>
           </div>
-          <div>
+          <div suppressHydrationWarning>
             <h3 className="font-bold text-slate-900 mb-3">문의</h3>
             <p className="text-sm text-slate-600 mb-2">contact@innermap.ai</p>
-            <div className="text-xs text-slate-500 mt-4">
+            <div className="text-xs text-slate-500 mt-4" suppressHydrationWarning>
               <Link href="/privacy" className="hover:text-slate-700">개인정보처리방침</Link>
               {' · '}
               <Link href="/terms" className="hover:text-slate-700">이용약관</Link>
@@ -38,7 +38,7 @@ export default function Footer() {
         </div>
 
         {/* Copyright */}
-        <div className="mt-8 pt-4 border-t border-slate-200 text-center text-xs text-slate-500">
+        <div className="mt-8 pt-4 border-t border-slate-200 text-center text-xs text-slate-500" suppressHydrationWarning>
           © 2025 InnerMap AI. All rights reserved.
         </div>
       </div>

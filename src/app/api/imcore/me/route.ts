@@ -41,31 +41,40 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session?.user?.email) {
+    // 세션 안전 추출
+    const provider = (session as any)?.provider
+    const providerId = (session as any)?.providerId
+    const email = session?.user?.email || (provider && providerId ? `${provider}:${providerId}` : undefined)
+    const name = session?.user?.name || null
+    const image = session?.user?.image || null
+
+    // 일부 소셜(Kakao 등)은 이메일 제공이 없을 수 있음 → providerId로 식별 허용
+    if (!email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // 캐시 확인
-    const cacheKey = `user_${session.user.email}`
+    const cacheKey = `user_${email}`
     const cached = cache.get(cacheKey)
     const now = Date.now()
     
     if (cached && (now - cached.timestamp) < CACHE_DURATION) {
-      console.log('Returning cached data for:', session.user.email)
+      console.log('Returning cached data for:', email)
       return NextResponse.json(cached.data)
     }
 
     // 사용자 조회 또는 생성
-    console.log('Creating/finding user for:', session.user.email)
+    console.log('Creating/finding user for:', email)
     const user = await findOrCreateUser({
-      email: session.user.email,
-      name: session.user.name,
-      image: session.user.image,
-      provider: 'google'
+      email,
+      name,
+      image,
+      provider: provider || 'google',
+      providerId
     })
 
     if (!user) {
-      console.error('Failed to create/find user for:', session.user.email)
+      console.error('Failed to create/find user for:', email)
       return NextResponse.json({ error: 'Failed to get user' }, { status: 500 })
     }
     
@@ -125,9 +134,9 @@ export async function GET() {
       const responseData = {
         user: {
           id: user.id,
-          name: user.name || session.user.name,
+          name: user.name || name || undefined,
           email: user.email,
-          image: user.image || session.user.image
+          image: user.image || image || undefined
         },
         hero: {
           name: defaultHero.name,
@@ -216,9 +225,9 @@ export async function GET() {
     const responseData = {
       user: {
         id: user.id,
-        name: user.name || session.user.name,
+        name: user.name || name || undefined,
         email: user.email,
-        image: user.image || session.user.image
+        image: user.image || image || undefined
       },
       hero: {
         name: hero.name,

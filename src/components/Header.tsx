@@ -90,8 +90,8 @@ export default function Header() {
   )
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B1220]/80 backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 text-white">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-[#0B1220]/80 backdrop-blur-xl" suppressHydrationWarning>
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 text-white" suppressHydrationWarning>
         {/* 로고 */}
         <Link
           href="/"
@@ -102,18 +102,18 @@ export default function Header() {
         </Link>
 
         {/* 데스크톱 네비게이션 */}
-        <div className="hidden md:flex md:items-center md:gap-8">
-          <nav className="flex items-center gap-6">
+        <div className="hidden md:flex md:items-center md:gap-8" suppressHydrationWarning>
+          <nav className="flex items-center gap-6" suppressHydrationWarning>
             {renderLinks(primaryLinks, 'primary')}
           </nav>
 
-          <nav className="ml-8 flex items-center gap-6">
+          <nav className="ml-8 flex items-center gap-6" suppressHydrationWarning>
             {renderLinks(secondaryLinks, 'secondary')}
           </nav>
         </div>
 
         {/* CTA 버튼 */}
-        <div className="hidden md:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-3" suppressHydrationWarning>
           {session ? (
             <>
               <Link

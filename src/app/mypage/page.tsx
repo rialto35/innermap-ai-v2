@@ -213,9 +213,9 @@ function DashboardContent() {
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white/70">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4" />
+      <div className="min-h-screen flex items-center justify-center text-white/70" suppressHydrationWarning>
+        <div className="text-center" suppressHydrationWarning>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4" suppressHydrationWarning />
           <p>영웅 데이터를 불러오는 중...</p>
         </div>
       </div>
@@ -224,8 +224,8 @@ function DashboardContent() {
 
   if (!heroData) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white/70">
-        <div className="text-center">
+      <div className="min-h-screen flex items-center justify-center text-white/70" suppressHydrationWarning>
+        <div className="text-center" suppressHydrationWarning>
           <p>데이터를 불러올 수 없습니다.</p>
           <button
             onClick={fetchHeroData}

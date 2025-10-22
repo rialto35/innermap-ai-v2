@@ -12,11 +12,14 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
-      <body className="flex min-h-screen flex-col bg-gradient-to-b from-[#090e1c] via-[#0d1430] to-[#111827] text-white">
+    <html lang="ko" suppressHydrationWarning>
+      <body 
+        className="flex min-h-screen flex-col bg-gradient-to-b from-[#090e1c] via-[#0d1430] to-[#111827] text-white"
+        suppressHydrationWarning
+      >
         <AuthProvider>
           <Header />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1" suppressHydrationWarning>{children}</main>
           <Footer />
           <BottomNav />
         </AuthProvider>

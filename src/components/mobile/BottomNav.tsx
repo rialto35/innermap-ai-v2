@@ -59,15 +59,16 @@ export default function BottomNav() {
   return (
     <>
       {/* Spacer for fixed bottom nav */}
-      <div className="h-20 lg:hidden" />
+      <div className="h-20 lg:hidden" suppressHydrationWarning />
 
       {/* Bottom Navigation */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-40 bg-zinc-900/95 backdrop-blur-lg border-t border-white/10 lg:hidden"
         role="navigation"
         aria-label="모바일 내비게이션"
+        suppressHydrationWarning
       >
-        <div className="flex items-center justify-around px-1 py-2">
+        <div className="flex items-center justify-around px-1 py-2" suppressHydrationWarning>
           {filteredNavItems.map((item) => {
             const isActive = item.active ? item.active(pathname) : pathname === item.href
 
@@ -97,7 +98,7 @@ export default function BottomNav() {
         </div>
 
         {/* Safe area for iOS */}
-        <div className="h-[env(safe-area-inset-bottom)]" />
+        <div className="h-[env(safe-area-inset-bottom)]" suppressHydrationWarning />
       </nav>
     </>
   )
