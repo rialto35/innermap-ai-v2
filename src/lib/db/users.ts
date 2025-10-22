@@ -19,6 +19,8 @@ export async function findOrCreateUser(data: {
     // 예) naver:rialto35@naver.com, kakao:<null> -> kakao:4505950801
     const effectiveEmail = (() => {
       const hasEmail = typeof data.email === 'string' && data.email.length > 0
+      const alreadyPrefixed = hasEmail && /^(google|naver|kakao):/.test(data.email)
+      if (alreadyPrefixed) return data.email
       if (data.provider && data.provider !== 'google') {
         if (hasEmail) return `${data.provider}:${data.email}`
         if (data.providerId) return `${data.provider}:${data.providerId}`
