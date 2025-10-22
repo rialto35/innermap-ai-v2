@@ -204,6 +204,7 @@ export async function GET() {
       },
       big5Percentiles: savedBig5Percentiles,
       mbtiRatios: savedMBTIRatios,
+      inner9: latestInner9Result?.inner_nine || null,
       inner9_scores: latestInner9Result?.inner9_scores || savedInner9Scores,
       growth: {
         innate: latestResult.growth_innate,
