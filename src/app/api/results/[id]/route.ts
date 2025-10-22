@@ -20,9 +20,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    // Auth guard
+    // Auth guard (일부 소셜은 email이 없음 → 세션 존재만 검사)
     const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
+    if (!session) {
       return NextResponse.json({
         error: {
           code: 'UNAUTHORIZED',
