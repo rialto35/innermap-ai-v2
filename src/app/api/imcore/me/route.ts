@@ -90,7 +90,7 @@ export async function GET() {
 
     // 최신 검사 결과 조회 (현재 프로바이더 계정만)
     console.log('Fetching latest test result for user:', user.id)
-    let latestResult = await getLatestTestResult(user.id, 'imcore')
+    const latestResult = await getLatestTestResult(user.id, 'imcore')
     console.log('Latest test result:', latestResult ? 'Found' : 'Not found')
 
     // 최신 Inner9 분석 결과 조회 (results 테이블에서)

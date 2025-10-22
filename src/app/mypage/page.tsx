@@ -221,7 +221,7 @@ function DashboardContent() {
         }
       }
     }
-  }, [status, router, fetchHeroData, heroData, inner9Data]);
+  }, [status, session, router, fetchHeroData, heroData, inner9Data]);
 
   if (status === 'loading' || loading) {
     return (

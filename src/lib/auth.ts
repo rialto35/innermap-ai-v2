@@ -154,7 +154,7 @@ export const authOptions: AuthOptions = {
     },
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // 신규 사용자 체크를 위해 DB 조회
       if (account) {
         try {
