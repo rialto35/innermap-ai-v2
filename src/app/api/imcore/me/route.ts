@@ -174,7 +174,14 @@ export async function GET() {
     
     // Inner9 분석 실행 (results 테이블에 없으면 실시간 계산)
     let savedInner9: any = latestInner9Result?.inner_nine
+    console.log('Inner9 check:', { 
+      hasInner9Result: !!latestInner9Result, 
+      hasInner9Data: !!savedInner9,
+      inner9Keys: savedInner9 ? Object.keys(savedInner9) : []
+    })
+    
     if (!savedInner9) {
+      console.log('Calculating Inner9 from test_results...')
       try {
         const analysis = await runAnalysis({ 
           big5: savedBig5, 
@@ -182,11 +189,13 @@ export async function GET() {
           locale: 'ko-KR' 
         })
         savedInner9 = analysis.inner9
-        console.log('Inner9 calculated from test_results data')
+        console.log('Inner9 calculated successfully:', !!savedInner9)
       } catch (error) {
         console.error('Error calculating Inner9:', error)
         savedInner9 = null
       }
+    } else {
+      console.log('Using existing Inner9 from results table')
     }
 
     const responseData = {
