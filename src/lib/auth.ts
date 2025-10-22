@@ -12,6 +12,7 @@ const createKakaoProvider = () => ({
     params: {
       scope: 'profile_nickname profile_image',
       response_type: 'code',
+      prompt: 'login',
     },
   },
   token: {
@@ -80,6 +81,7 @@ const createNaverProvider = () => ({
     params: {
       scope: 'name email profile_image',
       response_type: 'code',
+      auth_type: 'reauthenticate',
     },
   },
   token: 'https://nid.naver.com/oauth2.0/token',
@@ -117,7 +119,7 @@ export const authOptions: AuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
       authorization: {
         params: {
-          prompt: "consent",
+          prompt: "select_account",
           access_type: "offline",
           response_type: "code"
         }
