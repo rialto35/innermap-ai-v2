@@ -1,5 +1,6 @@
 import { AuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
+import Credentials from 'next-auth/providers/credentials'
 
 // 카카오 프로바이더 (NextAuth v4 호환)
 const createKakaoProvider = () => ({
@@ -114,6 +115,29 @@ if (process.env.NODE_ENV === 'development') {
 
 export const authOptions: AuthOptions = {
   providers: [
+    // 개발 전용 Credentials Provider
+    ...(process.env.NODE_ENV === 'development' || process.env.DEV_AUTH_ENABLED === 'true'
+      ? [
+          Credentials({
+            id: 'dev',
+            name: 'Dev Login',
+            credentials: {
+              email: { label: 'Email', type: 'text' },
+              name: { label: 'Name', type: 'text' },
+            },
+            async authorize(credentials) {
+              const email = (credentials?.email || '').trim()
+              if (!email) return null
+              return {
+                id: email, // providerAccountId 대용
+                name: credentials?.name || 'Dev User',
+                email,
+                image: null as any,
+              } as any
+            },
+          }) as any,
+        ]
+      : []),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
@@ -161,8 +185,8 @@ export const authOptions: AuthOptions = {
       if (account) {
         try {
           const { supabaseAdmin } = await import('@/lib/supabase')
-          const provider = account.provider
-          const providerId = account.providerAccountId
+          const provider = account.provider === 'credentials' ? 'dev' : account.provider
+          const providerId = account.provider === 'credentials' ? (user?.email as string) : (account.providerAccountId as string | undefined)
           
           // 해당 프로바이더 계정이 이미 존재하는지 확인
           const { data: existingUser } = await supabaseAdmin
@@ -184,10 +208,10 @@ export const authOptions: AuthOptions = {
     },
     async jwt({ token, account, profile, user }) {
       if (account) {
-        ;(token as any).provider = account.provider
-        if (account.providerAccountId) {
-          ;(token as any).providerId = account.providerAccountId
-        }
+        const provider = account.provider === 'credentials' ? 'dev' : account.provider
+        ;(token as any).provider = provider
+        const providerId = account.provider === 'credentials' ? (user as any)?.email : (account as any).providerAccountId
+        if (providerId) ;(token as any).providerId = providerId
       }
       if (user && (user as any).isNewUser) {
         ;(token as any).isNewUser = true

@@ -186,11 +186,7 @@ function DashboardContent() {
       return;
     }
 
-    // 신규 사용자면 웰컴 페이지로 리다이렉트
-    if (status === 'authenticated' && (session as any)?.isNewUser) {
-      router.push('/welcome');
-      return;
-    }
+    // 웰컴 이동은 실제 데이터 응답에서 hasTestResult로만 판단 (세션 플래그에 의존하지 않음)
 
     if (status === 'authenticated' && !heroData) {
       fetchHeroData();

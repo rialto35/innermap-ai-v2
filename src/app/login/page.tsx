@@ -80,7 +80,13 @@ function LoginForm() {
     e.preventDefault()
     setLoading(true)
     try {
-      alert('데모: 이메일/비밀번호는 아직 연동하지 않았습니다. 우측 소셜을 이용해주세요.')
+      // 개발용 Credentials 로그인 (Provider: dev)
+      await signIn('dev', {
+        email,
+        name: email?.split('@')[0] || 'Dev User',
+        callbackUrl: '/mypage',
+        redirect: true,
+      })
     } finally {
       setLoading(false)
     }
@@ -106,14 +112,14 @@ function LoginForm() {
           </div>
 
           <div suppressHydrationWarning>
-            <label className="mb-1 block text-sm text-white/70">비밀번호</label>
+            <label className="mb-1 block text-sm text-white/70">비밀번호 (개발용 생략 가능)</label>
             <input
               type="password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••"
               className="w-full rounded-xl border border-white/15 bg-white/10 px-4 py-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-sky-500"
-              required
+              required={false}
             />
           </div>
 
@@ -176,21 +182,14 @@ function LoginForm() {
             {loading ? '로그인 중...' : '네이버로 계속하기'}
           </button>
           
-          <button 
-            onClick={() => {
-              // 임시 세션 생성 (개발용)
-              localStorage.setItem('dev-session', JSON.stringify({
-                user: {
-                  name: '개발자',
-                  email: 'dev@example.com',
-                  image: 'https://via.placeholder.com/150'
-                }
-              }))
-              window.location.href = '/dashboard'
+          <button
+            onClick={async () => {
+              const devEmail = email || 'dev@example.com'
+              await signIn('dev', { email: devEmail, name: devEmail.split('@')[0], callbackUrl: '/mypage' })
             }}
             className="w-full rounded-xl border border-blue-500/50 bg-blue-600/20 px-4 py-3 text-sm font-medium text-blue-300 transition hover:bg-blue-600/30"
           >
-            🧪 개발용 로그인 (임시)
+            🧪 개발용 로그인 (Credentials)
           </button>
         </div>
       </div>
