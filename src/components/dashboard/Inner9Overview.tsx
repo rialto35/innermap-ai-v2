@@ -115,9 +115,38 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       .catch(error => {
         console.log('LLM enhancement not available:', error);
         // Continue without LLM enhancement
+      })
+      .finally(() => {
+        // 데이터가 반영된 뒤에만 프로그래스 종료
+        setIsAnalyzing(false);
       });
     }
   }, [inner9Data]);
+
+  // 자동 실행: 데이터가 없고 onRunDemo 제공 시 분석을 자동 시작
+  useEffect(() => {
+    if (!inner9Data && onRunDemo && !isAnalyzing) {
+      (async () => {
+        setIsAnalyzing(true);
+        setAnalysisProgress(20);
+        await new Promise(r => setTimeout(r, 300));
+        setAnalysisProgress(40);
+        await new Promise(r => setTimeout(r, 300));
+        setAnalysisProgress(60);
+        await new Promise(r => setTimeout(r, 300));
+        setAnalysisProgress(80);
+        await new Promise(r => setTimeout(r, 300));
+        setAnalysisProgress(90);
+        try {
+          await onRunDemo();
+          setAnalysisProgress(100);
+          await new Promise(r => setTimeout(r, 200));
+        } finally {
+          setIsAnalyzing(false);
+        }
+      })();
+    }
+  }, [inner9Data, onRunDemo, isAnalyzing]);
 
   // 데이터가 없거나 모든 값이 0인 경우
   const hasValidData = chartData && chartData.some((dim: any) => dim.value > 0);
@@ -175,9 +204,8 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
               />
             ))}
           </div>
-          <p className="text-xs text-white/40">
-            {analysisProgress}% 완료
-          </p>
+          <p className="text-xs text-white/40 mb-2">{analysisProgress}% 완료</p>
+          <p className="text-[11px] text-white/30">분석이 완료될 때까지 창을 닫지 마세요</p>
         </div>
       </div>
     );

@@ -113,15 +113,55 @@ export async function POST(req: Request) {
     }
 
     // DB 저장: results 테이블에 Inner9 결과 저장
-    let userId = null;
-    if (session?.user?.email) {
-      // 이메일로 user_id (UUID) 조회
-      const { data: userData } = await supabaseAdmin
-        .from('users')
-        .select('id')
-        .eq('email', session.user.email)
-        .maybeSingle();
-      userId = userData?.id ?? null;
+    // - 카카오/네이버는 이메일이 없을 수 있으므로 provider/providerId로 우선 조회
+    let userId: string | null = null;
+    if (session) {
+      const s: any = session as any;
+      const provider: string | undefined = s?.provider;
+      const providerId: string | undefined = s?.providerId;
+
+      // 1) provider + provider_id로 조회 (우선)
+      if (provider && providerId) {
+        const { data: byProv } = await supabaseAdmin
+          .from('users')
+          .select('id')
+          .eq('provider', provider)
+          .eq('provider_id', providerId)
+          .maybeSingle();
+        if (byProv?.id) userId = byProv.id as string;
+      }
+
+      // 2) 이메일이 있으면 이메일로 조회 (google 또는 이메일 허용된 경우)
+      if (!userId && session.user?.email) {
+        const { data: byEmail } = await supabaseAdmin
+          .from('users')
+          .select('id')
+          .eq('email', session.user.email as string)
+          .maybeSingle();
+        if (byEmail?.id) userId = byEmail.id as string;
+      }
+
+      // 3) effectiveEmail로 보조 조회 (naver:email, kakao:providerId)
+      if (!userId && (provider || providerId)) {
+        const effectiveEmail = (() => {
+          const raw = session.user?.email as string | undefined;
+          if (provider && provider !== 'google') {
+            if (raw && raw.length > 0) return `${provider}:${raw}`;
+            if (providerId) return `${provider}:${providerId}`;
+          }
+          return raw ?? `${provider}:${providerId ?? 'unknown'}`;
+        })();
+        const { data: byEff } = await supabaseAdmin
+          .from('users')
+          .select('id')
+          .eq('email', effectiveEmail)
+          .maybeSingle();
+        if (byEff?.id) userId = byEff.id as string;
+      }
+    }
+
+    if (!userId) {
+      return NextResponse.json({ ok: false, error: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     // Derive a simple tribe from the strongest Inner9 dimension to satisfy NOT NULL constraints

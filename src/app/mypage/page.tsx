@@ -149,6 +149,11 @@ function DashboardContent() {
       const data = await response.json();
       sessionStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
       setHeroData(data);
+      // Inner9 최신값 즉시 반영 (API 기반)
+      if (data.inner9_scores || data.inner9) {
+        setInner9Data(data.inner9_scores || data.inner9);
+        localStorage.setItem('inner9_data_cache', JSON.stringify(data.inner9_scores || data.inner9));
+      }
       
       // 신규 사용자이고 검사 결과가 없으면 웰컴 페이지로 리다이렉트
       if (!data.hasTestResult) {
