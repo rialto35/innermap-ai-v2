@@ -38,6 +38,8 @@ function Inner9Content() {
       // 실제 사용자의 검사 결과를 가져와서 Inner9 분석 실행
       const userRes = await fetch('/api/imcore/me');
       const userData = await userRes.json();
+      const mbti = userData?.mbti?.type || userData?.mbti_type || undefined;
+      const reti = (userData?.reti?.top1?.[0] || userData?.reti_top1 || undefined) as string | undefined;
       
       if (userData.big5 && userData.big5.O !== null && userData.big5.C !== null && userData.big5.E !== null && userData.big5.A !== null && userData.big5.N !== null) {
         // 사용자의 실제 Big5 점수를 사용
@@ -51,7 +53,10 @@ function Inner9Content() {
               E: userData.big5.E,
               A: userData.big5.A,
               N: userData.big5.N
-            }
+            },
+            mbti,
+            reti,
+            locale: 'ko-KR'
           }),
         });
         const j = await res.json();

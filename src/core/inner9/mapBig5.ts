@@ -5,7 +5,7 @@
 
 import { Big5, Inner9Config, InnerNine, ComputeResult } from './types';
 
-const DEFAULT_VERSION = 'inner9@1.0.0';
+const DEFAULT_VERSION = 'inner9@1.1.0';
 
 const clip = (v: number) => Math.max(0, Math.min(100, v));
 

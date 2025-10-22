@@ -5,6 +5,7 @@
 
 import { AnalyzeInput, AnalyzeOutput } from './types';
 import { mapBig5ToInner9 } from '../inner9';
+import { applyMbtiModifier, applyRetiModifier } from '../inner9/modifiers';
 import { matchHero } from './hero-match';
 import { mapColors } from './color-map';
 import { buildNarrative } from './narrative';
@@ -12,14 +13,19 @@ import { big5ToPercentiles } from './scoreBig5';
 import { getCombinedNorms, getNormsMetadata } from './normsLoader';
 import { resolveAllTies } from './tieBreaker';
 
-const ENGINE_VERSION = 'im-core@2.0.0';
+const ENGINE_VERSION = 'im-core@2.1.0';
 
 export async function runAnalysis(input: AnalyzeInput): Promise<AnalyzeOutput> {
-  // Step 1: Map Big5 to Inner9
-  const { scores: rawInner9, modelVersion } = mapBig5ToInner9(input.big5, { clip0to100: true });
+  // Step 1: Map Big5 to Inner9 (base)
+  const { scores: baseInner9, modelVersion } = mapBig5ToInner9(input.big5, { clip0to100: true });
+  
+  // Step 1.1: Apply modifiers (bounded, lightweight)
+  // weights: wB=0.7, wM=0.2, wR=0.1 (implicit via bounded deltas)
+  let modInner9 = applyMbtiModifier(baseInner9, input.mbti, 5);
+  modInner9 = applyRetiModifier(modInner9, input.reti, 4);
   
   // Step 2: Resolve ties in Inner9 scores
-  const inner9 = resolveAllTies(rawInner9, { threshold: 5 });
+  const inner9 = resolveAllTies(modInner9, { threshold: 5 });
   
   // Step 3: Calculate Big5 percentiles using norms
   const norms = getCombinedNorms(input.age, input.gender);
