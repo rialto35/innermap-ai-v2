@@ -1,10 +1,12 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { routeQuick, routeDeep } from "@/lib/routes";
 
 export default function StartTestCTA() {
+  const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
 
   // Body scroll lock/unlock
@@ -22,6 +24,21 @@ export default function StartTestCTA() {
   }, [open]);
 
   const handleClose = () => setOpen(false);
+
+  // 로그인된 사용자는 마이페이지로 바로 이동
+  if (status === 'authenticated') {
+    return (
+      <Link
+        href="/mypage"
+        className="inline-flex items-center justify-center gap-3 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-500 to-sky-500 px-10 py-4 text-lg font-semibold text-white shadow-lg shadow-purple-500/20 transition hover:scale-[1.02]"
+      >
+        내 분석 결과 보기
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </Link>
+    );
+  }
 
   return (
     <div>
@@ -66,6 +83,9 @@ export default function StartTestCTA() {
                   <button className="w-full bg-black text-white rounded-xl py-2 hover:bg-gray-800 transition">DeepMap (딥맵)</button>
                 </Link>
               </div>
+              <p className="mt-4 text-xs text-gray-400 text-center">
+                💡 검사를 시작하려면 로그인이 필요합니다
+              </p>
               <button className="mt-3 text-xs text-gray-500 hover:text-gray-700 transition" onClick={handleClose}>닫기</button>
             </motion.div>
           </motion.div>
