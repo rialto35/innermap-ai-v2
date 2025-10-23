@@ -20,6 +20,7 @@ import { AutoSaveManager, loadFromLocal } from '@/lib/analyze/autosave';
 import UnifiedQuestion from '@/components/analyze/UnifiedQuestion';
 import UnifiedProgress from '@/components/analyze/UnifiedProgress';
 import LivePreview from '@/components/analyze/LivePreview';
+import EnhancedBirthDateInput from '@/components/analyze/EnhancedBirthDateInput';
 
 export default function AnalyzePage() {
   const router = useRouter();
@@ -43,6 +44,7 @@ export default function AnalyzePage() {
   
   const [questions] = useState(() => loadQuestions());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [birthDate, setBirthDate] = useState<string | null>(null);
   const [autoSaveManager] = useState(() => 
     new AutoSaveManager(
       (draftId) => {
@@ -110,7 +112,7 @@ export default function AnalyzePage() {
       // 임시로 기본값 사용
       const payload = {
         name: session?.user?.name || '사용자',
-        birthDate: null,
+        birthDate: birthDate,
         genderPreference: 'male',
         mbtiType: mbtiPreview,
         mbtiConfidence: { EI: 0.7, SN: 0.7, TF: 0.7, JP: 0.7 },
@@ -207,15 +209,42 @@ export default function AnalyzePage() {
           {/* Main Question Area */}
           <div className="lg:col-span-2">
             <AnimatePresence mode="wait">
-              <UnifiedQuestion
-                key={currentQuestion.id}
-                questionId={currentQuestion.id}
-                text={currentQuestion.text}
-                value={answers[currentQuestion.id]}
-                scale={currentQuestion.scale}
-                onChange={(value) => setAnswer(currentQuestion.id, value)}
-                onPrev={prev}
-              />
+              {index === questions.length - 1 ? (
+                <div key="birth-date" className="space-y-6">
+                  <UnifiedQuestion
+                    questionId={currentQuestion.id}
+                    text={currentQuestion.text}
+                    value={answers[currentQuestion.id]}
+                    scale={currentQuestion.scale}
+                    onChange={(value) => setAnswer(currentQuestion.id, value)}
+                    onPrev={prev}
+                  />
+                  
+                  {/* 생년월일 입력 섹션 */}
+                  <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                    <h3 className="text-lg font-semibold text-gray-800 mb-4">
+                      🎂 생년월일 정보
+                    </h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      정확한 운세 분석과 사주 기반 조언을 위해 생년월일이 필요합니다.
+                    </p>
+                    <EnhancedBirthDateInput 
+                      onBirthDateChange={setBirthDate}
+                      initialValue={birthDate || ''}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <UnifiedQuestion
+                  key={currentQuestion.id}
+                  questionId={currentQuestion.id}
+                  text={currentQuestion.text}
+                  value={answers[currentQuestion.id]}
+                  scale={currentQuestion.scale}
+                  onChange={(value) => setAnswer(currentQuestion.id, value)}
+                  onPrev={prev}
+                />
+              )}
             </AnimatePresence>
             
             {/* Navigation Buttons */}
@@ -255,7 +284,7 @@ export default function AnalyzePage() {
                 }}
                 disabled={
                   index === questions.length - 1 
-                    ? !checkComplete()  // 마지막 문항: 모든 문항 답변 체크
+                    ? !checkComplete() || !birthDate  // 마지막 문항: 모든 문항 답변 + 생년월일 체크
                     : !answers[currentQuestion.id]  // 중간 문항: 현재 문항만 체크
                 }
                 className="px-8 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"

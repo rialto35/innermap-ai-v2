@@ -184,12 +184,32 @@ function LoginForm() {
           
           <button
             onClick={async () => {
-              const devEmail = email || 'dev@example.com'
-              await signIn('dev', { email: devEmail, name: devEmail.split('@')[0], callbackUrl: '/mypage' })
+              setLoading(true)
+              setError('')
+              try {
+                const devEmail = email || 'dev@example.com'
+                const result = await signIn('dev', { 
+                  email: devEmail, 
+                  name: devEmail.split('@')[0], 
+                  callbackUrl: '/mypage',
+                  redirect: false
+                })
+                if (result?.error) {
+                  setError('개발용 로그인 실패: ' + result.error)
+                } else if (result?.ok) {
+                  window.location.href = '/mypage'
+                }
+              } catch (err) {
+                setError('개발용 로그인 중 오류가 발생했습니다.')
+                console.error('Dev login error:', err)
+              } finally {
+                setLoading(false)
+              }
             }}
-            className="w-full rounded-xl border border-blue-500/50 bg-blue-600/20 px-4 py-3 text-sm font-medium text-blue-300 transition hover:bg-blue-600/30"
+            disabled={loading}
+            className="w-full rounded-xl border border-blue-500/50 bg-blue-600/20 px-4 py-3 text-sm font-medium text-blue-300 transition hover:bg-blue-600/30 disabled:opacity-60"
           >
-            🧪 개발용 로그인 (Credentials)
+            {loading ? '로그인 중...' : '🧪 개발용 로그인 (Credentials)'}
           </button>
         </div>
       </div>

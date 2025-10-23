@@ -44,13 +44,13 @@ export default function EnhancedHeroCard({
   const [luck, setLuck] = useState<any>(null);
   const [loadingLuck, setLoadingLuck] = useState(false);
   
-  const expPct = Math.min(100, Math.round((hero.exp.current / hero.exp.next) * 100));
+  const expPct = hero?.exp ? Math.min(100, Math.round((hero.exp.current / hero.exp.next) * 100)) : 0;
   const tribeColors = getTribeColors(tribeKey || tribe?.nameEn || 'default');
 
   // Generate heroCode if not provided
   const computedHeroCode =
     heroCode ||
-    `${hero.mbti}-TYPE${hero.reti?.code?.replace('R', '') || hero.reti || '1'}-${genderPreference[0].toUpperCase()}`;
+    `${hero?.mbti || 'ENFP'}-TYPE${hero?.reti?.code?.replace('R', '') || hero?.reti || '1'}-${genderPreference[0].toUpperCase()}`;
 
   // Debug logging
   useEffect(() => {
@@ -91,8 +91,8 @@ export default function EnhancedHeroCard({
 
             {/* Hero Info & Badges */}
             <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-2xl font-bold text-white mb-2">{hero.name}</h2>
-              <p className="text-white/60 text-sm mb-4">{hero.subtitle || hero.tagline}</p>
+              <h2 className="text-2xl font-bold text-white mb-2">{hero?.name || 'Unknown Hero'}</h2>
+              <p className="text-white/60 text-sm mb-4">{hero?.subtitle || hero?.tagline || 'Hero Description'}</p>
 
               {/* Tribe & Stone Badges */}
               <div className="flex items-center justify-center sm:justify-start gap-4 mb-4">
@@ -115,13 +115,13 @@ export default function EnhancedHeroCard({
                 <span
                   className={`px-3 py-1 rounded-lg text-sm font-medium bg-gradient-to-r ${tribeColors.gradient} text-white`}
                 >
-                  Lv.{hero.level}
+                  Lv.{hero?.level || 1}
                 </span>
                 <span className="px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700 text-sm">
-                  MBTI {hero.mbti}
+                  MBTI {hero?.mbti || 'ENFP'}
                 </span>
                 <span className="px-3 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-600/40 text-sm">
-                  RETI {hero.reti?.code || `R${hero.reti}`}
+                  RETI {hero?.reti?.code || `R${hero?.reti}` || 'R1'}
                 </span>
                 {gem && (
                   <span className="px-3 py-1 rounded-lg bg-sky-500/15 text-sky-300 border border-sky-600/40 text-sm">
@@ -177,7 +177,7 @@ export default function EnhancedHeroCard({
         <div className="flex justify-between text-xs text-zinc-400 mb-2">
           <span>다음 레벨까지</span>
           <span>
-            {hero.exp.current} / {hero.exp.next} ({expPct}%)
+            {hero?.exp?.current || 0} / {hero?.exp?.next || 100} ({expPct}%)
           </span>
         </div>
         <div className="h-3 w-full rounded-full bg-zinc-800 overflow-hidden">
@@ -205,13 +205,13 @@ export default function EnhancedHeroCard({
               <span className="text-xs text-zinc-400">{g.label}</span>
             </div>
             <div className="text-lg font-bold text-white">
-              {growth?.[g.k] || hero.growth?.[g.k] || 0}
+              {growth?.[g.k] || hero?.growth?.[g.k] || 0}
               <span className="text-xs text-white/50">%</span>
             </div>
             <div className="h-1.5 mt-2 rounded-full bg-zinc-800 overflow-hidden">
               <div
                 className={`h-1.5 rounded-full bg-gradient-to-r ${tribeColors.gradient} transition-all duration-500`}
-                style={{ width: `${growth?.[g.k] || hero.growth?.[g.k] || 0}%` }}
+                style={{ width: `${growth?.[g.k] || hero?.growth?.[g.k] || 0}%` }}
               />
             </div>
           </div>
@@ -226,7 +226,7 @@ export default function EnhancedHeroCard({
             <span>강점</span>
           </h4>
           <div className="flex flex-wrap gap-2">
-            {(strengths || hero.strengths || []).map((s: string, i: number) => (
+            {(strengths || hero?.strengths || []).map((s: string, i: number) => (
               <span
                 key={i}
                 className="px-2 py-1 rounded-lg border border-emerald-600/40 text-emerald-200 text-xs"
@@ -243,7 +243,7 @@ export default function EnhancedHeroCard({
             <span>성장 영역</span>
           </h4>
           <div className="flex flex-wrap gap-2">
-            {(weaknesses || hero.weaknesses || []).map((s: string, i: number) => (
+            {(weaknesses || hero?.weaknesses || []).map((s: string, i: number) => (
               <span
                 key={i}
                 className="px-2 py-1 rounded-lg border border-amber-600/40 text-amber-200 text-xs"

@@ -125,7 +125,8 @@ function DashboardContent() {
   const fetchHeroData = useCallback(async () => {
     if (heroData) return;
 
-    const cacheKey = 'hero_data_cache';
+    const userKey = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+    const cacheKey = `hero_data_cache:${userKey}`;
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       try {
@@ -157,7 +158,8 @@ function DashboardContent() {
       // Inner9 최신값 즉시 반영 (API 기반)
       if (data.inner9_scores || data.inner9) {
         setInner9Data(data.inner9_scores || data.inner9);
-        localStorage.setItem('inner9_data_cache', JSON.stringify(data.inner9_scores || data.inner9));
+        const userKeyLocal = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+        localStorage.setItem(`inner9_data_cache:${userKeyLocal}`, JSON.stringify(data.inner9_scores || data.inner9));
       }
       
       // 신규 사용자이고 검사 결과가 없으면 웰컴 페이지로 리다이렉트

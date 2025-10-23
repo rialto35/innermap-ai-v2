@@ -157,7 +157,7 @@ export const authOptions: AuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  debug: process.env.NODE_ENV === 'development',
+  debug: process.env.NODE_ENV === 'development' && process.env.NEXTAUTH_DEBUG === 'true',
   // 환경별 URL 자동 설정
   ...(process.env.NODE_ENV === 'development' && {
     // 개발 환경에서는 localhost 사용
@@ -209,12 +209,12 @@ export const authOptions: AuthOptions = {
     async jwt({ token, account, profile, user }) {
       if (account) {
         const provider = account.provider === 'credentials' ? 'dev' : account.provider
-        ;(token as any).provider = provider
+        (token as any).provider = provider
         const providerId = account.provider === 'credentials' ? (user as any)?.email : (account as any).providerAccountId
-        if (providerId) ;(token as any).providerId = providerId
+        if (providerId) (token as any).providerId = providerId
       }
       if (user && (user as any).isNewUser) {
-        ;(token as any).isNewUser = true
+        (token as any).isNewUser = true
       }
       if (profile && typeof profile === 'object') {
         const p = profile as Record<string, unknown>

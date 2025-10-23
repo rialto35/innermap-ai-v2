@@ -31,7 +31,8 @@ function DeepContent() {
   const fetchHeroData = useCallback(async () => {
     if (heroData) return;
 
-    const cacheKey = 'hero_data_cache';
+    const userKey = session?.user?.email || (session as any)?.providerId || 'anon';
+    const cacheKey = `hero_data_cache:${userKey}`;
     const cached = sessionStorage.getItem(cacheKey);
     if (cached) {
       try {
@@ -54,7 +55,12 @@ function DeepContent() {
       const response = await fetch('/api/imcore/me');
 
       if (!response.ok) {
-        throw new Error('Failed to fetch hero data');
+        if (response.status === 401) {
+          // 세션 만료 시 로그인 페이지로 리다이렉트
+          router.push('/login');
+          return;
+        }
+        throw new Error(`Failed to fetch hero data: ${response.status}`);
       }
 
       const data = await response.json();
@@ -62,39 +68,20 @@ function DeepContent() {
       setHeroData(data);
     } catch (error) {
       console.error('Error fetching hero data:', error);
-      // Fallback data
-      setHeroData({
-        user: {
-          name: session?.user?.name || 'Guest',
-          email: session?.user?.email || '',
-        },
-        hero: {
-          name: '비전의 불꽃',
-          subtitle: '감정의 에너지로 세상을 움직이는 영혼의 점화자',
-          level: 12,
-          exp: { current: 340, next: 500 },
-          mbti: 'ENFP',
-          reti: { code: 'R7', score: 1.8 },
-        },
-        gem: {
-          name: '아우레아',
-          keywords: ['균형', '평형', '통합'],
-          summary: '조화로운 중심을 만드는 결정.',
-          color: '#8B5CF6',
-        },
-        tribe: {
-          name: '화염의 부족',
-          nameEn: 'flame',
-          color: '#F59E0B',
-        },
-        growth: { innate: 62, acquired: 74, harmony: 68, individual: 55 },
-        strengths: ['영감 전파', '공감 리더십', '창의적 시도'],
-        weaknesses: ['지속성 저하', '우선순위 분산', '감정 과몰입'],
-      });
+      // 세션 만료가 아닌 경우에만 fallback 데이터 사용
+      if (error instanceof Error && !error.message.includes('401')) {
+        setHeroData({
+          user: {
+            name: session?.user?.name || 'Guest',
+            email: session?.user?.email || '',
+          },
+          hasTestResult: false
+        });
+      }
     } finally {
       setLoading(false);
     }
-  }, [session, heroData]);
+  }, [session, heroData, router]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -122,13 +109,25 @@ function DeepContent() {
     return (
       <div className="min-h-screen flex items-center justify-center text-white/70">
         <div className="text-center">
-          <p>데이터를 불러올 수 없습니다.</p>
-          <button
-            onClick={fetchHeroData}
-            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-          >
-            다시 시도
-          </button>
+          <div className="mb-4">
+            <div className="text-6xl mb-4">⚠️</div>
+            <h2 className="text-xl font-semibold mb-2">데이터를 불러올 수 없습니다</h2>
+            <p className="text-white/60 mb-6">세션이 만료되었거나 네트워크 문제가 발생했습니다.</p>
+          </div>
+          <div className="space-y-3">
+            <button
+              onClick={fetchHeroData}
+              className="block w-full px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+            >
+              다시 시도
+            </button>
+            <button
+              onClick={() => router.push('/login')}
+              className="block w-full px-6 py-2 bg-gray-600 hover:bg-gray-700 rounded-lg transition"
+            >
+              로그인 페이지로 이동
+            </button>
+          </div>
         </div>
       </div>
     );

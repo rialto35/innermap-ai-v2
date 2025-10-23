@@ -62,8 +62,9 @@ function Inner9Content() {
         const j = await res.json();
         if (j.ok) {
           setInner9Data(j.data);
-          // 로컬 스토리지에 캐시 저장
-          localStorage.setItem('inner9_data_cache', JSON.stringify(j.data));
+          // 로컬 스토리지에 캐시 저장 (user 스코프)
+          const userKeyLocal = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+          localStorage.setItem(`inner9_data_cache:${userKeyLocal}`, JSON.stringify(j.data));
         }
       } else {
         // 검사 결과가 없으면 데모 데이터 사용
@@ -75,14 +76,15 @@ function Inner9Content() {
         const j = await res.json();
         if (j.ok) {
           setInner9Data(j.data);
-          // 로컬 스토리지에 캐시 저장
-          localStorage.setItem('inner9_data_cache', JSON.stringify(j.data));
+          // 로컬 스토리지에 캐시 저장 (user 스코프)
+          const userKeyLocal = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+          localStorage.setItem(`inner9_data_cache:${userKeyLocal}`, JSON.stringify(j.data));
         }
       }
     } catch (error) {
       console.error('Inner9 demo error:', error);
     }
-  }, [inner9Data]);
+  }, [inner9Data, session]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -92,7 +94,8 @@ function Inner9Content() {
 
     // Inner9 캐시된 데이터 확인
     if (status === 'authenticated' && !inner9Data) {
-      const cached = localStorage.getItem('inner9_data_cache');
+      const userKey = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+      const cached = localStorage.getItem(`inner9_data_cache:${userKey}`);
       if (cached) {
         try {
           const data = JSON.parse(cached);
@@ -100,11 +103,11 @@ function Inner9Content() {
           console.log('Loaded cached Inner9 data');
         } catch (error) {
           console.error('Error parsing cached Inner9 data:', error);
-          localStorage.removeItem('inner9_data_cache');
+          localStorage.removeItem(`inner9_data_cache:${userKey}`);
         }
       }
     }
-  }, [status, router, inner9Data]);
+  }, [status, router, inner9Data, session]);
 
   if (status === 'loading') {
     return (

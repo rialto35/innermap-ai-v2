@@ -120,6 +120,9 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
         // 데이터가 반영된 뒤에만 프로그래스 종료
         setIsAnalyzing(false);
       });
+      
+      // 데이터가 있으면 즉시 로딩 상태 해제
+      setIsAnalyzing(false);
     }
   }, [inner9Data]);
 

@@ -72,21 +72,29 @@ export async function GET() {
     }
 
     // 사용자 조회 또는 생성
-    console.log('Creating/finding user for:', email)
-    const { user, isNewUser } = await findOrCreateUser({
-      email,
-      name,
-      image,
-      provider: provider || 'google',
-      providerId
-    })
+    console.log('Creating/finding user for:', email, 'provider:', provider, 'providerId:', providerId)
+    let user, isNewUser;
+    try {
+      const result = await findOrCreateUser({
+        email,
+        name,
+        image,
+        provider: provider || 'google',
+        providerId
+      })
+      user = result.user;
+      isNewUser = result.isNewUser;
 
-    if (!user) {
-      console.error('Failed to create/find user for:', email)
-      return NextResponse.json({ error: 'Failed to get user' }, { status: 500 })
+      if (!user) {
+        console.error('Failed to create/find user for:', email)
+        return NextResponse.json({ error: 'Failed to get user' }, { status: 500 })
+      }
+      
+      console.log('User found/created:', user.id, 'isNewUser:', isNewUser)
+    } catch (error) {
+      console.error('User lookup error:', error)
+      return NextResponse.json({ error: 'User lookup failed' }, { status: 500 })
     }
-    
-    console.log('User found/created:', user.id)
 
     // 최신 검사 결과 조회 (현재 프로바이더 계정만)
     console.log('Fetching latest test result for user:', user.id)

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, Suspense } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
@@ -25,15 +25,35 @@ function TabLoadingState() {
 function CoachContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
       return;
     }
+
+    if (status === 'authenticated') {
+      // 세션 확인을 위한 간단한 API 호출
+      const checkSession = async () => {
+        try {
+          const response = await fetch('/api/imcore/me');
+          if (response.status === 401) {
+            router.push('/login');
+            return;
+          }
+        } catch (error) {
+          console.error('Session check failed:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      checkSession();
+    }
   }, [status, router]);
 
-  if (status === 'loading') {
+  if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white/70">
         <div className="text-center">

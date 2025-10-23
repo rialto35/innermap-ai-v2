@@ -3,8 +3,6 @@
 import { useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { motion } from 'framer-motion'
-import PageContainer from '@/components/layout/PageContainer'
 
 export default function WelcomePage() {
   const { data: session, status } = useSession()
@@ -18,61 +16,34 @@ export default function WelcomePage() {
 
   if (status === 'loading') {
     return (
-      <PageContainer>
-        <div className="flex min-h-screen items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20" />
-        </div>
-      </PageContainer>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20" />
+      </div>
     )
   }
 
   return (
-    <PageContainer>
+    <div className="min-h-screen bg-gradient-to-br from-[#0B1220] to-[#1a1a2e]">
       <div className="flex min-h-screen items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="max-w-2xl text-center"
-        >
+        <div className="max-w-2xl text-center">
           {/* 환영 메시지 */}
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-            className="mb-8 inline-block rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 p-1"
-          >
+          <div className="mb-8 inline-block rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 p-1">
             <div className="rounded-full bg-[#0B1220] px-6 py-3">
               <span className="text-4xl">🎉</span>
             </div>
-          </motion.div>
+          </div>
 
-          <motion.h1
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mb-4 text-4xl font-bold text-white md:text-5xl"
-          >
+          <h1 className="mb-4 text-4xl font-bold text-white md:text-5xl">
             환영합니다, {session?.user?.name || '탐험가'}님!
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="mb-8 text-lg text-white/70 md:text-xl"
-          >
+          <p className="mb-8 text-lg text-white/70 md:text-xl">
             InnerMap AI에 오신 것을 환영합니다.<br />
             당신만의 내면 지도를 발견하고, 진정한 자아를 탐험해보세요.
-          </motion.p>
+          </p>
 
           {/* 특징 카드 */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="mb-12 grid gap-4 text-left md:grid-cols-3"
-          >
+          <div className="mb-12 grid gap-4 text-left md:grid-cols-3">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
               <div className="mb-3 text-3xl">🧭</div>
               <h3 className="mb-2 font-semibold text-white">성격 분석</h3>
@@ -88,15 +59,10 @@ export default function WelcomePage() {
               <h3 className="mb-2 font-semibold text-white">AI 인사이트</h3>
               <p className="text-sm text-white/60">맞춤형 성장 가이드와 조언</p>
             </div>
-          </motion.div>
+          </div>
 
           {/* CTA 버튼 */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 1, type: 'spring', stiffness: 200 }}
-            className="flex flex-col gap-4 sm:flex-row sm:justify-center"
-          >
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <button
               onClick={() => router.push('/analyze')}
               className="group relative overflow-hidden rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 px-8 py-4 text-lg font-semibold text-white shadow-lg shadow-violet-500/25 transition hover:shadow-violet-500/40"
@@ -110,20 +76,15 @@ export default function WelcomePage() {
             >
               더 알아보기
             </button>
-          </motion.div>
+          </div>
 
           {/* 하단 안내 */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.2 }}
-            className="mt-12 text-sm text-white/40"
-          >
+          <p className="mt-12 text-sm text-white/40">
             💡 검사는 약 5-7분 소요되며, 언제든지 중단하고 이어서 할 수 있습니다.
-          </motion.p>
-        </motion.div>
+          </p>
+        </div>
       </div>
-    </PageContainer>
+    </div>
   )
 }
 

@@ -4,6 +4,8 @@ import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import CustomDateInput from '../analyze/CustomDateInput'
+import CompactBirthDateInput from '../analyze/CompactBirthDateInput'
 
 const FormSchema = z.object({
   solarBirth: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD 형식으로 입력하세요'),
@@ -116,70 +118,28 @@ export default function HoroscopeInputModal({
 
             {/* Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
-              {/* 양력 생년월일 */}
+              {/* 생년월일 입력 (음력/양력 자동 변환) */}
               <div>
-                <label htmlFor="solarBirth" className="block text-sm font-medium text-white mb-2">
-                  양력 생년월일 <span className="text-red-400">*</span>
+                <label className="block text-sm font-medium text-white mb-2">
+                  생년월일 <span className="text-red-400">*</span>
                 </label>
-                <input
-                  type="date"
-                  id="solarBirth"
-                  {...register('solarBirth')}
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-purple-400 transition"
+                <CompactBirthDateInput 
+                  onBirthDateChange={(value) => {
+                    const event = { target: { value } } as any;
+                    register('solarBirth').onChange(event);
+                  }}
+                  onBirthTimeChange={(value) => {
+                    const event = { target: { value } } as any;
+                    register('birthTime').onChange(event);
+                  }}
+                  initialValue={defaultValues?.solarBirth || ''}
+                  initialTime={defaultValues?.birthTime || ''}
                 />
                 {errors.solarBirth && (
                   <p className="mt-1 text-xs text-red-400">{errors.solarBirth.message}</p>
                 )}
               </div>
 
-              {/* 음력 생년월일 */}
-              <div>
-                <label htmlFor="lunarBirth" className="block text-sm font-medium text-white mb-2">
-                  음력 생년월일 (선택)
-                </label>
-                <input
-                  type="date"
-                  id="lunarBirth"
-                  {...register('lunarBirth')}
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-purple-400 transition"
-                />
-                {errors.lunarBirth && (
-                  <p className="mt-1 text-xs text-red-400">{errors.lunarBirth.message}</p>
-                )}
-              </div>
-
-              {/* 출생 시간 */}
-              <div>
-                <label htmlFor="birthTime" className="block text-sm font-medium text-white mb-2">
-                  출생 시간 <span className="text-red-400">*</span>
-                </label>
-                <input
-                  type="time"
-                  id="birthTime"
-                  {...register('birthTime')}
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-purple-400 transition"
-                />
-                {errors.birthTime && (
-                  <p className="mt-1 text-xs text-red-400">{errors.birthTime.message}</p>
-                )}
-              </div>
-
-              {/* 출생 지역 */}
-              <div>
-                <label htmlFor="location" className="block text-sm font-medium text-white mb-2">
-                  출생 지역 (선택)
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  placeholder="예: 서울, 부산, 대구"
-                  {...register('location')}
-                  className="w-full bg-white/5 border border-white/20 rounded-lg px-4 py-3 text-white placeholder:text-white/40 outline-none focus:border-purple-400 transition"
-                />
-                {errors.location && (
-                  <p className="mt-1 text-xs text-red-400">{errors.location.message}</p>
-                )}
-              </div>
 
               {/* Error Message */}
               {error && (
