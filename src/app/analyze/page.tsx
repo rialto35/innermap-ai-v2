@@ -221,7 +221,10 @@ export default function AnalyzePage() {
                   />
                   
                   {/* 생년월일 입력 섹션 */}
-                  <div className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                  <div 
+                    className="mt-8 p-6 bg-blue-50 rounded-lg border border-blue-200"
+                    onKeyDown={(e) => e.stopPropagation()}
+                  >
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">
                       🎂 생년월일 정보
                     </h3>

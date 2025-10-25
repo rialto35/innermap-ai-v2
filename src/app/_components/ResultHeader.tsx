@@ -24,12 +24,10 @@ export default function ResultHeader({
           <span
             key={i}
             className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-1 border border-white/20"
-            title={e.extra ?? ""}
           >
             <span className="inline-block h-2 w-2 rounded-full bg-violet-400" />
             <span className="font-medium text-white">{e.name}</span>
             <span className="text-white/60">v{e.version}</span>
-            {e.extra && <span className="text-white/60">· {e.extra}</span>}
           </span>
         ))}
       </div>

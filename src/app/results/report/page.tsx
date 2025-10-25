@@ -169,7 +169,7 @@ function ReportContent() {
         engines={getEngineMetas.report()}
       />
 
-      <DetailedReport heroData={heroData} inner9Data={inner9Data} />
+      <DetailedReport heroData={heroData} />
     </div>
   );
 }

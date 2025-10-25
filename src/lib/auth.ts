@@ -115,6 +115,30 @@ if (process.env.NODE_ENV === 'development') {
 
 export const authOptions: AuthOptions = {
   providers: [
+    // E2E 테스트 전용 Credentials Provider
+    ...(process.env.NEXT_PUBLIC_E2E === '1'
+      ? [
+          Credentials({
+            id: 'e2e',
+            name: 'E2E Test',
+            credentials: {
+              email: { label: 'Email', type: 'text' },
+              password: { label: 'Password', type: 'password' },
+            },
+            async authorize(credentials) {
+              if (credentials?.email === 'e2e@innermap.ai' && credentials?.password === 'pass') {
+                return {
+                  id: 'e2e-user',
+                  name: 'E2E Tester',
+                  email: 'e2e@innermap.ai',
+                  image: null,
+                }
+              }
+              return null
+            },
+          }) as any,
+        ]
+      : []),
     // 개발 전용 Credentials Provider
     ...(process.env.NODE_ENV === 'development' || process.env.DEV_AUTH_ENABLED === 'true'
       ? [
@@ -208,9 +232,9 @@ export const authOptions: AuthOptions = {
     },
     async jwt({ token, account, profile, user }) {
       if (account) {
-        const provider = account.provider === 'credentials' ? 'dev' : account.provider
-        (token as any).provider = provider
-        const providerId = account.provider === 'credentials' ? (user as any)?.email : (account as any).providerAccountId
+        const provider: string = (account as any).provider === 'credentials' ? 'dev' : (account as any).provider;
+        (token as any).provider = provider;
+        const providerId = (account as any).provider === 'credentials' ? (user as any)?.email : (account as any).providerAccountId
         if (providerId) (token as any).providerId = providerId
       }
       if (user && (user as any).isNewUser) {

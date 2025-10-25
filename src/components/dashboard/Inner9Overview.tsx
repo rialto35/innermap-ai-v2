@@ -157,7 +157,7 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   // 로딩 상태 UI (컴팩트 버전)
   if (isAnalyzing) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-8 text-center" data-testid="inner9-loading">
         <div className="mb-6">
           {/* 애니메이션 - 크기 축소 */}
           <div className="mb-6 relative">
@@ -276,7 +276,7 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   return (
     <div className="space-y-6">
       {/* Inner9 Chart */}
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-6" data-testid="inner9-chart">
         <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
           <span>🧭</span>
           <span>Inner Compass (Inner9)</span>
@@ -292,13 +292,14 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
             dimensionKey={dim.key}
             label={dim.label}
             value={dim.value}
+            data-testid="inner9-dimension"
           />
         ))}
       </div>
 
       {/* Enhanced Narrative Summary */}
       {narrative && (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-6" data-testid="inner9-interpretation">
           <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
             <span>📖</span>
             <span>당신의 이야기</span>

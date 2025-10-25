@@ -26,42 +26,37 @@ export const getWeightString = (weights: { mbti: number; reti: number; big5: num
   return `w(MBTI/RETI/Big5)=${weights.mbti}/${weights.reti}/${weights.big5}`;
 };
 
-// 엔진 메타데이터 조합
+// 엔진 메타데이터 조합 (설명 제거)
 export const getEngineMetas = {
   inner9: () => [
     { 
       name: imCoreMeta.name, 
-      version: imCoreMeta.version, 
-      extra: getWeightString(imCoreMeta.weights) 
+      version: imCoreMeta.version
     },
     { 
       name: inner9Meta.name, 
-      version: inner9Meta.version, 
-      extra: `scaling=${inner9Meta.scaling} · clip=${inner9Meta.clip[0]}–${inner9Meta.clip[1]}` 
+      version: inner9Meta.version
     }
   ],
   
   report: () => [
     { 
       name: imCoreMeta.name, 
-      version: imCoreMeta.version, 
-      extra: `n=응답문항수 · 일관성=consistencyScore/100` 
+      version: imCoreMeta.version
     }
   ],
   
   deep: () => [
     { 
       name: inner9Meta.name, 
-      version: inner9Meta.version, 
-      extra: `scaling=${inner9Meta.scaling} · clip=${inner9Meta.clip[0]}–${inner9Meta.clip[1]} · σ=집단표준편차` 
+      version: inner9Meta.version
     }
   ],
   
   forecast: () => [
     { 
       name: forecastMeta.name, 
-      version: forecastMeta.version, 
-      extra: `history=${forecastMeta.history} · smoothing=${forecastMeta.smoothing}` 
+      version: forecastMeta.version
     }
   ]
 };

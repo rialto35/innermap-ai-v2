@@ -26,6 +26,7 @@ function DeepContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [heroData, setHeroData] = useState<any>(null);
+  const [reportData, setReportData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchHeroData = useCallback(async () => {
@@ -83,6 +84,28 @@ function DeepContent() {
     }
   }, [session, heroData, router]);
 
+  const fetchReportData = useCallback(async () => {
+    if (reportData) return;
+
+    try {
+      // 최신 리포트 ID 가져오기
+      const reportResponse = await fetch('/api/results/latest');
+      const reportResult = await reportResponse.json();
+      
+      if (reportResult.data && reportResult.data.id) {
+        // 리포트 데이터 가져오기
+        const response = await fetch(`/api/report/${reportResult.data.id}`);
+        const data = await response.json();
+        
+        if (data && !data.error) {
+          setReportData(data);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching report data:', error);
+    }
+  }, [reportData]);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
@@ -92,7 +115,11 @@ function DeepContent() {
     if (status === 'authenticated' && !heroData) {
       fetchHeroData();
     }
-  }, [status, router, fetchHeroData, heroData]);
+
+    if (status === 'authenticated' && !reportData) {
+      fetchReportData();
+    }
+  }, [status, router, fetchHeroData, heroData, fetchReportData, reportData]);
 
   if (status === 'loading' || loading) {
     return (
@@ -146,7 +173,7 @@ function DeepContent() {
         engines={getEngineMetas.deep()}
       />
 
-      <DeepAnalysis heroData={heroData} />
+      <DeepAnalysis heroData={heroData} reportData={reportData} />
     </div>
   );
 }

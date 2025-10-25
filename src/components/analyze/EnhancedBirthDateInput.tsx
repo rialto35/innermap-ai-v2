@@ -70,8 +70,13 @@ export default function EnhancedBirthDateInput({
     setConversionResult(null);
   };
 
+  const handleContainerKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    // 생년월일 입력 컨테이너에서 키보드 이벤트 전파 방지
+    e.stopPropagation();
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" onKeyDown={handleContainerKeyDown}>
       {/* 날짜 유형 선택 */}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-700">

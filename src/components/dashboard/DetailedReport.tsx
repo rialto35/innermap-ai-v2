@@ -14,32 +14,15 @@ import { detailedMBTIAnalysis, detailedRETIAnalysis } from '@/data/detailedAnaly
 
 interface DetailedReportProps {
   heroData: any;
-  inner9Data?: any;
 }
 
-export default function DetailedReport({ heroData, inner9Data }: DetailedReportProps) {
+export default function DetailedReport({ heroData }: DetailedReportProps) {
   // 상태 관리
   const [expandedStrength, setExpandedStrength] = useState<number | null>(null);
   const [expandedWeakness, setExpandedWeakness] = useState<number | null>(null);
   const [showMBTIDetails, setShowMBTIDetails] = useState(false);
   const [showRETIDetails, setShowRETIDetails] = useState(false);
 
-  // 성장 벡터 계산 함수
-  function calculateGrowthVectors(inner9Data: any) {
-    const inner9 = inner9Data?.inner9_scores || {};
-    
-    // Inner9의 9가지 차원을 8가지 성장 벡터로 매핑
-    return {
-      innate: inner9.creation || 50,      // 선천 - 창조력
-      acquired: inner9.will || 50,        // 후천 - 의지력
-      conscious: inner9.insight || 50,    // 의식 - 통찰력
-      unconscious: inner9.sensitivity || 50, // 무의식 - 감수성
-      growth: inner9.growth || 50,        // 성장
-      stability: inner9.balance || 50,    // 안정 - 균형
-      harmony: inner9.harmony || 50,      // 조화
-      individual: inner9.expression || 50, // 개별 - 표현력
-    };
-  }
 
   // 강점 상세 설명 데이터
   const strengthDetails: Record<string, { description: string; howToUse: string }> = {
@@ -109,13 +92,13 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
           </div>
         )}
 
-        {(heroData.growth || inner9Data) && (
+        {heroData.growth && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
             <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
               <span>📈</span>
               <span>성장 벡터</span>
             </h3>
-            <GrowthVectorChart growth={heroData.growth || calculateGrowthVectors(inner9Data)} />
+            <GrowthVectorChart growth={heroData.growth} />
           </div>
         )}
       </div>
@@ -198,65 +181,6 @@ export default function DetailedReport({ heroData, inner9Data }: DetailedReportP
       </div>
 
       {/* Inner9 Analysis Section */}
-      {inner9Data && (
-        <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-6">
-          <h3 className="text-lg font-semibold text-violet-300 mb-4 flex items-center gap-2">
-            <span>🧭</span>
-            <span>Inner9 내면 분석</span>
-          </h3>
-          
-          {/* Inner9 Scores Grid */}
-          <div className="grid grid-cols-3 gap-4 mb-6">
-            {inner9Data.inner9_scores && Object.entries(inner9Data.inner9_scores).map(([key, value]: [string, any]) => (
-              <div key={key} className="text-center">
-                <div className="text-2xl font-bold text-violet-300">{Math.round(value)}</div>
-                <div className="text-xs text-white/60 capitalize">{key}</div>
-                <div className="w-full bg-slate-700 rounded-full h-1 mt-1">
-                  <div 
-                    className="bg-gradient-to-r from-violet-500 to-blue-500 h-1 rounded-full"
-                    style={{ width: `${value}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Inner9 Narrative */}
-          {inner9Data.narrative && (
-            <div className="space-y-4">
-              <div className="text-sm text-white/80">
-                <strong className="text-violet-300">핵심 특성:</strong> {inner9Data.narrative.headline}
-              </div>
-              
-              {inner9Data.narrative.strengths && inner9Data.narrative.strengths.length > 0 && (
-                <div>
-                  <div className="text-sm font-medium text-emerald-300 mb-2">강점 영역</div>
-                  <div className="flex flex-wrap gap-2">
-                    {inner9Data.narrative.strengths.map((strength: any, idx: number) => (
-                      <span key={idx} className="px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full text-xs">
-                        {strength.key} ({strength.score}점)
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {inner9Data.narrative.growth && inner9Data.narrative.growth.length > 0 && (
-                <div>
-                  <div className="text-sm font-medium text-amber-300 mb-2">성장 영역</div>
-                  <div className="flex flex-wrap gap-2">
-                    {inner9Data.narrative.growth.map((growth: any, idx: number) => (
-                      <span key={idx} className="px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-xs">
-                        {growth.key} ({growth.score}점)
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Inner9 Graphs (Combined Big5 Percentiles + MBTI Ratios) */}
       {heroData.big5Percentiles && heroData.mbtiRatios && (

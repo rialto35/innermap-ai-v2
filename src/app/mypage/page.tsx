@@ -9,50 +9,44 @@ import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
+// import dynamic from 'next/dynamic';
 
 import EnhancedHeroCard from '@/components/hero/EnhancedHeroCard';
-import DashboardTabs from '@/components/dashboard/DashboardTabs';
-import { useSearchTab } from '@/lib/hooks/useSearchTab';
+// import DashboardTabs from '@/components/dashboard/DashboardTabs';
+// import { useSearchTab } from '@/lib/hooks/useSearchTab';
 
-// Lazy load tab content components
-const Inner9Overview = dynamic(() => import('@/components/dashboard/Inner9Overview'), {
-  ssr: false,
-  loading: () => <TabLoadingState />,
-});
+// Lazy load tab content components - Hidden for now
+// const DetailedReport = dynamic(() => import('@/components/dashboard/DetailedReport'), {
+//   ssr: false,
+//   loading: () => <TabLoadingState />,
+// });
 
-const DetailedReport = dynamic(() => import('@/components/dashboard/DetailedReport'), {
-  ssr: false,
-  loading: () => <TabLoadingState />,
-});
+// const DeepAnalysis = dynamic(() => import('@/components/dashboard/DeepAnalysis'), {
+//   ssr: false,
+//   loading: () => <TabLoadingState />,
+// });
 
-const DeepAnalysis = dynamic(() => import('@/components/dashboard/DeepAnalysis'), {
-  ssr: false,
-  loading: () => <TabLoadingState />,
-});
+// const FortuneCard = dynamic(() => import('@/components/dashboard/FortuneCard'), {
+//   ssr: false,
+//   loading: () => <TabLoadingState />,
+// });
 
-const FortuneCard = dynamic(() => import('@/components/dashboard/FortuneCard'), {
-  ssr: false,
-  loading: () => <TabLoadingState />,
-});
-
-function TabLoadingState() {
-  return (
-    <div className="min-h-[400px] flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4" />
-        <p className="text-white/60">로딩 중...</p>
-      </div>
-    </div>
-  );
-}
+// function TabLoadingState() {
+//   return (
+//     <div className="min-h-[400px] flex items-center justify-center">
+//       <div className="text-center">
+//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4" />
+//         <p className="text-white/60">로딩 중...</p>
+//       </div>
+//     </div>
+//   );
+// }
 
 function DashboardContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { currentTab } = useSearchTab();
+  // const { currentTab } = useSearchTab();
   const [heroData, setHeroData] = useState<any>(null);
-  const [inner9Data, setInner9Data] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const handleLogout = async () => {
@@ -65,62 +59,6 @@ function DashboardContent() {
     }
   };
 
-  const runInner9Demo = useCallback(async () => {
-    try {
-      // 이미 데이터가 있으면 재사용
-      if (inner9Data) {
-        console.log('Using cached Inner9 data');
-        return;
-      }
-
-      // 실제 사용자의 검사 결과를 가져와서 Inner9 분석 실행
-      const userRes = await fetch('/api/imcore/me');
-      const userData = await userRes.json();
-      const mbti = userData?.mbti?.type || userData?.mbti_type || undefined;
-      const reti = (userData?.reti?.top1?.[0] || userData?.reti_top1 || undefined) as string | undefined;
-      
-      if (userData.big5 && userData.big5.O !== null && userData.big5.C !== null && userData.big5.E !== null && userData.big5.A !== null && userData.big5.N !== null) {
-        // 사용자의 실제 Big5 점수를 사용
-        const res = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            big5: {
-              O: userData.big5.O,
-              C: userData.big5.C,
-              E: userData.big5.E,
-              A: userData.big5.A,
-              N: userData.big5.N
-            },
-            mbti,
-            reti,
-            locale: 'ko-KR'
-          }),
-        });
-        const j = await res.json();
-        if (j.ok) {
-          setInner9Data(j.data);
-          // 로컬 스토리지에 캐시 저장
-          localStorage.setItem('inner9_data_cache', JSON.stringify(j.data));
-        }
-      } else {
-        // 검사 결과가 없으면 데모 데이터 사용
-        const res = await fetch('/api/analyze', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 } }),
-        });
-        const j = await res.json();
-        if (j.ok) {
-          setInner9Data(j.data);
-          // 로컬 스토리지에 캐시 저장
-          localStorage.setItem('inner9_data_cache', JSON.stringify(j.data));
-        }
-      }
-    } catch (error) {
-      console.error('Inner9 demo error:', error);
-    }
-  }, [inner9Data]);
 
   const fetchHeroData = useCallback(async () => {
     if (heroData) return;
@@ -155,12 +93,6 @@ function DashboardContent() {
       const data = await response.json();
       sessionStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
       setHeroData(data);
-      // Inner9 최신값 즉시 반영 (API 기반)
-      if (data.inner9_scores || data.inner9) {
-        setInner9Data(data.inner9_scores || data.inner9);
-        const userKeyLocal = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
-        localStorage.setItem(`inner9_data_cache:${userKeyLocal}`, JSON.stringify(data.inner9_scores || data.inner9));
-      }
       
       // 신규 사용자이고 검사 결과가 없으면 웰컴 페이지로 리다이렉트
       if (!data.hasTestResult) {
@@ -193,22 +125,7 @@ function DashboardContent() {
     if (status === 'authenticated' && !heroData) {
       fetchHeroData();
     }
-
-    // Inner9 캐시된 데이터 확인
-    if (status === 'authenticated' && !inner9Data) {
-      const cached = localStorage.getItem('inner9_data_cache');
-      if (cached) {
-        try {
-          const data = JSON.parse(cached);
-          setInner9Data(data);
-          console.log('Loaded cached Inner9 data');
-        } catch (error) {
-          console.error('Error parsing cached Inner9 data:', error);
-          localStorage.removeItem('inner9_data_cache');
-        }
-      }
-    }
-  }, [status, session, router, fetchHeroData, heroData, inner9Data]);
+  }, [status, session, router, fetchHeroData, heroData]);
 
   if (status === 'loading' || loading) {
     return (
@@ -271,15 +188,86 @@ function DashboardContent() {
           {/* 계정 관리 */}
           <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
             <h3 className="text-lg font-semibold text-violet-300 mb-4">계정 관리</h3>
-            <div className="flex flex-col gap-2 text-sm">
-              <span className="text-white/80">{session?.user?.name || userName}</span>
-              <span className="text-white/50">{session?.user?.email}</span>
-              <button
-                onClick={handleLogout}
-                className="mt-3 rounded-xl border border-red-400/30 px-3 py-2 text-sm text-red-300 transition hover:border-red-300/60 hover:text-red-200"
-              >
-                로그아웃
-              </button>
+            <div className="space-y-4">
+              {/* 사용자 정보 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 flex items-center justify-center text-white text-sm font-semibold">
+                    {session?.user?.name?.charAt(0) || userName?.charAt(0) || 'U'}
+                  </div>
+                  <div>
+                    <div className="text-white/90 font-medium">{session?.user?.name || userName}</div>
+                    <div className="text-white/50 text-xs">{session?.user?.email}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 로그인 정보 */}
+              <div className="space-y-3">
+                <div className="text-sm font-medium text-violet-300">로그인 정보</div>
+                
+                {/* 로그인 방식 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">로그인 방식</span>
+                  <div className="flex items-center gap-1">
+                    {session?.user?.image ? (
+                      <img src={session.user.image} alt="Provider" className="w-4 h-4 rounded" />
+                    ) : (
+                      <span className="w-4 h-4 bg-gray-500 rounded flex items-center justify-center text-white text-xs">?</span>
+                    )}
+                    <span className="text-white/80">
+                      {session?.user?.email?.includes('@gmail.com') ? 'Google' : 
+                       session?.user?.email?.includes('@kakao.com') ? 'Kakao' : 
+                       session?.user?.email?.includes('@naver.com') ? 'Naver' : 
+                       'Email'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* 로그인 시간 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">로그인 시간</span>
+                  <span className="text-white/80">
+                    {new Date().toLocaleString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
+                </div>
+
+                {/* 계정 생성일 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">계정 생성일</span>
+                  <span className="text-white/80">
+                    {(session?.user as any)?.createdAt ? 
+                      new Date((session?.user as any).createdAt).toLocaleDateString('ko-KR') : 
+                      '정보 없음'
+                    }
+                  </span>
+                </div>
+
+                {/* 마지막 활동 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">마지막 활동</span>
+                  <span className="text-white/80">방금 전</span>
+                </div>
+              </div>
+
+              {/* 액션 버튼들 */}
+              <div className="space-y-2 pt-2 border-t border-white/10">
+                <button
+                  onClick={handleLogout}
+                  className="w-full rounded-xl border border-red-400/30 px-3 py-2 text-sm text-red-300 transition hover:border-red-300/60 hover:text-red-200 hover:bg-red-500/10"
+                >
+                  로그아웃
+                </button>
+                <button className="w-full rounded-xl border border-white/20 px-3 py-2 text-sm text-white/70 transition hover:border-white/30 hover:text-white hover:bg-white/5">
+                  계정 설정
+                </button>
+              </div>
             </div>
           </div>
 
@@ -346,15 +334,12 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* Tabbed Content */}
-      <DashboardTabs>
-        {currentTab === 'inner9' && (
-          <Inner9Overview inner9Data={inner9Data} onRunDemo={runInner9Demo} />
-        )}
-        {currentTab === 'report' && <DetailedReport heroData={heroData} inner9Data={inner9Data} />}
+      {/* Tabbed Content - Hidden for now */}
+      {/* <DashboardTabs>
+        {currentTab === 'report' && <DetailedReport heroData={heroData} />}
         {currentTab === 'deep' && <DeepAnalysis heroData={heroData} />}
         {currentTab === 'fortune' && <FortuneCard />}
-      </DashboardTabs>
+      </DashboardTabs> */}
     </div>
   );
 }

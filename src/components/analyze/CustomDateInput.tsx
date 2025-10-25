@@ -70,6 +70,9 @@ export default function CustomDateInput({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    // 이벤트 전파 방지 - 상위 컴포넌트로 키보드 이벤트가 전달되지 않도록
+    e.stopPropagation();
+    
     // 백스페이스, 삭제, 화살표 키, 탭은 허용
     if ([8, 9, 27, 46, 37, 38, 39, 40].includes(e.keyCode)) {
       return;
@@ -83,6 +86,7 @@ export default function CustomDateInput({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     e.preventDefault();
+    e.stopPropagation();
     const pasted = e.clipboardData.getData('text');
     const formatted = formatDate(pasted);
     setDisplayValue(formatted);
@@ -95,6 +99,16 @@ export default function CustomDateInput({
     }
   };
 
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    // 포커스 시 이벤트 전파 방지
+    e.stopPropagation();
+  };
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    // 블러 시 이벤트 전파 방지
+    e.stopPropagation();
+  };
+
   return (
     <div className="relative">
       <input
@@ -103,15 +117,20 @@ export default function CustomDateInput({
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         onPaste={handlePaste}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         placeholder={placeholder}
         required={required}
-        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 ${
-          !isValid && displayValue ? 'border-red-300 bg-red-50' : 'border-gray-300'
+        className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-4 focus:ring-indigo-200 focus:border-indigo-400 transition-all duration-200 bg-white text-gray-800 ${
+          !isValid && displayValue ? 'border-red-400 bg-red-50' : 'border-gray-200 hover:border-gray-300'
         }`}
         maxLength={10}
+        autoComplete="off"
+        data-testid="birth-date-input"
+        tabIndex={0}
       />
       {!isValid && displayValue && (
-        <p className="absolute -bottom-6 left-0 text-xs text-red-500">
+        <p className="absolute -bottom-6 left-0 text-xs text-red-500 font-medium">
           올바른 날짜를 입력해주세요 (YYYY-MM-DD)
         </p>
       )}

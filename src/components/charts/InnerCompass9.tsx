@@ -16,7 +16,7 @@ type Props = {
 
 export default function InnerCompass9({ data, color = '#8b5cf6' }: Props) {
   return (
-    <div className="w-full h-80">
+    <div className="w-full h-80" data-testid="inner9-chart">
       <ResponsiveContainer>
         <RadarChart data={data} outerRadius="70%">
           <PolarGrid stroke="rgba(255,255,255,0.1)" />

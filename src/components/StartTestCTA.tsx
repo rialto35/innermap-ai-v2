@@ -52,7 +52,7 @@ export default function StartTestCTA() {
         </svg>
       </button>
 
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {open && (
           <motion.div 
             className="fixed inset-0 z-[9999] bg-black/40 flex items-center justify-center"
@@ -61,6 +61,11 @@ export default function StartTestCTA() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             onClick={handleClose}
+            role="dialog"
+            aria-modal="true"
+            data-state={open ? "open" : "closed"}
+            data-testid="test-mode-modal"
+            forceMount={true}
           >
             <motion.div 
               className="bg-white rounded-2xl p-6 w-[420px] shadow-xl"
@@ -69,6 +74,7 @@ export default function StartTestCTA() {
               exit={{ opacity: 0, scale: 0.95 }}
               transition={{ duration: 0.2 }}
               onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              data-testid="test-mode-content"
             >
               <h2 className="text-lg font-semibold">분석 모드를 선택하세요</h2>
               <p className="text-sm text-gray-500 mt-1">
@@ -77,16 +83,32 @@ export default function StartTestCTA() {
               </p>
               <div className="mt-4 space-y-2">
                 <Link href={routeQuick} onClick={handleClose} className="block">
-                  <button className="w-full border rounded-xl py-2 hover:bg-gray-50 transition">QuickMap (퀵맵)</button>
+                  <button 
+                    className="w-full border rounded-xl py-2 hover:bg-gray-50 transition"
+                    data-testid="quickmap-button"
+                  >
+                    QuickMap (퀵맵)
+                  </button>
                 </Link>
                 <Link href={routeDeep} onClick={handleClose} className="block">
-                  <button className="w-full bg-black text-white rounded-xl py-2 hover:bg-gray-800 transition">DeepMap (딥맵)</button>
+                  <button 
+                    className="w-full bg-black text-white rounded-xl py-2 hover:bg-gray-800 transition"
+                    data-testid="deepmap-button"
+                  >
+                    DeepMap (딥맵)
+                  </button>
                 </Link>
               </div>
               <p className="mt-4 text-xs text-gray-400 text-center">
                 💡 검사를 시작하려면 로그인이 필요합니다
               </p>
-              <button className="mt-3 text-xs text-gray-500 hover:text-gray-700 transition" onClick={handleClose}>닫기</button>
+              <button 
+                className="mt-3 text-xs text-gray-500 hover:text-gray-700 transition" 
+                onClick={handleClose}
+                data-testid="close-modal-button"
+              >
+                닫기
+              </button>
             </motion.div>
           </motion.div>
         )}
