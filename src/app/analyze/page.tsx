@@ -218,9 +218,9 @@ function AnalyzePageOld() {
       <div className="max-w-6xl mx-auto">
         {/* Progress */}
         <UnifiedProgress
-          currentIndex={index}
-          totalQuestions={questions.length}
-          answeredCount={answeredCount}
+          current={index + 1}
+          total={questions.length}
+          answered={answeredCount}
           estimatedTimeLeft={estimatedTimeLeft}
         />
         
