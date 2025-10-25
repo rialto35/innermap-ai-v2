@@ -24,7 +24,6 @@ export default function TestQuestionsPage() {
     setDraftId,
     markSaved,
     reset,
-    getProgress,
     getAnsweredCount,
     getEstimatedTimeLeft,
   } = useAnalyzeStore();
@@ -81,7 +80,18 @@ export default function TestQuestionsPage() {
   // Handle answer change
   const handleAnswer = (value: number) => {
     setAnswer(currentQuestion.id, value);
-    // 자동 넘어가기 제거 - 사용자가 "다음" 버튼 클릭하도록 변경
+  };
+
+  // Handle next with validation
+  const handleNext = () => {
+    if (!answers[currentQuestion.id]) {
+      alert("답변을 선택해주세요.");
+      return;
+    }
+    
+    if (index < questions.length - 1) {
+      next();
+    }
   };
 
   // Handle complete
@@ -89,7 +99,18 @@ export default function TestQuestionsPage() {
     const validation = validateCompleteness(answers);
 
     if (!validation.isValid) {
-      alert(`모든 문항에 답변해주세요. (누락: ${validation.missing.length}개)`);
+      // 미답변 문제 목록 표시
+      const unansweredList = validation.missing
+        .map((id) => {
+          const q = questions.find((q) => q.id === id);
+          return q ? `• ${questions.indexOf(q) + 1}번 문제` : null;
+        })
+        .filter(Boolean)
+        .join("\n");
+
+      alert(
+        `모든 문항에 답변해주세요.\n\n미답변 문항 (${validation.missing.length}개):\n${unansweredList}\n\n"미답변 문항 보기" 버튼을 클릭하여 확인하세요.`
+      );
       return;
     }
 
@@ -100,6 +121,26 @@ export default function TestQuestionsPage() {
 
     // Move to profile page
     router.push("/test/profile");
+  };
+
+  // Jump to first unanswered question
+  const jumpToUnanswered = () => {
+    const validation = validateCompleteness(answers);
+    if (!validation.isValid && validation.missing.length > 0) {
+      const firstUnansweredId = validation.missing[0];
+      const firstUnansweredIndex = questions.findIndex(
+        (q) => q.id === firstUnansweredId
+      );
+      if (firstUnansweredIndex >= 0) {
+        // Jump to that question
+        const diff = firstUnansweredIndex - index;
+        if (diff > 0) {
+          for (let i = 0; i < diff; i++) next();
+        } else if (diff < 0) {
+          for (let i = 0; i < Math.abs(diff); i++) prev();
+        }
+      }
+    }
   };
 
   if (status === "loading") {
@@ -127,6 +168,9 @@ export default function TestQuestionsPage() {
     );
   }
 
+  const validation = validateCompleteness(answers);
+  const isCurrentAnswered = !!answers[currentQuestion.id];
+
   return (
     <PageContainer>
       <div className="min-h-screen flex flex-col px-4 py-8">
@@ -138,6 +182,18 @@ export default function TestQuestionsPage() {
             answered={answeredCount}
             estimatedTimeLeft={estimatedTimeLeft}
           />
+          
+          {/* Unanswered count */}
+          {!validation.isValid && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={jumpToUnanswered}
+                className="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 text-sm hover:bg-yellow-500/30 transition"
+              >
+                ⚠️ 미답변 문항 {validation.missing.length}개 - 클릭하여 이동
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Question */}
@@ -150,7 +206,7 @@ export default function TestQuestionsPage() {
               value={answers[currentQuestion.id]}
               scale={currentQuestion.scale}
               onChange={handleAnswer}
-              onNext={index < questions.length - 1 ? next : undefined}
+              onNext={index < questions.length - 1 ? handleNext : undefined}
               onPrev={prev}
             />
           </AnimatePresence>
@@ -169,21 +225,32 @@ export default function TestQuestionsPage() {
 
             <div className="text-sm text-white/50">
               {index + 1} / {questions.length}
+              {!isCurrentAnswered && (
+                <span className="ml-2 text-yellow-400">• 미답변</span>
+              )}
             </div>
 
             {index === questions.length - 1 ? (
               <button
                 onClick={handleComplete}
-                disabled={!answers[currentQuestion.id]}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-semibold shadow-lg shadow-violet-500/20 hover:scale-[1.02] transition disabled:opacity-40 disabled:cursor-not-allowed"
+                className={`px-6 py-3 rounded-xl font-semibold shadow-lg transition ${
+                  validation.isValid
+                    ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-violet-500/20 hover:scale-[1.02]"
+                    : "bg-white/10 text-white/50 cursor-not-allowed"
+                }`}
+                disabled={!validation.isValid}
               >
-                완료 →
+                {validation.isValid ? "완료 →" : `미답변 ${validation.missing.length}개`}
               </button>
             ) : (
               <button
-                onClick={next}
-                disabled={!answers[currentQuestion.id]}
-                className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-semibold shadow-lg shadow-violet-500/20 hover:scale-[1.02] transition disabled:opacity-40 disabled:cursor-not-allowed"
+                onClick={handleNext}
+                className={`px-6 py-3 rounded-xl font-semibold shadow-lg transition ${
+                  isCurrentAnswered
+                    ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-violet-500/20 hover:scale-[1.02]"
+                    : "bg-white/10 text-white/50 cursor-not-allowed"
+                }`}
+                disabled={!isCurrentAnswered}
               >
                 다음 →
               </button>
@@ -192,7 +259,7 @@ export default function TestQuestionsPage() {
 
           {/* Keyboard shortcuts hint */}
           <div className="mt-4 text-center text-xs text-white/40">
-            💡 키보드 단축키: 1~7 (답변), ← → (이전/다음)
+            💡 키보드 단축키: 1~{currentQuestion.scale} (답변), ← → (이전/다음)
           </div>
         </div>
       </div>
