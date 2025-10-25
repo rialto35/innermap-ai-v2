@@ -54,7 +54,7 @@ export async function GET(
     });
 
     // ReportV1 포맷으로 변환
-    const reportV1 = {
+    const reportV1: any = {
       id: report.id,
       ownerId: report.user_id,
       meta: {
