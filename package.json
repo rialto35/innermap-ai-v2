@@ -24,7 +24,12 @@
     "test:e2e:preview": "NEXT_PUBLIC_E2E=1 PW_BASE_URL=https://innermap-ai-v2-git-main-your-username.vercel.app playwright test",
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
-    "test:unit:coverage": "vitest run --coverage"
+    "test:unit:coverage": "vitest run --coverage",
+    "test:golden:update": "npx tsx scripts/update-golden.ts",
+    "test:golden:verify": "npx vitest run tests/unit/golden.spec.ts",
+    "test:cross": "npx tsx scripts/verify-crosslang.ts",
+    "test:determinism": "npx vitest run tests/unit/contracts.spec.ts",
+    "test:integrity": "npm run test:unit && npm run test:cross && npm run test:determinism"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",

@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "weights": {
+    "big5": 1.0,
+    "mbti": 0.5,
+    "reti": 0.5
+  },
+  "description": "기본 가중치 설정 - Big5를 주축으로 하여 MBTI와 RETI를 보조적으로 활용",
+  "checksum": "sha256:abc123def456...",
+  "createdAt": "2024-12-19T14:20:00.000Z",
+  "engineVersion": "1.2.0"
+}

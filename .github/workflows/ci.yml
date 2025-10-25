@@ -1,0 +1,100 @@
+name: CI - im-core Engine Integrity
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  engine-integrity:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Update Engine Hash
+        run: |
+          chmod +x scripts/update-engine-hash.sh
+          ./scripts/update-engine-hash.sh
+
+      - name: Verify Determinism
+        run: npm run test:unit
+
+      - name: Run Contract Tests
+        run: npx vitest run tests/unit/contracts.spec.ts
+
+      - name: Run Golden Tests
+        run: npm run test:golden:verify
+
+      - name: Run Benchmark Tests
+        run: npx tsx scripts/benchmark-accuracy.ts
+
+      - name: Cross-Lang Validation
+        run: npx tsx scripts/verify-crosslang.ts
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Run E2E Tests
+        run: npm run test:e2e
+        env:
+          NEXT_PUBLIC_E2E: 1
+
+      - name: Run Deterministic Scenarios
+        run: npx playwright test tests/e2e/deterministic-scenarios.spec.ts
+        env:
+          NEXT_PUBLIC_E2E: 1
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: test-results
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
+      - name: Comment PR with results
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `
+            ## 🚨 im-core 엔진 무결성 검증 실패
+            
+            다음 검증이 실패했습니다:
+            - ✅ Double-Buffer Verification
+            - ✅ Engine Checksum
+            - ✅ Cross-Language Validation
+            - ✅ Contract Tests
+            - ✅ Golden Tests
+            - ✅ Benchmark Tests
+            - ✅ E2E Tests
+            - ✅ Deterministic Scenarios
+            
+            자세한 결과는 아티팩트를 확인하세요.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });

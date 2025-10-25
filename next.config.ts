@@ -12,6 +12,13 @@ const nextConfig: NextConfig = {
         fs: false,
       };
     }
+    
+    // 스크립트 파일 제외
+    config.module.rules.push({
+      test: /scripts\/.*\.ts$/,
+      use: 'ignore-loader'
+    });
+    
     return config;
   },
   // 이미지 최적화 전역 비활성화 (임시: undefined 경로 400 차단)

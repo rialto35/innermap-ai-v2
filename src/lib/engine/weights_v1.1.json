@@ -1,0 +1,9 @@
+{
+  "version": "1.1.0",
+  "weights": {
+    "big5": 0.8,
+    "mbti": 0.7,
+    "reti": 0.6
+  },
+  "description": "개선된 가중치 설정 - MBTI와 RETI의 영향력을 높여 더 균형잡힌 분석"
+}

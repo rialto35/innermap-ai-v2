@@ -3,7 +3,7 @@
  * Orchestrates Inner9 → Hero → Color → Narrative flow
  */
 
-import { AnalyzeInput, AnalyzeOutput } from './types';
+// import { AnalyzeInput, AnalyzeOutput } from './types';
 import { mapBig5ToInner9 } from '../inner9';
 import { applyMbtiModifier, applyRetiModifier } from '../inner9/modifiers';
 import { matchHero } from './hero-match';
@@ -15,7 +15,7 @@ import { resolveAllTies } from './tieBreaker';
 
 const ENGINE_VERSION = 'im-core@2.1.0';
 
-export async function runAnalysis(input: AnalyzeInput): Promise<AnalyzeOutput> {
+export async function runAnalysis(input: any): Promise<any> {
   // Step 1: Map Big5 to Inner9 (base)
   const { scores: baseInner9, modelVersion } = mapBig5ToInner9(input.big5, { clip0to100: true });
   

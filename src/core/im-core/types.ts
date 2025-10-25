@@ -1,52 +1,30 @@
 /**
- * im-core Analysis Pipeline Types
- * @module @innermap/im-core
+ * im-core 엔진 타입 정의
  */
 
-import { Big5, InnerNine } from '../inner9';
-import type { MBTIResult } from './scoreMBTI';
-import type { RETIResult } from './scoreRETI';
+export type RawResponse = number[]; // Length 55, 1-7 Likert scale etc.
 
-export type AnalyzeInput = {
-  dob?: string; // 사주 확장 예정
-  mbti?: string;
-  reti?: number;
-  big5: Big5;
-  locale?: 'ko-KR' | 'en-US';
-  // Demographics for norm-based scoring
-  age?: number;
-  gender?: 'male' | 'female';
+export type Big5Scores = { o: number; c: number; e: number; a: number; n: number };
+
+export type Inner9Axis = { label: string; value: number };
+
+export type Weights = {
+  big5: number;
+  mbti: number;
+  reti: number;
 };
 
-export type ColorStone = {
-  id: number;
-  name: string;
-  color: string;
-  score?: number;
+export type FullResult = {
+  big5: Big5Scores;
+  mbti: string;
+  reti: number;
+  inner9: Inner9Axis[];
+  timestamp: string;
 };
 
-export type AnalyzeOutput = {
-  inner9: InnerNine;
-  hero?: { 
-    id: number; 
-    code: string; 
-    title: string; 
-    color?: number; 
-    score?: number;
-    tribe?: string;
-    mbti?: string;
-  };
-  color?: { natal: ColorStone; growth: ColorStone };
-  narrative?: { summary: string };
-  
-  // Enhanced scoring results
-  big5Percentiles?: Record<keyof Big5, number>;
-  mbtiResult?: MBTIResult;
-  retiResult?: RETIResult;
-  
-  // Metadata
-  engineVersion: string;
-  modelVersion: string;
-  normsVersion?: string;
+export type EngineMetadata = {
+  version: string;
+  buildDate: string;
+  weightsVersion: string;
+  weightsChecksum: string;
 };
-

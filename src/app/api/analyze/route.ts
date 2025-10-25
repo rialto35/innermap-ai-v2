@@ -8,10 +8,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { runAnalysis } from '@/core/im-core';
-import { computeInner9Scores } from '@/core/im-core/inner9';
+import { toInner9 } from '@/core/im-core/inner9';
 import { Inner9Schema } from '@/lib/schemas/inner9';
 import { getInner9Config } from '@/config/inner9';
-import type { AnalyzeInput } from '@/core/im-core/types';
+// import type { AnalyzeInput } from '@/core/im-core/types';
 import { 
   computeBig5Percentiles, 
   computeMBTIRatios, 
@@ -21,7 +21,7 @@ import {
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
-    const body = (await req.json()) as Partial<AnalyzeInput>;
+    const body = (await req.json()) as any;
     
     console.log('📊 [API /analyze] Request body:', JSON.stringify(body, null, 2));
     
@@ -68,12 +68,12 @@ export async function POST(req: Request) {
     
     // Enhanced Inner9 calculation with type weighting
     const config = getInner9Config();
-    const inner9Scores = computeInner9Scores(
-      big5Percentiles,
-      body.mbti as any,
-      body.reti as any,
-      config.useTypeWeights
-    );
+    const inner9Scores = toInner9({
+      big5: { o: O, c: C, e: E, a: A, n: N },
+      mbti: body.mbti as string,
+      reti: body.reti as number,
+      weights: config.useTypeWeights ? { big5: 1, mbti: 0.5, reti: 0.5 } : { big5: 1, mbti: 0, reti: 0 }
+    });
     
     // Validate Inner9 scores
     try {
@@ -177,17 +177,14 @@ export async function POST(req: Request) {
     };
 
     // Log Inner9 scores for monitoring
+    const inner9Map = inner9Scores.reduce((acc, axis) => {
+      acc[axis.label.toLowerCase()] = axis.value;
+      return acc;
+    }, {} as Record<string, number>);
+    
     console.info('inner9-save', { 
       user: userId, 
-      creation: inner9Scores.creation, 
-      will: inner9Scores.will,
-      sensitivity: inner9Scores.sensitivity,
-      harmony: inner9Scores.harmony,
-      expression: inner9Scores.expression,
-      insight: inner9Scores.insight,
-      resilience: inner9Scores.resilience,
-      balance: inner9Scores.balance,
-      growth: inner9Scores.growth,
+      ...inner9Map,
       mbti: body.mbti,
       reti: body.reti
     });
@@ -206,7 +203,7 @@ export async function POST(req: Request) {
         mbti_scores: body.mbti ? { type: body.mbti } : { type: null },
         reti_scores: typeof body.reti === 'number' ? { score: body.reti } : { score: null },
         inner_nine: out.inner9,
-        inner9_scores: inner9Scores,
+        inner9_scores: inner9Map,
         model_version: out.modelVersion,
         engine_version: out.engineVersion,
         hero_code: out.hero?.code ?? null,

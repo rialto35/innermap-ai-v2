@@ -7,7 +7,7 @@ import { HEROES_144 } from '@/lib/data/heroes144'
 import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
 import { computeBig5Percentiles, computeMBTIRatios } from '@/lib/psychometrics'
-import { computeInner9Scores } from '@/core/im-core/inner9'
+import { toInner9 } from '@/core/im-core/inner9'
 import { supabaseAdmin } from '@/lib/supabase'
 import { runAnalysis } from '@/core/im-core'
 
@@ -178,7 +178,12 @@ export async function GET() {
     }
     const savedBig5Percentiles = computeBig5Percentiles(savedBig5)
     const savedMBTIRatios = computeMBTIRatios(latestResult.mbti_type)
-    const savedInner9Scores = computeInner9Scores(savedBig5Percentiles, latestResult.mbti_type as any, undefined, false)
+    const savedInner9Scores = toInner9({
+      big5: { o: latestResult.big5_openness, c: latestResult.big5_conscientiousness, e: latestResult.big5_extraversion, a: latestResult.big5_agreeableness, n: latestResult.big5_neuroticism },
+      mbti: latestResult.mbti_type as string,
+      reti: 5, // 기본값
+      weights: { big5: 1, mbti: 0, reti: 0 }
+    })
     
     // Inner9 분석 실행 (results 테이블에 없으면 실시간 계산)
     let savedInner9: any = latestInner9Result?.inner_nine
