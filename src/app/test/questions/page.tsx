@@ -224,7 +224,9 @@ export default function TestQuestionsPage() {
                 return (
                   <div
                     key={question.id}
-                    ref={(el) => (nodesRef.current[question.id] = el)}
+                    ref={(el) => {
+                      nodesRef.current[question.id] = el;
+                    }}
                     className={`rounded-2xl border p-6 transition-all ${
                       isAnswered
                         ? "border-violet-500/30 bg-violet-500/5"
