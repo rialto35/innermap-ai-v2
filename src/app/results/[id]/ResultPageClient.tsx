@@ -46,8 +46,9 @@ export default function ResultPageClient({ id }: { id: string }) {
         const data = await response.json()
         setResult(data)
         
-        // 검사 완료 후 /report/:id?tab=summary로 리다이렉트
+        // 검사 완료 후 /report/:id?tab=summary로 자동 리다이렉트
         if (data && data.id) {
+          console.log('🔄 [ResultPageClient] 검사 완료, 리포트 페이지로 이동:', data.id)
           router.push(`/report/${data.id}?tab=summary`)
         }
       } catch (err) {

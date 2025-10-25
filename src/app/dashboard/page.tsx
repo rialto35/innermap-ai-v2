@@ -333,19 +333,19 @@ function DashboardContent() {
             <h3 className="text-lg font-semibold text-sky-300 mb-4">리포트 도구</h3>
             <div className="flex flex-col gap-2 text-sm">
               <Link
-                href="/report"
+                href="/reports"
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
               >
                 리포트 목록 보기
               </Link>
               <Link
-                href="/report"
+                href="/reports"
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
               >
                 공유 링크 관리
               </Link>
               <Link
-                href="/report"
+                href="/reports"
                 className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
               >
                 PDF 다운로드 기록
