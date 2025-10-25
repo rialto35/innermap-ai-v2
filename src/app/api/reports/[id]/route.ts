@@ -64,7 +64,13 @@ export async function GET(
 
         try {
           const apiUrl = new URL(`/api/results/${id}`, request.url).toString();
-          const r = await fetch(apiUrl, { cache: 'no-store', headers: { 'x-im-internal': '1' } });
+          const r = await fetch(apiUrl, { 
+            cache: 'no-store', 
+            headers: { 
+              'x-im-internal': '1',
+              'cookie': request.headers.get('cookie') || ''
+            } 
+          });
           if (!r.ok) {
             console.log('❌ [API /reports/:id] Internal /api/results/:id fallback failed:', { status: r.status });
             return NextResponse.json({ error: 'Report not found' }, { status: 404 });
