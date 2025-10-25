@@ -7,11 +7,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
-import { ReportV1 } from '@/types/report';
+// import { ReportV1 } from '@/types/report';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const { searchParams } = new URL(request.url);
     const includeDeep = searchParams.get('include') === 'deep';
 
@@ -54,7 +54,7 @@ export async function GET(
     });
 
     // ReportV1 포맷으로 변환
-    const reportV1: ReportV1 = {
+    const reportV1 = {
       id: report.id,
       ownerId: report.user_id,
       meta: {
