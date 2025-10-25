@@ -2,6 +2,7 @@
  * Unified Question Component
  * 
  * Slider-based question with keyboard shortcuts
+ * Updated for dark theme (/test/* pages)
  */
 
 'use client';
@@ -64,7 +65,7 @@ export default function UnifiedQuestion({
     >
       {/* Question Text */}
       <div className="mb-12 text-center">
-        <p className="text-2xl md:text-3xl font-medium text-gray-900 leading-relaxed">
+        <p className="text-2xl md:text-3xl font-medium text-white leading-relaxed">
           {text}
         </p>
       </div>
@@ -77,73 +78,80 @@ export default function UnifiedQuestion({
           max={scale}
           value={value || Math.ceil(scale / 2)}
           onChange={(e) => onChange(parseInt(e.target.value))}
-          className="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-          aria-label={text}
+          className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer slider
+            [&::-webkit-slider-thumb]:appearance-none
+            [&::-webkit-slider-thumb]:w-6
+            [&::-webkit-slider-thumb]:h-6
+            [&::-webkit-slider-thumb]:rounded-full
+            [&::-webkit-slider-thumb]:bg-gradient-to-r
+            [&::-webkit-slider-thumb]:from-violet-500
+            [&::-webkit-slider-thumb]:to-cyan-500
+            [&::-webkit-slider-thumb]:cursor-pointer
+            [&::-webkit-slider-thumb]:shadow-lg
+            [&::-webkit-slider-thumb]:shadow-violet-500/50
+            [&::-moz-range-thumb]:w-6
+            [&::-moz-range-thumb]:h-6
+            [&::-moz-range-thumb]:rounded-full
+            [&::-moz-range-thumb]:bg-gradient-to-r
+            [&::-moz-range-thumb]:from-violet-500
+            [&::-moz-range-thumb]:to-cyan-500
+            [&::-moz-range-thumb]:cursor-pointer
+            [&::-moz-range-thumb]:border-0
+            [&::-moz-range-thumb]:shadow-lg
+            [&::-moz-range-thumb]:shadow-violet-500/50"
+          style={{
+            background: value
+              ? `linear-gradient(to right, 
+                  rgb(139, 92, 246) 0%, 
+                  rgb(34, 211, 238) ${((value - 1) / (scale - 1)) * 100}%, 
+                  rgba(255, 255, 255, 0.1) ${((value - 1) / (scale - 1)) * 100}%, 
+                  rgba(255, 255, 255, 0.1) 100%)`
+              : undefined,
+          }}
         />
-        
-        {/* Value Display */}
-        <div className="flex justify-between items-center mt-4 px-2">
-          <span className="text-sm text-gray-500">전혀 아니다</span>
-          <div className="text-4xl font-bold text-indigo-600">
-            {value || '-'}
-          </div>
-          <span className="text-sm text-gray-500">매우 그렇다</span>
-        </div>
       </div>
       
       {/* Scale Labels */}
-      <div className="flex justify-between px-2 mb-6">
+      <div className="flex justify-between mb-8 px-2">
         {Array.from({ length: scale }, (_, i) => i + 1).map((num) => (
           <button
             key={num}
-            onClick={() => {
-              onChange(num);
-              // 자동으로 다음 문항으로 이동 (0.5초 후)
-              if (onNext) {
-                setTimeout(() => {
-                  onNext();
-                }, 500);
+            onClick={() => onChange(num)}
+            className={`
+              w-12 h-12 rounded-full flex items-center justify-center
+              font-semibold text-lg transition-all
+              ${
+                value === num
+                  ? 'bg-gradient-to-r from-violet-500 to-cyan-500 text-white scale-110 shadow-lg shadow-violet-500/50'
+                  : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
               }
-            }}
-            className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition ${
-              value === num
-                ? 'bg-indigo-600 text-white scale-110'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-            }`}
-            aria-label={`${num}점 선택`}
+            `}
           >
             {num}
           </button>
         ))}
       </div>
       
-      {/* Keyboard Hint */}
-      <div className="text-center text-xs text-gray-400 mt-8">
-        키보드: 1-7 숫자키 | ← → 화살표키
+      {/* Text Labels */}
+      <div className="flex justify-between text-sm text-white/60 px-2">
+        <span>전혀 아니다</span>
+        <span>보통이다</span>
+        <span>매우 그렇다</span>
       </div>
       
-      <style jsx>{`
-        .slider::-webkit-slider-thumb {
-          appearance: none;
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: #4f46e5;
-          cursor: pointer;
-          box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-        }
-        
-        .slider::-moz-range-thumb {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: #4f46e5;
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3);
-        }
-      `}</style>
+      {/* Current Value Display */}
+      {value && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-8 text-center"
+        >
+          <div className="inline-block px-6 py-3 rounded-full bg-gradient-to-r from-violet-500/20 to-cyan-500/20 border border-violet-500/30">
+            <span className="text-white/70 text-sm">선택한 값: </span>
+            <span className="text-white font-bold text-lg">{value}</span>
+          </div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
-

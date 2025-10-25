@@ -24,6 +24,25 @@ import EnhancedBirthDateInput from '@/components/analyze/EnhancedBirthDateInput'
 
 export default function AnalyzePage() {
   const router = useRouter();
+  
+  // Redirect to new test flow
+  useEffect(() => {
+    router.replace('/test/intro');
+  }, [router]);
+  
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-[#090e1c] via-[#0d1430] to-[#111827] flex items-center justify-center">
+      <div className="text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4"></div>
+        <p className="text-white/60">새로운 검사 페이지로 이동 중...</p>
+      </div>
+    </div>
+  );
+}
+
+// 기존 코드 보관 (참고용)
+function AnalyzePageOld() {
+  const router = useRouter();
   const { data: session, status } = useSession();
   
   const {
