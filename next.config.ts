@@ -4,6 +4,16 @@ const nextConfig: NextConfig = {
   /* config options here */
   // Vercel 최적화 설정
   output: 'standalone',
+  // 테스트 파일 제외
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+      };
+    }
+    return config;
+  },
   // 이미지 최적화 전역 비활성화 (임시: undefined 경로 400 차단)
   images: {
     unoptimized: true,

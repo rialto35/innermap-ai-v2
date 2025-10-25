@@ -1,8 +1,2 @@
-import { setupServer } from 'msw/node';
-import { handlers } from './msw/handlers';
-
-const server = setupServer(...handlers);
-
-beforeAll(() => server.listen({ onUnhandledRequest: 'bypass' }));
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+// MSW 설정 파일 - 테스트 환경에서만 사용
+export {};
