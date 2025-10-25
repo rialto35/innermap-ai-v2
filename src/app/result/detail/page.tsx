@@ -41,6 +41,13 @@ function ResultDetailContent() {
           throw new Error("결과를 불러올 수 없습니다.");
         }
         const data = await res.json();
+        
+        if (!data.premium) {
+          setError("심층 분석 데이터가 없습니다. 프리미엄 구독이 필요합니다.");
+          setLoading(false);
+          return;
+        }
+        
         setPremium(data.premium);
       } catch (err: any) {
         setError(err.message);
