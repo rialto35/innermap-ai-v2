@@ -1,18 +1,30 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 
 export default function TestFinishPage() {
   const router = useRouter();
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
 
   useEffect(() => {
+    // localStorage에서 assessmentId 가져오기
+    const id = localStorage.getItem("last_assessment_id");
+    
+    if (!id) {
+      console.warn("⚠️ [TestFinish] No assessment ID found, redirecting to intro");
+      router.push("/test/intro");
+      return;
+    }
+
+    setAssessmentId(id);
+
     // 3초 후 요약 결과 페이지로 자동 이동
     const timer = setTimeout(() => {
-      // TODO: 실제 결과 ID로 이동
-      router.push("/result/summary");
+      localStorage.removeItem("last_assessment_id"); // 정리
+      router.push(`/result/summary?id=${id}`);
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -70,12 +82,17 @@ export default function TestFinishPage() {
           </div>
 
           {/* 즉시 이동 버튼 */}
-          <button
-            onClick={() => router.push("/result/summary")}
-            className="text-white/60 hover:text-white text-sm transition underline"
-          >
-            지금 바로 보기 →
-          </button>
+          {assessmentId && (
+            <button
+              onClick={() => {
+                localStorage.removeItem("last_assessment_id");
+                router.push(`/result/summary?id=${assessmentId}`);
+              }}
+              className="text-white/60 hover:text-white text-sm transition underline"
+            >
+              지금 바로 보기 →
+            </button>
+          )}
         </motion.div>
       </div>
     </PageContainer>

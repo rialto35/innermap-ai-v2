@@ -66,12 +66,15 @@ export default function TestProfilePage() {
 
       console.log("✅ [TestProfile] Analysis complete:", data.assessmentId);
 
-      // 3) localStorage 정리
+      // 3) assessmentId를 localStorage에 임시 저장
+      localStorage.setItem("last_assessment_id", data.assessmentId);
+
+      // 4) localStorage 정리
       localStorage.removeItem("test_answers");
       localStorage.removeItem("test_profile");
 
-      // 4) 결과 페이지로 이동
-      router.push(`/result/summary?id=${data.assessmentId}`);
+      // 5) 완료 페이지로 이동 (로딩 애니메이션)
+      router.push("/test/finish");
     } catch (error) {
       console.error("❌ [TestProfile] Error:", error);
       alert("분석 중 오류가 발생했습니다. 다시 시도해주세요.");
