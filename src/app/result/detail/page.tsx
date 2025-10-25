@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
@@ -18,7 +18,7 @@ const Inner9Graph = dynamic(() => import("@/components/charts/Inner9Graph"), {
   ),
 });
 
-export default function ResultDetailPage() {
+function ResultDetailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -223,5 +223,24 @@ export default function ResultDetailPage() {
         </div>
       </div>
     </PageContainer>
+  );
+}
+
+export default function ResultDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageContainer>
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4"></div>
+              <p className="text-white/60">결과를 불러오는 중...</p>
+            </div>
+          </div>
+        </PageContainer>
+      }
+    >
+      <ResultDetailContent />
+    </Suspense>
   );
 }

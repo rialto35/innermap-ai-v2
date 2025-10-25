@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import SummaryCard from "@/components/SummaryCard";
 import type { SummaryFields } from "@/types/assessment";
 
-export default function ResultSummaryPage() {
+function ResultSummaryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -146,5 +146,24 @@ export default function ResultSummaryPage() {
         </div>
       </div>
     </PageContainer>
+  );
+}
+
+export default function ResultSummaryPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageContainer>
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4"></div>
+              <p className="text-white/60">결과를 불러오는 중...</p>
+            </div>
+          </div>
+        </PageContainer>
+      }
+    >
+      <ResultSummaryContent />
+    </Suspense>
   );
 }
