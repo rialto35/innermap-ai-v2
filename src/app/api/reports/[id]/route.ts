@@ -23,17 +23,35 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const includeDeep = searchParams.get('include') === 'deep';
 
-    // 리포트 기본 정보 조회
+    console.log('🔍 [API /reports/:id] Debug info:', {
+      id,
+      userEmail: session.user.email,
+      includeDeep
+    });
+
+    // 리포트 기본 정보 조회 (RLS 우회를 위해 supabaseAdmin 사용)
     const { data: report, error: reportError } = await supabaseAdmin
       .from('reports')
       .select('*')
       .eq('id', id)
-      .eq('user_id', session.user.email)
       .single();
 
+    // 수동으로 권한 확인
+    if (report && report.user_id !== session.user.email) {
+      return NextResponse.json({ error: 'Access denied' }, { status: 403 });
+    }
+
     if (reportError || !report) {
+      console.log('❌ [API /reports/:id] Report not found:', { reportError, report });
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
     }
+
+    console.log('✅ [API /reports/:id] Report found:', {
+      id: report.id,
+      userId: report.user_id,
+      userEmail: session.user.email,
+      match: report.user_id === session.user.email
+    });
 
     // ReportV1 포맷으로 변환
     const reportV1: ReportV1 = {
