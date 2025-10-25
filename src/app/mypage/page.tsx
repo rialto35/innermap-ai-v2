@@ -12,6 +12,7 @@ import Link from 'next/link';
 // import dynamic from 'next/dynamic';
 
 import EnhancedHeroCard from '@/components/hero/EnhancedHeroCard';
+import AssessmentHistory from '@/components/mypage/AssessmentHistory';
 // import DashboardTabs from '@/components/dashboard/DashboardTabs';
 // import { useSearchTab } from '@/lib/hooks/useSearchTab';
 
@@ -185,6 +186,9 @@ function DashboardContent() {
 
         {/* Right: Sidebar (1 column) */}
         <div className="lg:col-span-1 space-y-4">
+          {/* 검사 기록 */}
+          <AssessmentHistory />
+
           {/* 계정 관리 */}
           <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
             <h3 className="text-lg font-semibold text-violet-300 mb-4">계정 관리</h3>
