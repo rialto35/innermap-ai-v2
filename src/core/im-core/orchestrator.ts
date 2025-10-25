@@ -98,3 +98,41 @@ export function getEngineStatus() {
     features: ['double-buffer-verification', 'determinism-check', 'cross-validation']
   };
 }
+
+/**
+ * im-core 결과를 ReportV1 포맷으로 래핑
+ */
+export function wrapAsReportV1(
+  id: string,
+  ownerId: string,
+  result: FullResult,
+  summary: { highlight: string; bullets: string[] }
+) {
+  return {
+    id,
+    ownerId,
+    meta: {
+      version: "v1.3.1" as const,
+      engineVersion: "IM-Core 1.3.1",
+      weightsVersion: "v1.3",
+      generatedAt: result.timestamp
+    },
+    scores: {
+      big5: result.big5,
+      mbti: result.mbti,
+      reti: result.reti,
+      inner9: result.inner9
+    },
+    summary,
+    deep: {
+      modules: {
+        cognition: "pending" as const,
+        communication: "pending" as const,
+        goal: "pending" as const,
+        relation: "pending" as const,
+        energy: "pending" as const,
+        growth: "pending" as const
+      }
+    }
+  };
+}

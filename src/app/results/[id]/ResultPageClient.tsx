@@ -45,6 +45,11 @@ export default function ResultPageClient({ id }: { id: string }) {
         }
         const data = await response.json()
         setResult(data)
+        
+        // 검사 완료 후 /report/:id?tab=summary로 리다이렉트
+        if (data && data.id) {
+          router.push(`/report/${data.id}?tab=summary`)
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
       } finally {
@@ -52,7 +57,7 @@ export default function ResultPageClient({ id }: { id: string }) {
       }
     }
     fetchResult()
-  }, [id, session])
+  }, [id, session, router])
 
   if (loading || status === 'loading') {
     return <ResultSkeleton />

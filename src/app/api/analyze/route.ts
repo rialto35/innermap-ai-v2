@@ -11,6 +11,8 @@ import { runAnalysis } from '@/core/im-core';
 import { toInner9 } from '@/core/im-core/inner9';
 import { Inner9Schema } from '@/lib/schemas/inner9';
 import { getInner9Config } from '@/config/inner9';
+import { wrapAsReportV1 } from '@/core/im-core/orchestrator';
+import { ReportV1 } from '@/types/report';
 // import type { AnalyzeInput } from '@/core/im-core/types';
 import { 
   computeBig5Percentiles, 
@@ -229,9 +231,29 @@ export async function POST(req: Request) {
       );
     }
 
+    // ReportV1 포맷으로 요약 생성
+    const summary = {
+      highlight: analysisText || "분석이 완료되었습니다.",
+      bullets: [
+        `Big5 성격 분석: ${body.big5.O}% 개방성, ${body.big5.C}% 성실성`,
+        `MBTI 유형: ${body.mbti || '미분류'}`,
+        `RETI 동기: ${body.reti || 5}점`,
+        `Inner9 내면 지도: ${inner9Scores.length}개 축 분석 완료`
+      ]
+    };
+
+    // ReportV1 객체 생성
+    const reportV1: ReportV1 = wrapAsReportV1(
+      resultData.id,
+      session?.user?.email || 'unknown',
+      out,
+      summary
+    );
+
     return NextResponse.json({ 
       ok: true, 
-      id: resultData.id, 
+      reportId: resultData.id,
+      report: reportV1,
       data: {
         ...out,
         big5Percentiles,
