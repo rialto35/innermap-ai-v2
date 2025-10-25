@@ -220,8 +220,11 @@ export const authOptions: AuthOptions = {
             .eq('provider_id', providerId)
             .maybeSingle()
           
-          // 신규 사용자면 토큰에 플래그 추가
-          if (!existingUser) {
+          if (existingUser) {
+            // 기존 사용자: Supabase UUID를 user.id에 저장
+            ;(user as any).supabaseId = existingUser.id
+          } else {
+            // 신규 사용자: 플래그 추가 (나중에 users 테이블에 insert 필요)
             ;(user as any).isNewUser = true
           }
         } catch (error) {
@@ -237,6 +240,10 @@ export const authOptions: AuthOptions = {
         const providerId = (account as any).provider === 'credentials' ? (user as any)?.email : (account as any).providerAccountId
         if (providerId) (token as any).providerId = providerId
       }
+      // Supabase UUID를 토큰에 저장 (signIn 콜백에서 설정됨)
+      if ((user as any)?.supabaseId) {
+        (token as any).supabaseId = (user as any).supabaseId;
+      }
       if (user && (user as any).isNewUser) {
         (token as any).isNewUser = true
       }
@@ -251,6 +258,10 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       const s: any = session
       s.user = s.user || {}
+      // Supabase UUID를 session.user.id로 전달
+      if ((token as any).supabaseId) {
+        s.user.id = (token as any).supabaseId
+      }
       if (!s.user.name && typeof token.name === 'string') s.user.name = token.name
       const pic = (token as any).picture
       if (!s.user.image && typeof pic === 'string') s.user.image = pic

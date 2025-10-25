@@ -22,11 +22,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // 사용자 ID
-    const userId = session?.user?.email || null;
+    // 사용자 ID (UUID 타입)
+    // session.user.id는 NextAuth에서 제공하는 UUID
+    const userId = session?.user?.id || null;
+    const userEmail = session?.user?.email || null;
 
     console.log("📊 [API /test/analyze] Starting analysis", {
       userId,
+      userEmail,
       answersLength: answers.length,
       engineVersion,
     });
@@ -79,15 +82,15 @@ export async function POST(req: Request) {
 
     console.log("✅ [API /test/analyze] Result saved");
 
-    // 4) 프로필 저장/업서트
+    // 4) 프로필 저장/업서트 (userId가 UUID일 때만)
     if (userId) {
       const { error: errProfile } = await supabaseAdmin
         .from("user_profiles")
         .upsert({
-          user_id: userId,
+          user_id: userId, // UUID
           gender: profile?.gender ?? null,
           birthdate: profile?.birthdate ?? null,
-          email: profile?.email ?? null,
+          email: profile?.email ?? userEmail, // 프로필 이메일 또는 세션 이메일
           consent_required_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
         });
