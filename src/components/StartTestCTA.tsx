@@ -65,7 +65,6 @@ export default function StartTestCTA() {
             aria-modal="true"
             data-state={open ? "open" : "closed"}
             data-testid="test-mode-modal"
-            forceMount={true}
           >
             <motion.div 
               className="bg-white rounded-2xl p-6 w-[420px] shadow-xl"
