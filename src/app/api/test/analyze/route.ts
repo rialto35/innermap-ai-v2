@@ -22,23 +22,26 @@ export async function POST(req: Request) {
       );
     }
 
-    // 사용자 ID (UUID 타입)
-    // session.user.id는 NextAuth에서 제공하는 UUID
+    // 사용자 ID (UUID 타입 또는 NULL)
+    // - 로그인: session.user.id (Supabase UUID)
+    // - 비로그인: null
     const userId = session?.user?.id || null;
     const userEmail = session?.user?.email || null;
+    const isAnonymous = !userId;
 
     console.log("📊 [API /test/analyze] Starting analysis", {
-      userId,
-      userEmail,
+      userId: userId || '(anonymous)',
+      userEmail: userEmail || '(none)',
+      isAnonymous,
       answersLength: answers.length,
       engineVersion,
     });
 
-    // 1) assessments 생성
+    // 1) assessments 생성 (비로그인 사용자는 user_id = NULL)
     const { data: assess, error: errAssess } = await supabaseAdmin
       .from("test_assessments")
       .insert({
-        user_id: userId,
+        user_id: userId, // NULL 허용
         engine_version: engineVersion,
         raw_answers: answers,
         completed_at: new Date().toISOString(),
