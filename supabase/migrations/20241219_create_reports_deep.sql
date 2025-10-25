@@ -14,8 +14,8 @@ create table if not exists reports_deep (
 alter table reports_deep enable row level security;
 
 create policy "owner_readwrite_reports_deep" on reports_deep
-  for all using (auth.uid()::uuid = (select user_id from reports where id = report_id))
-  with check (auth.uid()::uuid = (select user_id from reports where id = report_id));
+  for all using (auth.uid() = (select user_id::text from reports where id = report_id))
+  with check (auth.uid() = (select user_id::text from reports where id = report_id));
 
 -- 인덱스 추가
 create index if not exists idx_reports_deep_report_id on reports_deep(report_id);
