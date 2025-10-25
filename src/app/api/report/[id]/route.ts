@@ -1,5 +1,5 @@
 /**
- * GET /api/report/[id]
+ * GET /api/report/[id] - ReportV1 형식으로 통일
  * 
  * 리포트 데이터 조회 (확장)
  * - 리포트 + 사용자/영웅 메타 + 시각화 URL 포함
@@ -9,6 +9,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
+import { ReportV1 } from '@/types/report';
 
 export async function GET(
   request: NextRequest,
