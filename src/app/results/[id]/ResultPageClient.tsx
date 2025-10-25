@@ -48,10 +48,8 @@ export default function ResultPageClient({ id }: { id: string }) {
         const data = await response.json()
         setResult(data)
         
-        // 검사 완료 후 /report/:id?tab=summary로 자동 리다이렉트
         if (data && data.id) {
-          console.log('🔄 [ResultPageClient] 검사 완료, 리포트 페이지로 이동:', data.id)
-          router.push(`/report/${data.id}?tab=summary`)
+          router.push(`/result/${data.id}?tab=summary`)
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Unknown error')
@@ -162,7 +160,7 @@ export default function ResultPageClient({ id }: { id: string }) {
         }) || HERO_DEFAULT_SRC}
         title={(result as any).hero.name}
         subtitle={`${(result as any).mbti?.type} • Type ${(result as any).reti?.primaryType}`}
-        shareUrl={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://innermap-ai-v2.vercel.app'}/results/${id}`}
+        shareUrl={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://innermap-ai-v2.vercel.app'}/result/${id}`}
       />
     </>
   )

@@ -33,6 +33,12 @@ const nextConfig: NextConfig = {
       { source: '/_next/image', destination: '/heroes/default.svg' },
     ];
   },
+  async redirects() {
+    return [
+      { source: '/report/:id', destination: '/result/:id', permanent: true },
+      { source: '/reports/:id', destination: '/result/:id', permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

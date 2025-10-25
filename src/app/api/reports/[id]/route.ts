@@ -60,8 +60,57 @@ export async function GET(
         .single();
 
       if (resultError || !resultRow) {
-        console.log('❌ [API /reports/:id] Not found in results fallback either:', { resultError });
-        return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+        console.log('⚠️ [API /reports/:id] Results table fallback failed. Trying internal /api/results/:id ...', { resultError });
+
+        try {
+          const apiUrl = new URL(`/api/results/${id}`, request.url).toString();
+          const r = await fetch(apiUrl, { cache: 'no-store', headers: { 'x-im-internal': '1' } });
+          if (!r.ok) {
+            console.log('❌ [API /reports/:id] Internal /api/results/:id fallback failed:', { status: r.status });
+            return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+          }
+          const data = await r.json();
+
+          const coerceNum = (v: any, d = 0) => (typeof v === 'number' ? v : Number(v ?? d));
+          const coerceBig5 = (b: any) => ({
+            o: coerceNum(b?.O ?? b?.o),
+            c: coerceNum(b?.C ?? b?.c),
+            e: coerceNum(b?.E ?? b?.e),
+            a: coerceNum(b?.A ?? b?.a),
+            n: coerceNum(b?.N ?? b?.n),
+          });
+          const inner9Arr = (() => {
+            const rec = (data as any)?.inner9_scores as Record<string, number> | null;
+            if (!rec) return [] as Array<{ label: string; value: number }>;
+            return Object.entries(rec).map(([k, v]) => ({ label: k, value: coerceNum(v) }));
+          })();
+
+          const fallbackFromApi: ReportV1 = {
+            id,
+            ownerId: (data as any)?.user_id ?? session.user.email,
+            meta: {
+              version: 'v1.3.1',
+              engineVersion: (data as any)?.engine_version || 'IM-Core 1.3.1',
+              weightsVersion: 'v1.3',
+              generatedAt: (data as any)?.created_at || new Date().toISOString(),
+            },
+            scores: {
+              big5: coerceBig5((data as any)?.big5_scores || {}),
+              mbti: (data as any)?.mbti?.type || (data as any)?.mbti || 'XXXX',
+              reti: coerceNum((data as any)?.reti?.primaryType || (data as any)?.reti?.score || (data as any)?.reti, 5),
+              inner9: inner9Arr,
+            },
+            summary: {
+              highlight: (data as any)?.analysis_text || '분석 결과를 확인해보세요.',
+              bullets: ['분석 완료', '결과 확인 가능'],
+            },
+          };
+
+          return NextResponse.json(fallbackFromApi);
+        } catch (e) {
+          console.log('❌ [API /reports/:id] Final fallback failed:', e);
+          return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+        }
       }
 
       // 결과 스냅샷을 ReportV1로 변환 (fallback)
