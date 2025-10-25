@@ -81,12 +81,7 @@ export default function TestQuestionsPage() {
   // Handle answer change
   const handleAnswer = (value: number) => {
     setAnswer(currentQuestion.id, value);
-    // Auto-advance after 300ms
-    setTimeout(() => {
-      if (index < questions.length - 1) {
-        next();
-      }
-    }, 300);
+    // 자동 넘어가기 제거 - 사용자가 "다음" 버튼 클릭하도록 변경
   };
 
   // Handle complete
