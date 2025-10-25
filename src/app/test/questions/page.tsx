@@ -1,34 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
-import UnifiedQuestion from "@/components/analyze/UnifiedQuestion";
-import UnifiedProgress from "@/components/analyze/UnifiedProgress";
 import { useAnalyzeStore } from "@/lib/analyze/state";
 import { loadQuestions, validateCompleteness } from "@/lib/analyze/transform";
 import { AutoSaveManager, loadFromLocal } from "@/lib/analyze/autosave";
+
+const STEP_SIZE = Number(process.env.NEXT_PUBLIC_STEP_SIZE || 6);
 
 export default function TestQuestionsPage() {
   const router = useRouter();
   const { status } = useSession();
 
   const {
-    index,
     answers,
     setAnswer,
-    next,
-    prev,
     setDraftId,
     markSaved,
     reset,
     getAnsweredCount,
-    getEstimatedTimeLeft,
   } = useAnalyzeStore();
 
   const [questions] = useState(() => loadQuestions());
+  const [step, setStep] = useState(0);
   const [autoSaveManager] = useState(
     () =>
       new AutoSaveManager(
@@ -39,6 +36,19 @@ export default function TestQuestionsPage() {
         (error) => console.error("Auto-save error:", error)
       )
   );
+
+  const nodesRef = useRef<Record<string, HTMLDivElement | null>>({});
+  const totalSteps = Math.ceil(questions.length / STEP_SIZE);
+  const answeredCount = getAnsweredCount();
+
+  // Current batch
+  const batch = useMemo(() => {
+    const start = step * STEP_SIZE;
+    return questions.slice(start, start + STEP_SIZE);
+  }, [questions, step]);
+
+  // Estimated time left (1분 per step)
+  const estimatedMinutes = Math.max(1, totalSteps - step);
 
   // Auth guard
   useEffect(() => {
@@ -55,7 +65,6 @@ export default function TestQuestionsPage() {
         "이전에 진행하던 검사가 있습니다. 이어서 진행하시겠습니까?"
       );
       if (confirmed) {
-        // Restore answers
         Object.entries(savedAnswers).forEach(([id, value]) => {
           setAnswer(id, value);
         });
@@ -67,30 +76,74 @@ export default function TestQuestionsPage() {
 
   // Auto-save on answer change
   useEffect(() => {
-    const answeredCount = getAnsweredCount();
     if (answeredCount > 0) {
       autoSaveManager.save(answers, answeredCount);
     }
-  }, [answers, autoSaveManager, getAnsweredCount]);
+  }, [answers, autoSaveManager, answeredCount]);
 
-  const currentQuestion = questions[index];
-  const answeredCount = getAnsweredCount();
-  const estimatedTimeLeft = getEstimatedTimeLeft();
+  // Auto-focus on batch entry
+  useEffect(() => {
+    const target = batch.find((q) => answers[q.id] == null);
+    if (target) {
+      setTimeout(() => {
+        nodesRef.current[target.id]?.scrollIntoView({
+          block: "center",
+          behavior: "smooth",
+        });
+      }, 100);
+    }
+  }, [batch]);
 
-  // Handle answer change
-  const handleAnswer = (value: number) => {
-    setAnswer(currentQuestion.id, value);
+  // Handle answer with auto-focus
+  const handleAnswer = (id: string, value: number) => {
+    setAnswer(id, value);
+
+    // Auto-focus to next unanswered question
+    setTimeout(() => {
+      const nextTarget = batch.find((q) => {
+        if (q.id === id) return false; // Skip current
+        return answers[q.id] == null;
+      });
+      if (nextTarget) {
+        nodesRef.current[nextTarget.id]?.scrollIntoView({
+          block: "center",
+          behavior: "smooth",
+        });
+      }
+    }, 200);
   };
 
-  // Handle next with validation
+  // Validate current batch
+  const validateBatch = () => {
+    return batch.filter((q) => answers[q.id] == null);
+  };
+
+  // Handle next step
   const handleNext = () => {
-    if (!answers[currentQuestion.id]) {
-      alert("답변을 선택해주세요.");
+    const missing = validateBatch();
+    if (missing.length > 0) {
+      alert(`이 페이지의 모든 문항에 답변해주세요. (미답변: ${missing.length}개)`);
+      // Focus on first missing
+      nodesRef.current[missing[0].id]?.scrollIntoView({
+        block: "center",
+        behavior: "smooth",
+      });
       return;
     }
-    
-    if (index < questions.length - 1) {
-      next();
+
+    if (step < totalSteps - 1) {
+      setStep((s) => s + 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      handleComplete();
+    }
+  };
+
+  // Handle previous step
+  const handlePrev = () => {
+    if (step > 0) {
+      setStep((s) => s - 1);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -99,48 +152,18 @@ export default function TestQuestionsPage() {
     const validation = validateCompleteness(answers);
 
     if (!validation.isValid) {
-      // 미답변 문제 목록 표시
-      const unansweredList = validation.missing
-        .map((id) => {
-          const q = questions.find((q) => q.id === id);
-          return q ? `• ${questions.indexOf(q) + 1}번 문제` : null;
-        })
-        .filter(Boolean)
-        .join("\n");
-
       alert(
-        `모든 문항에 답변해주세요.\n\n미답변 문항 (${validation.missing.length}개):\n${unansweredList}\n\n"미답변 문항 보기" 버튼을 클릭하여 확인하세요.`
+        `모든 문항에 답변해주세요.\n\n미답변 문항: ${validation.missing.length}개\n\n이전 페이지로 돌아가서 확인해주세요.`
       );
       return;
     }
 
-    // Save answers to localStorage
+    // Save to localStorage
     if (typeof window !== "undefined") {
       localStorage.setItem("test_answers", JSON.stringify(answers));
     }
 
-    // Move to profile page
     router.push("/test/profile");
-  };
-
-  // Jump to first unanswered question
-  const jumpToUnanswered = () => {
-    const validation = validateCompleteness(answers);
-    if (!validation.isValid && validation.missing.length > 0) {
-      const firstUnansweredId = validation.missing[0];
-      const firstUnansweredIndex = questions.findIndex(
-        (q) => q.id === firstUnansweredId
-      );
-      if (firstUnansweredIndex >= 0) {
-        // Jump to that question
-        const diff = firstUnansweredIndex - index;
-        if (diff > 0) {
-          for (let i = 0; i < diff; i++) next();
-        } else if (diff < 0) {
-          for (let i = 0; i < Math.abs(diff); i++) prev();
-        }
-      }
-    }
   };
 
   if (status === "loading") {
@@ -156,110 +179,185 @@ export default function TestQuestionsPage() {
     );
   }
 
-  if (!currentQuestion) {
-    return (
-      <PageContainer>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <p className="text-white/60">질문을 불러올 수 없습니다.</p>
-          </div>
-        </div>
-      </PageContainer>
-    );
-  }
-
-  const validation = validateCompleteness(answers);
-  const isCurrentAnswered = !!answers[currentQuestion.id];
+  const progress = Math.round(((step + 1) / totalSteps) * 100);
+  const batchAnswered = batch.filter((q) => answers[q.id] != null).length;
 
   return (
     <PageContainer>
-      <div className="min-h-screen flex flex-col px-4 py-8">
-        {/* Progress Bar */}
-        <div className="w-full max-w-4xl mx-auto mb-8">
-          <UnifiedProgress
-            current={index + 1}
-            total={questions.length}
-            answered={answeredCount}
-            estimatedTimeLeft={estimatedTimeLeft}
-          />
-          
-          {/* Unanswered count */}
-          {!validation.isValid && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={jumpToUnanswered}
-                className="px-4 py-2 rounded-lg bg-yellow-500/20 border border-yellow-500/30 text-yellow-300 text-sm hover:bg-yellow-500/30 transition"
-              >
-                ⚠️ 미답변 문항 {validation.missing.length}개 - 클릭하여 이동
-              </button>
+      <div className="min-h-screen px-4 py-8">
+        <div className="max-w-3xl mx-auto">
+          {/* Progress Header */}
+          <div className="mb-8 space-y-4">
+            <div className="flex items-center justify-between text-sm text-white/70">
+              <span>
+                {step + 1} / {totalSteps} 단계
+              </span>
+              <span>약 {estimatedMinutes}분 남음</span>
             </div>
-          )}
-        </div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.3 }}
+                className="h-full bg-gradient-to-r from-violet-500 to-cyan-500"
+              />
+            </div>
+            <div className="text-center text-sm text-white/60">
+              전체 {answeredCount} / {questions.length} 답변 완료
+            </div>
+          </div>
 
-        {/* Question */}
-        <div className="flex-1 flex items-center justify-center">
+          {/* Questions Batch */}
           <AnimatePresence mode="wait">
-            <UnifiedQuestion
-              key={currentQuestion.id}
-              questionId={currentQuestion.id}
-              text={currentQuestion.text}
-              value={answers[currentQuestion.id]}
-              scale={currentQuestion.scale}
-              onChange={handleAnswer}
-              onNext={index < questions.length - 1 ? handleNext : undefined}
-              onPrev={prev}
-            />
-          </AnimatePresence>
-        </div>
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6 mb-8"
+            >
+              {batch.map((question, idx) => {
+                const isAnswered = answers[question.id] != null;
+                const currentValue = answers[question.id];
 
-        {/* Navigation */}
-        <div className="w-full max-w-4xl mx-auto mt-8">
+                return (
+                  <div
+                    key={question.id}
+                    ref={(el) => (nodesRef.current[question.id] = el)}
+                    className={`rounded-2xl border p-6 transition-all ${
+                      isAnswered
+                        ? "border-violet-500/30 bg-violet-500/5"
+                        : "border-white/10 bg-white/5"
+                    }`}
+                  >
+                    {/* Question Number & Text */}
+                    <div className="mb-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span
+                          className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
+                            isAnswered
+                              ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white"
+                              : "bg-white/10 text-white/50"
+                          }`}
+                        >
+                          {step * STEP_SIZE + idx + 1}
+                        </span>
+                        {!isAnswered && (
+                          <span className="text-xs text-yellow-400">• 미답변</span>
+                        )}
+                      </div>
+                      <p className="text-lg text-white leading-relaxed">
+                        {question.text}
+                      </p>
+                    </div>
+
+                    {/* Slider */}
+                    <div className="space-y-4">
+                      <input
+                        type="range"
+                        min={1}
+                        max={question.scale}
+                        value={currentValue || Math.ceil(question.scale / 2)}
+                        onChange={(e) =>
+                          handleAnswer(question.id, parseInt(e.target.value))
+                        }
+                        className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer slider
+                          [&::-webkit-slider-thumb]:appearance-none
+                          [&::-webkit-slider-thumb]:w-6
+                          [&::-webkit-slider-thumb]:h-6
+                          [&::-webkit-slider-thumb]:rounded-full
+                          [&::-webkit-slider-thumb]:bg-gradient-to-r
+                          [&::-webkit-slider-thumb]:from-violet-500
+                          [&::-webkit-slider-thumb]:to-cyan-500
+                          [&::-webkit-slider-thumb]:cursor-pointer
+                          [&::-webkit-slider-thumb]:shadow-lg
+                          [&::-webkit-slider-thumb]:shadow-violet-500/50"
+                        style={{
+                          background: currentValue
+                            ? `linear-gradient(to right, 
+                                rgb(139, 92, 246) 0%, 
+                                rgb(34, 211, 238) ${
+                                  ((currentValue - 1) / (question.scale - 1)) * 100
+                                }%, 
+                                rgba(255, 255, 255, 0.1) ${
+                                  ((currentValue - 1) / (question.scale - 1)) * 100
+                                }%, 
+                                rgba(255, 255, 255, 0.1) 100%)`
+                            : undefined,
+                        }}
+                      />
+
+                      {/* Scale buttons */}
+                      <div className="flex justify-between">
+                        {Array.from({ length: question.scale }, (_, i) => i + 1).map(
+                          (num) => (
+                            <button
+                              key={num}
+                              onClick={() => handleAnswer(question.id, num)}
+                              className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${
+                                currentValue === num
+                                  ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white scale-110 shadow-lg shadow-violet-500/50"
+                                  : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                              }`}
+                            >
+                              {num}
+                            </button>
+                          )
+                        )}
+                      </div>
+
+                      {/* Labels */}
+                      <div className="flex justify-between text-xs text-white/50">
+                        <span>전혀 아니다</span>
+                        <span>보통이다</span>
+                        <span>매우 그렇다</span>
+                      </div>
+
+                      {/* Current value */}
+                      {currentValue && (
+                        <div className="text-center">
+                          <span className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-cyan-500/20 border border-violet-500/30 text-white text-sm">
+                            선택: <strong>{currentValue}</strong>
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Navigation */}
           <div className="flex justify-between items-center">
             <button
-              onClick={prev}
-              disabled={index === 0}
+              onClick={handlePrev}
+              disabled={step === 0}
               className="px-6 py-3 rounded-xl border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ← 이전
             </button>
 
-            <div className="text-sm text-white/50">
-              {index + 1} / {questions.length}
-              {!isCurrentAnswered && (
-                <span className="ml-2 text-yellow-400">• 미답변</span>
-              )}
+            <div className="text-sm text-white/60">
+              이 페이지: {batchAnswered} / {batch.length} 답변
             </div>
 
-            {index === questions.length - 1 ? (
-              <button
-                onClick={handleComplete}
-                className={`px-6 py-3 rounded-xl font-semibold shadow-lg transition ${
-                  validation.isValid
-                    ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-violet-500/20 hover:scale-[1.02]"
-                    : "bg-white/10 text-white/50 cursor-not-allowed"
-                }`}
-                disabled={!validation.isValid}
-              >
-                {validation.isValid ? "완료 →" : `미답변 ${validation.missing.length}개`}
-              </button>
-            ) : (
-              <button
-                onClick={handleNext}
-                className={`px-6 py-3 rounded-xl font-semibold shadow-lg transition ${
-                  isCurrentAnswered
-                    ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-violet-500/20 hover:scale-[1.02]"
-                    : "bg-white/10 text-white/50 cursor-not-allowed"
-                }`}
-                disabled={!isCurrentAnswered}
-              >
-                다음 →
-              </button>
-            )}
+            <button
+              onClick={handleNext}
+              className={`px-6 py-3 rounded-xl font-semibold shadow-lg transition ${
+                batchAnswered === batch.length
+                  ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-violet-500/20 hover:scale-[1.02]"
+                  : "bg-white/10 text-white/50 cursor-not-allowed"
+              }`}
+            >
+              {step === totalSteps - 1 ? "검사 완료 →" : "다음 →"}
+            </button>
           </div>
 
-          {/* Keyboard shortcuts hint */}
-          <div className="mt-4 text-center text-xs text-white/40">
-            💡 키보드 단축키: 1~{currentQuestion.scale} (답변), ← → (이전/다음)
+          {/* Hint */}
+          <div className="mt-6 text-center text-xs text-white/40">
+            💡 슬라이더를 움직이거나 숫자 버튼을 클릭하여 답변하세요
           </div>
         </div>
       </div>
