@@ -12,17 +12,70 @@ export default function TestProfilePage() {
   const handleSubmit = async (values: ProfileInput) => {
     console.log("📝 [TestProfile] Submitting profile:", values);
 
-    // TODO: Supabase에 프로필 저장
-    // TODO: 검사 결과와 연결
-    // TODO: 이메일 큐 등록
+    try {
+      // 1) localStorage에서 55문항 답변 가져오기
+      const answersRaw = localStorage.getItem("test_answers");
+      if (!answersRaw) {
+        alert("답변 데이터를 찾을 수 없습니다. 검사를 다시 시작해주세요.");
+        router.push("/test/intro");
+        return;
+      }
 
-    // 임시: localStorage에 저장
-    if (typeof window !== "undefined") {
-      localStorage.setItem("test_profile", JSON.stringify(values));
+      const answersObj = JSON.parse(answersRaw);
+      
+      // answers 객체를 배열로 변환 (question ID 순서대로)
+      const answers: number[] = [];
+      for (let i = 0; i < 55; i++) {
+        const questionId = `q_${String(i + 1).padStart(3, '0')}`; // q_001, q_002, ...
+        const value = answersObj[questionId];
+        if (value == null) {
+          alert(`문항 ${i + 1}의 답변이 누락되었습니다.`);
+          return;
+        }
+        answers.push(value);
+      }
+
+      if (answers.length !== 55) {
+        alert(`답변이 ${answers.length}개입니다. 55개가 필요합니다.`);
+        return;
+      }
+
+      console.log("📊 [TestProfile] Calling API with answers:", answers.length);
+
+      // 2) API 호출
+      const res = await fetch("/api/test/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          answers,
+          profile: {
+            gender: values.gender,
+            birthdate: values.birthdate,
+            email: values.email,
+          },
+          engineVersion: "imcore-1.0.0",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(`분석 실패: ${data?.message || data?.error || "알 수 없는 오류"}`);
+        return;
+      }
+
+      console.log("✅ [TestProfile] Analysis complete:", data.assessmentId);
+
+      // 3) localStorage 정리
+      localStorage.removeItem("test_answers");
+      localStorage.removeItem("test_profile");
+
+      // 4) 결과 페이지로 이동
+      router.push(`/result/summary?id=${data.assessmentId}`);
+    } catch (error) {
+      console.error("❌ [TestProfile] Error:", error);
+      alert("분석 중 오류가 발생했습니다. 다시 시도해주세요.");
     }
-
-    // 완료 페이지로 이동
-    router.push("/test/finish");
   };
 
   return (

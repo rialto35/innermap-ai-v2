@@ -1,27 +1,77 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import SummaryCard from "@/components/SummaryCard";
 import type { SummaryFields } from "@/types/assessment";
 
-// TODO: 실제 API에서 데이터 가져오기
-const mockSummary: SummaryFields = {
-  mbti: "ENTP",
-  big5: {
-    O: 85,
-    C: 62,
-    E: 78,
-    A: 55,
-    N: 48,
-  },
-  keywords: ["창의적", "논리적", "호기심", "독립적", "도전적"],
-  confidence: 0.87,
-};
-
 export default function ResultSummaryPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
+  const [summary, setSummary] = useState<SummaryFields | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!id) {
+      setError("결과 ID가 없습니다.");
+      setLoading(false);
+      return;
+    }
+
+    async function fetchResult() {
+      try {
+        const res = await fetch(`/api/test/results/${id}`);
+        if (!res.ok) {
+          throw new Error("결과를 불러올 수 없습니다.");
+        }
+        const data = await res.json();
+        setSummary(data.summary);
+      } catch (err: any) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchResult();
+  }, [id]);
+
+  if (loading) {
+    return (
+      <PageContainer>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4"></div>
+            <p className="text-white/60">결과를 불러오는 중...</p>
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
+
+  if (error || !summary) {
+    return (
+      <PageContainer>
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="text-center space-y-4">
+            <h2 className="text-2xl font-bold text-white">결과를 찾을 수 없습니다</h2>
+            <p className="text-white/60">{error}</p>
+            <button
+              onClick={() => router.push("/test/intro")}
+              className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-semibold"
+            >
+              새로운 검사 시작하기
+            </button>
+          </div>
+        </div>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -48,8 +98,8 @@ export default function ResultSummaryPage() {
             transition={{ delay: 0.1 }}
           >
             <SummaryCard
-              summary={mockSummary}
-              onViewDetail={() => router.push("/result/detail")}
+              summary={summary}
+              onViewDetail={() => router.push(`/result/detail?id=${id}`)}
             />
           </motion.div>
 
@@ -68,7 +118,7 @@ export default function ResultSummaryPage() {
               성장 벡터, Hero 카드 등을 제공합니다.
             </p>
             <button
-              onClick={() => router.push("/result/detail")}
+              onClick={() => router.push(`/result/detail?id=${id}`)}
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-semibold shadow-lg shadow-violet-500/20 hover:scale-[1.02] transition"
             >
               심층 분석 보기 →
@@ -98,4 +148,3 @@ export default function ResultSummaryPage() {
     </PageContainer>
   );
 }
-
