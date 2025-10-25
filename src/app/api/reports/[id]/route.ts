@@ -51,8 +51,56 @@ export async function GET(
     }
 
     if (reportError || !report) {
-      console.log('❌ [API /reports/:id] Report not found:', { reportError, report });
-      return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+      console.log('⚠️ [API /reports/:id] Report not found in reports table. Trying results fallback...', { reportError });
+
+      const { data: resultRow, error: resultError } = await supabaseAdmin
+        .from('results')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (resultError || !resultRow) {
+        console.log('❌ [API /reports/:id] Not found in results fallback either:', { resultError });
+        return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+      }
+
+      // 결과 스냅샷을 ReportV1로 변환 (fallback)
+      const mapBig5 = (b: any) => ({
+        o: b?.O ?? b?.o ?? 0,
+        c: b?.C ?? b?.c ?? 0,
+        e: b?.E ?? b?.e ?? 0,
+        a: b?.A ?? b?.a ?? 0,
+        n: b?.N ?? b?.n ?? 0,
+      });
+
+      const inner9Arr = (() => {
+        const rec = resultRow.inner9_scores as Record<string, number> | null;
+        if (!rec) return [] as Array<{ label: string; value: number }>;
+        return Object.entries(rec).map(([k, v]) => ({ label: k, value: Number(v) }));
+      })();
+
+      const fallback: ReportV1 = {
+        id: resultRow.id,
+        ownerId: (resultRow.user_id as any) ?? 'unknown',
+        meta: {
+          version: 'v1.3.1',
+          engineVersion: resultRow.engine_version || 'IM-Core 1.3.1',
+          weightsVersion: 'v1.3',
+          generatedAt: resultRow.created_at || new Date().toISOString(),
+        },
+        scores: {
+          big5: mapBig5(resultRow.big5_scores || {}),
+          mbti: resultRow.mbti_scores?.type || 'XXXX',
+          reti: resultRow.reti_scores?.score ?? 5,
+          inner9: inner9Arr,
+        },
+        summary: {
+          highlight: resultRow.analysis_text || '분석 결과를 확인해보세요.',
+          bullets: ['분석 완료', '결과 확인 가능'],
+        },
+      };
+
+      return NextResponse.json(fallback);
     }
 
     console.log('✅ [API /reports/:id] Report found:', {

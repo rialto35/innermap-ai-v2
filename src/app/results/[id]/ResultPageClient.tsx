@@ -11,6 +11,8 @@ import SectionCard from '@/components/layout/SectionCard'
 import ResultSkeleton from '@/components/ui/ResultSkeleton'
 import ResultBottomBar from '@/components/mobile/ResultBottomBar'
 import type { ResultSnapshot } from '@innermap/engine'
+import { getHeroSrc } from '@/lib/assets/hero'
+import { HERO_DEFAULT_SRC } from '@/lib/assets/hero'
 
 // Dynamic imports for charts (client-only)
 const Big5RadarChart = dynamicImport(() => import('@/components/Big5RadarChart'), { ssr: false })
@@ -153,7 +155,11 @@ export default function ResultPageClient({ id }: { id: string }) {
       </PageContainer>
 
       <ResultBottomBar
-        heroThumb={(result as any).hero?.image || '/heroes/default.svg'}
+        heroThumb={getHeroSrc({
+          gender: ((result as any)?.gender as any) || 'male',
+          mbti: (result as any)?.mbti?.type || (result as any)?.mbti || '',
+          reti: (result as any)?.reti?.primaryType || (result as any)?.reti || 1,
+        }) || HERO_DEFAULT_SRC}
         title={(result as any).hero.name}
         subtitle={`${(result as any).mbti?.type} • Type ${(result as any).reti?.primaryType}`}
         shareUrl={`${process.env.NEXT_PUBLIC_BASE_URL || 'https://innermap-ai-v2.vercel.app'}/results/${id}`}

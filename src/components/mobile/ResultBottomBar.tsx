@@ -1,5 +1,7 @@
 "use client";
 import { useState } from "react";
+import { HeroThumb } from "@/components/common/HeroThumb";
+import { HERO_DEFAULT_SRC } from "@/lib/assets/hero";
 
 interface ResultBottomBarProps {
   heroThumb: string;
@@ -48,11 +50,9 @@ export default function ResultBottomBar({
                    px-3 py-2 flex items-center gap-3 shadow-lg"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 8px)" }}
       >
-        <img 
-          src={heroThumb} 
-          alt="영웅 이미지" 
-          className="size-10 rounded-xl object-cover flex-shrink-0" 
-        />
+        <div className="relative w-10 h-10 rounded-xl overflow-hidden flex-shrink-0">
+          <HeroThumb src={heroThumb || HERO_DEFAULT_SRC} alt="영웅 이미지" size={40} />
+        </div>
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold truncate text-gray-900">{title}</div>
           <div className="text-xs text-gray-600 line-clamp-1">{subtitle}</div>

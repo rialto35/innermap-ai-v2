@@ -10,16 +10,12 @@
 
 'use client';
 
-import { useState } from 'react';
+import type { ReportV1 } from '@/types/report';
+import { getHeroSrc, HERO_DEFAULT_SRC } from '@/lib/assets/hero';
+import { HeroThumb } from '@/components/common/HeroThumb';
 
 interface ReportHeaderProps {
-  heroId: string;
-  heroName: string;
-  heroTribe?: string;
-  engineVersion: string;
-  createdAt: string;
-  finishedAt?: string;
-  reportId?: string;
+  report: ReportV1;
 }
 
 // Tribe 컬러 맵핑
@@ -35,15 +31,19 @@ const getTribeColors = (tribe?: string): { bg: string; accent: string; text: str
   return colorMap[tribe || 'Water'] || colorMap.Water;
 };
 
-export default function ReportHeader({
-  heroId,
-  heroName,
-  heroTribe,
-  engineVersion,
-  createdAt,
-  finishedAt,
-  reportId
-}: ReportHeaderProps) {
+export default function ReportHeader({ report }: ReportHeaderProps) {
+  const heroName = report.summary?.highlight?.slice(0, 1) || 'H';
+  const heroTribe = undefined as string | undefined; // tribe 정보가 ReportV1에 없으므로 미표시
+  const engineVersion = report.meta.engineVersion;
+  const createdAt = report.meta.generatedAt;
+  const finishedAt = undefined as string | undefined;
+  const reportId = report.id;
+
+  const heroSrc = getHeroSrc({
+    gender: 'male',
+    mbti: report.scores.mbti,
+    reti: report.scores.reti,
+  }) || HERO_DEFAULT_SRC;
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat('ko-KR', {
@@ -60,20 +60,16 @@ export default function ReportHeader({
   return (
     <div className="rounded-2xl p-8 mb-6 bg-white/70 dark:bg-gray-900/60 shadow-sm border border-white/40 dark:border-white/10 backdrop-blur">
       <div className="flex items-center gap-6">
-        {/* Avatar with Tribe colors */}
+        {/* Hero Image (safe thumb) */}
         <div className={`relative w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden ring-4 ring-white dark:ring-gray-800 shadow-lg bg-gradient-to-br ${colors.bg} flex items-center justify-center`}>
-          <span className="text-3xl md:text-4xl font-bold text-white drop-shadow-lg">
-            {heroName.charAt(0)}
-          </span>
+          <HeroThumb src={heroSrc} alt="영웅 썸네일" size={96} />
         </div>
 
         {/* Title & Meta */}
         <div className="flex-1">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
-                {heroName}의 성장 리포트
-              </h1>
+              <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">내면 분석 리포트</h1>
               {heroTribe && (
                 <p className={`mt-1 text-sm font-semibold ${colors.text}`}>
                   {heroTribe} 부족
