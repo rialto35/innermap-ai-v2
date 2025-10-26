@@ -18,81 +18,73 @@ interface StatusResponse {
   status: 'pending' | 'running' | 'ready' | 'error';
 }
 
-export async function GET(request: NextRequest) {
-  const session = await getServerSession(authOptions) as any;
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
-  }
-
-  const userId = session.user.email;
-  const { id: reportId } = await params;
-
-  if (!reportId) {
-    return NextResponse.json({
-      error: { code: 'INVALID_REQUEST', message: 'Report ID is required' }
-    }, { status: 400 });
-  }
-
-  // 2. Fetch report status
-  const { data: report, error: fetchError } = await supabaseAdmin
-    .from('reports')
-    .select('id, user_id, status, error_msg, started_at, finished_at, created_at')
-    .eq('id', reportId)
-    .single();
-
-  if (fetchError || !report) {
-    console.error('[GET /api/report/[id]/status] Report not found:', fetchError);
-    return NextResponse.json({
-      error: { code: 'NOT_FOUND', message: 'Report not found' }
-    }, { status: 404 });
-  }
-
-  // 3. Verify ownership
-  if (report.user_id !== userId) {
-    console.error('[GET /api/report/[id]/status] Ownership mismatch');
-    return NextResponse.json({
-      error: { code: 'FORBIDDEN', message: 'Access denied' }
-    }, { status: 403 });
-  }
-
-  // 4. Calculate estimated time remaining
-  let estimatedTimeRemaining: number | undefined;
-  if (report.status === 'queued' || report.status === 'processing') {
-    const createdAt = new Date(report.created_at).getTime();
-    const now = Date.now();
-    const elapsed = (now - createdAt) / 1000; // seconds
-
-    if (report.status === 'queued') {
-      // Average queue wait time: 5 seconds
-      estimatedTimeRemaining = Math.max(5 - elapsed, 0);
-    } else if (report.status === 'processing') {
-      // Average processing time: 30-60 seconds
-      const averageProcessingTime = 45;
-      const startedAt = report.started_at ? new Date(report.started_at).getTime() : now;
-      const processingElapsed = (now - startedAt) / 1000;
-      estimatedTimeRemaining = Math.max(averageProcessingTime - processingElapsed, 0);
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const session = await getServerSession(authOptions) as any;
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
-  }
 
-  // 5. Return status
-  const response: StatusResponse = {
-    reportId: report.id,
-    status: report.status as StatusResponse['status'],
-    error: report.error_msg || undefined,
-    startedAt: report.started_at || undefined,
-    finishedAt: report.finished_at || undefined,
-    estimatedTimeRemaining: estimatedTimeRemaining ? Math.round(estimatedTimeRemaining) : undefined
-  };
+    const userId = session.user.email;
+    const { id: reportId } = await params;
 
-  return NextResponse.json(response);
-
-} catch (error) {
-  console.error('[GET /api/report/[id]/status] Error:', error);
-  return NextResponse.json({
-    error: {
-      code: 'INTERNAL_ERROR',
-      message: error instanceof Error ? error.message : 'Unknown error'
+    if (!reportId) {
+      return NextResponse.json({
+        error: { code: 'INVALID_REQUEST', message: 'Report ID is required' }
+      }, { status: 400 });
     }
-  }, { status: 500 });
+
+    const { data: report, error: fetchError } = await supabaseAdmin
+      .from('reports')
+      .select('id, user_id, status, error_msg, started_at, finished_at, created_at')
+      .eq('id', reportId)
+      .single();
+
+    if (fetchError || !report) {
+      console.error('[GET /api/report/[id]/status] Report not found:', fetchError);
+      return NextResponse.json({
+        error: { code: 'NOT_FOUND', message: 'Report not found' }
+      }, { status: 404 });
+    }
+
+    if (report.user_id !== userId) {
+      console.error('[GET /api/report/[id]/status] Ownership mismatch');
+      return NextResponse.json({
+        error: { code: 'FORBIDDEN', message: 'Access denied' }
+      }, { status: 403 });
+    }
+
+    let estimatedTimeRemaining: number | undefined;
+    if (report.status === 'queued' || report.status === 'processing') {
+      const createdAt = new Date(report.created_at).getTime();
+      const now = Date.now();
+      const elapsed = (now - createdAt) / 1000;
+      if (report.status === 'queued') {
+        estimatedTimeRemaining = Math.max(5 - elapsed, 0);
+      } else {
+        const averageProcessingTime = 45;
+        const startedAt = report.started_at ? new Date(report.started_at).getTime() : now;
+        const processingElapsed = (now - startedAt) / 1000;
+        estimatedTimeRemaining = Math.max(averageProcessingTime - processingElapsed, 0);
+      }
+    }
+
+    return NextResponse.json({
+      reportId: report.id,
+      status: report.status as StatusResponse['status'],
+      estimatedTimeRemaining: estimatedTimeRemaining ? Math.round(estimatedTimeRemaining) : undefined
+    });
+  } catch (error) {
+    console.error('[GET /api/report/[id]/status] Error:', error);
+    return NextResponse.json({
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      }
+    }, { status: 500 });
+  }
 }
 
