@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
+import { getServerSession } from 'next-auth/next'
 
 import { authOptions } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase'
 
 export async function GET(_req: NextRequest) {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions) as any
   if (!session?.user?.email) {
     return NextResponse.json({ ok: false, error: 'UNAUTHORIZED' }, { status: 401 })
   }
@@ -29,7 +29,6 @@ export async function GET(_req: NextRequest) {
     .maybeSingle()
 
   if (subError) {
-    // If subscriptions table doesn't exist, return null data (no subscription)
     if (subError.code === 'PGRST205') {
       console.log('Subscriptions table not found, returning null subscription');
       return NextResponse.json(
