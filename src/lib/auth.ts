@@ -1,4 +1,4 @@
-import { AuthOptions } from 'next-auth'
+import { AuthOptions } from 'next-auth/next'
 import GoogleProvider from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 
