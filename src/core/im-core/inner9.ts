@@ -17,24 +17,28 @@ export type Inner9Config = {
  */
 export function toInner9(data: {
   big5: Big5Scores;
-  mbti: string;
-  reti: number;
+  mbti?: string;
+  reti?: number;
   weights?: { big5: number; mbti: number; reti: number };
 }): Inner9Axis[] {
-  const { big5, mbti, reti, weights = { big5: 1, mbti: 0.5, reti: 0.5 } } = data;
+  const { big5, mbti = '', reti = 5, weights = { big5: 1, mbti: 0.5, reti: 0.5 } } = data;
+
+  // ✅ 방어 코드: mbti와 reti가 undefined일 경우 기본값 사용
+  const safeMbti = mbti || '';
+  const safeReti = reti ?? 5;
 
   // Simplified mapping for Inner9 axes based on Big5, MBTI, and RETI
   // In a real system, this would be a more complex weighted matrix multiplication
   const inner9Scores: { [key: string]: number } = {
-    creation: big5.o * weights.big5 + (mbti.includes('N') ? 10 : 0) * weights.mbti,
-    balance: (100 - Math.abs(big5.e - big5.c)) * weights.big5 + (mbti.includes('J') ? 5 : 0) * weights.mbti,
-    intuition: big5.o * weights.big5 + (mbti.includes('N') ? 15 : 0) * weights.mbti,
-    analysis: big5.c * weights.big5 + (mbti.includes('T') ? 10 : 0) * weights.mbti,
-    harmony: big5.a * weights.big5 + (mbti.includes('F') ? 15 : 0) * weights.mbti,
-    drive: big5.e * weights.big5 + (reti > 5 ? 10 : 0) * weights.reti,
-    reflection: (100 - big5.n) * weights.big5 + (mbti.includes('I') ? 5 : 0) * weights.mbti,
-    empathy: big5.a * weights.big5 + (mbti.includes('F') ? 10 : 0) * weights.mbti,
-    discipline: big5.c * weights.big5 + (reti < 5 ? 10 : 0) * weights.reti,
+    creation: big5.o * weights.big5 + (safeMbti.includes('N') ? 10 : 0) * weights.mbti,
+    balance: (100 - Math.abs(big5.e - big5.c)) * weights.big5 + (safeMbti.includes('J') ? 5 : 0) * weights.mbti,
+    intuition: big5.o * weights.big5 + (safeMbti.includes('N') ? 15 : 0) * weights.mbti,
+    analysis: big5.c * weights.big5 + (safeMbti.includes('T') ? 10 : 0) * weights.mbti,
+    harmony: big5.a * weights.big5 + (safeMbti.includes('F') ? 15 : 0) * weights.mbti,
+    drive: big5.e * weights.big5 + (safeReti > 5 ? 10 : 0) * weights.reti,
+    reflection: (100 - big5.n) * weights.big5 + (safeMbti.includes('I') ? 5 : 0) * weights.mbti,
+    empathy: big5.a * weights.big5 + (safeMbti.includes('F') ? 10 : 0) * weights.mbti,
+    discipline: big5.c * weights.big5 + (safeReti < 5 ? 10 : 0) * weights.reti,
   };
 
   return Object.entries(inner9Scores).map(([key, value]) => ({
