@@ -19,7 +19,7 @@ import {
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const BUNDLE_KEYS = ["summary", "detail", "dashboard", "coaching"] as const;
+const BUNDLE_KEYS = ["summary", "detail", "dashboard", "coaching", "horoscope"] as const;
 type BundleKey = (typeof BUNDLE_KEYS)[number];
 
 function parseBundle(searchParams: URLSearchParams): Set<BundleKey | "all"> {
