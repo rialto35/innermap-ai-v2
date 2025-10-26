@@ -22,7 +22,7 @@ import {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as any;
     const body = (await req.json()) as any;
     
     console.log('📊 [API /analyze] Request body:', JSON.stringify(body, null, 2));
