@@ -9,7 +9,7 @@ import { logEvent } from '@/lib/logEvent'
 import { authOptions } from '@/lib/auth'
 
 export default async function PremiumContent() {
-  const session = await getServerSession(authOptions)
+  const session = await getServerSession(authOptions) as any
   if (!session?.user?.email) {
     redirect('/login?next=/premium/content')
   }
