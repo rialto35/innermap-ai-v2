@@ -56,7 +56,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as any;
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: "UNAUTHORIZED", message: "로그인이 필요합니다." },

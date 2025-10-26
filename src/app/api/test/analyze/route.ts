@@ -11,7 +11,7 @@ import { runIMCore } from "@/lib/imcore/analyze";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as any;
     const { answers, profile, engineVersion = "imcore-1.0.0" } = await req.json();
 
     // 입력 검증
