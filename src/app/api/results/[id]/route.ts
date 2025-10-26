@@ -57,20 +57,13 @@ export async function GET(
 ) {
   try {
     const session = await getServerSession(authOptions) as any;
-    if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: "UNAUTHORIZED", message: "로그인이 필요합니다." },
-        { status: 401 }
-      );
-    }
-
     const { id } = await params;
     const bundleSet = parseBundle(new URL(request.url).searchParams);
 
     // 1) Assessments 기본 정보 확인 및 소유권 검증
     const { data: assessment, error: assessmentError } = await supabaseAdmin
       .from("test_assessments")
-      .select("id, user_id, engine_version, completed_at")
+      .select("id, user_id, owner_token, engine_version, completed_at")
       .eq("id", id)
       .maybeSingle();
 
@@ -81,10 +74,31 @@ export async function GET(
       );
     }
 
-    if (assessment.user_id && assessment.user_id !== session.user.id) {
+    // 소유권 검증
+    let isOwner = false;
+    let isAnonymous = false;
+    let isLimited = false;
+
+    // Case 1: 로그인 사용자 + 본인 데이터
+    if (session?.user?.id && assessment.user_id === session.user.id) {
+      isOwner = true;
+      isAnonymous = false;
+    }
+    // Case 2: 익명 데이터 + 쿠키 토큰 일치
+    else if (!assessment.user_id && assessment.owner_token) {
+      const cookieToken = request.cookies.get(`result_${id}_owner`)?.value;
+      if (cookieToken === assessment.owner_token) {
+        isOwner = true;
+        isAnonymous = true;
+        isLimited = true; // 익명 사용자는 제한된 데이터만
+      }
+    }
+
+    // 소유권 없음
+    if (!isOwner) {
       return NextResponse.json(
-        { error: "FORBIDDEN", message: "해당 검사에 접근 권한이 없습니다." },
-        { status: 403 }
+        { error: "UNAUTHORIZED", message: "이 결과에 접근할 권한이 없습니다. 로그인하거나 검사를 진행한 브라우저에서 접속해주세요." },
+        { status: 401 }
       );
     }
 
@@ -143,7 +157,8 @@ export async function GET(
     }
 
     let dashboardGenerated = false;
-    if (wants(bundleSet, "dashboard")) {
+    // 익명 사용자는 dashboard, coaching, horoscope 접근 제한
+    if (wants(bundleSet, "dashboard") && !isLimited) {
       const { data: viewRow } = await supabaseAdmin
         .from("result_views")
         .select("level, xp_current, xp_max, strengths, growth_areas, quests")
@@ -172,7 +187,7 @@ export async function GET(
       }
     }
 
-    if (wants(bundleSet, "coaching")) {
+    if (wants(bundleSet, "coaching") && !isLimited) {
       const { data: coachingRow } = await supabaseAdmin
         .from("result_coaching")
         .select("daily_coaching, weekly_plan, narrative")
@@ -193,7 +208,7 @@ export async function GET(
       }
     }
 
-    if (wants(bundleSet, "horoscope")) {
+    if (wants(bundleSet, "horoscope") && !isLimited) {
       const { data: horoscopeRow } = await supabaseAdmin
         .from("result_horoscope")
         .select("date, fortune")
@@ -212,13 +227,25 @@ export async function GET(
       }
     }
 
-    return NextResponse.json(bundle, {
-      headers: {
-        "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-        pragma: "no-cache",
-        expires: "0",
+    return NextResponse.json(
+      {
+        ...bundle,
+        _meta: {
+          isAnonymous,
+          isLimited,
+          message: isLimited
+            ? "익명 사용자는 요약 정보만 확인할 수 있습니다. 로그인하고 전체 리포트를 확인하세요!"
+            : undefined,
+        },
       },
-    });
+      {
+        headers: {
+          "cache-control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+          pragma: "no-cache",
+          expires: "0",
+        },
+      }
+    );
   } catch (error) {
     console.error("❌ [API /results/:id] Error:", error);
     return NextResponse.json(

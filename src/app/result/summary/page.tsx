@@ -17,6 +17,8 @@ function ResultSummaryContent() {
   const [resultId, setResultId] = useState<string | null>(queryId);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLimited, setIsLimited] = useState(false);
+  const [limitMessage, setLimitMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -49,13 +51,17 @@ function ResultSummaryContent() {
           throw new Error(data?.message || "결과를 불러올 수 없습니다.");
         }
 
-        const bundle = (await bundleRes.json()) as ResultBundle;
+        const bundle = (await bundleRes.json()) as ResultBundle & {
+          _meta?: { isAnonymous?: boolean; isLimited?: boolean; message?: string };
+        };
         if (!bundle.summary) {
           throw new Error("요약 데이터를 찾을 수 없습니다.");
         }
 
         if (!mounted) return;
         setSummary(bundle.summary as SummaryFields);
+        setIsLimited(bundle._meta?.isLimited ?? false);
+        setLimitMessage(bundle._meta?.message ?? null);
         setError(null);
       } catch (err: any) {
         if (!mounted) return;
@@ -109,6 +115,29 @@ function ResultSummaryContent() {
     <PageContainer>
       <div className="min-h-screen px-4 py-12">
         <div className="max-w-3xl mx-auto space-y-8">
+          {/* 익명 사용자 제한 배너 */}
+          {isLimited && limitMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-orange-500/10 p-6 text-center space-y-4"
+            >
+              <div className="flex items-center justify-center gap-2 text-amber-400">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <h3 className="text-lg font-semibold">익명 사용자 제한 모드</h3>
+              </div>
+              <p className="text-white/80 text-sm">{limitMessage}</p>
+              <button
+                onClick={() => router.push("/login?redirect=/result/summary?id=" + resultId)}
+                className="px-6 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-lg shadow-amber-500/20 hover:scale-[1.02] transition"
+              >
+                로그인하고 전체 리포트 보기 →
+              </button>
+            </motion.div>
+          )}
+
           {/* 헤더 */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}

@@ -8,6 +8,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { runIMCore } from "@/lib/imcore/analyze";
+import crypto from "crypto";
 
 export async function POST(req: Request) {
   try {
@@ -37,11 +38,15 @@ export async function POST(req: Request) {
       engineVersion,
     });
 
-    // 1) assessments 생성 (비로그인 사용자는 user_id = NULL)
+    // 익명 사용자용 소유 토큰 생성
+    const ownerToken = isAnonymous ? crypto.randomBytes(32).toString("hex") : null;
+
+    // 1) assessments 생성 (비로그인 사용자는 user_id = NULL, owner_token 설정)
     const { data: assess, error: errAssess } = await supabaseAdmin
       .from("test_assessments")
       .insert({
         user_id: userId, // NULL 허용
+        owner_token: ownerToken, // 익명 사용자만 설정
         engine_version: engineVersion,
         raw_answers: answers,
         completed_at: new Date().toISOString(),
@@ -106,11 +111,25 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({
+    // 5) 익명 사용자: HTTPOnly 쿠키로 소유 토큰 설정
+    const response = NextResponse.json({
       ok: true,
       assessmentId: assess.id,
       summary: output.summary,
     });
+
+    if (isAnonymous && ownerToken) {
+      response.cookies.set(`result_${assess.id}_owner`, ownerToken, {
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 30, // 30일
+      });
+      console.log("🔐 [API /test/analyze] Owner token cookie set for anonymous user");
+    }
+
+    return response;
   } catch (e: any) {
     console.error("❌ [API /test/analyze] Error:", e);
     return NextResponse.json(
