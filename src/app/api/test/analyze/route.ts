@@ -25,8 +25,8 @@ export async function POST(req: Request) {
     // 사용자 ID (UUID 타입 또는 NULL)
     // - 로그인: session.user.id (Supabase UUID)
     // - 비로그인: null
-    const userId = session?.user?.id || null;
-    const userEmail = session?.user?.email || null;
+    const userId = (session as any)?.user?.id || null;
+    const userEmail = (session as any)?.user?.email || null;
     const isAnonymous = !userId;
 
     console.log("📊 [API /test/analyze] Starting analysis", {
