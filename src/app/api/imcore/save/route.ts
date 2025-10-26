@@ -8,9 +8,9 @@ export const dynamic = 'force-dynamic'
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as any
     
-    if (!session) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -41,15 +41,15 @@ export async function POST(request: NextRequest) {
     // 사용자 조회 또는 생성
     const provider = (session as any).provider || 'google'
     const providerId = (session as any).providerId
-    const rawEmail = session.user?.email || null
+    const rawEmail = (session as any).user?.email || null
     const effectiveEmail = provider !== 'google'
       ? (rawEmail ? `${provider}:${rawEmail}` : `${provider}:${providerId}`)
       : (rawEmail as string)
 
     const { user, isNewUser } = await findOrCreateUser({
       email: effectiveEmail,
-      name: session.user?.name,
-      image: session.user?.image,
+      name: (session as any).user?.name,
+      image: (session as any).user?.image,
       provider,
       providerId
     })
