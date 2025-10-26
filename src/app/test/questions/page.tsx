@@ -50,9 +50,12 @@ export default function TestQuestionsPage() {
   // Estimated time left (1분 per step)
   const estimatedMinutes = Math.max(1, totalSteps - step);
 
-  // Auth guard
+  // Auth guard (익명 검사 플래그 확인)
   useEffect(() => {
-    if (status === "unauthenticated") {
+    const ANON_ENABLED = process.env.NEXT_PUBLIC_IM_ANON_TEST_ENABLED === "true";
+    
+    if (status === "unauthenticated" && !ANON_ENABLED) {
+      console.log("🚫 [Client Guard] Anonymous test blocked (flag OFF)");
       router.push("/login");
     }
   }, [status, router]);
