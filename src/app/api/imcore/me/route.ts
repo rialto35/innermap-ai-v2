@@ -39,7 +39,7 @@ function extractStrengthsWeaknesses(abilities: { openness: number; conscientious
 
 export async function GET() {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getServerSession(authOptions) as any
 
     // 세션 안전 추출
     const provider = (session as any)?.provider
