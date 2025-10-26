@@ -242,3 +242,10 @@ supabase/
 **검토**: 사용자 승인 대기  
 **배포**: 추후 결정
 
+## Result Insight Page
+- `/result/insight?id=:result_id` 추가
+- bundle `coaching,horoscope` 로딩
+- coaching 카드 + 데일리 포춘 카드 표시
+- `/api/results/:id?bundle=coaching,horoscope` 활용
+- fallback: `/api/me/latest`로 최신 `result_id`
+
