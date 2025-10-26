@@ -23,21 +23,16 @@ import {
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Auth guard
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) {
-      return NextResponse.json({
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authentication required'
-        }
-      } as ErrorResponse, { status: 401 });
+    const session = await getServerSession(authOptions) as any;
+    const body = await request.json().catch(() => ({})) as AssessRequest;
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'UNAUTHORIZED', message: '로그인이 필요합니다.' } as any, { status: 401 });
     }
 
-    const userId = session.user.email; // TODO: Use proper user ID from DB
+    const userId = session.user.id; // TODO: Use proper user ID from DB
 
     // 2. Parse & validate request
-    const body: AssessRequest = await request.json();
     
     if (!body.answers || !Array.isArray(body.answers) || body.answers.length === 0) {
       return NextResponse.json({
@@ -128,15 +123,8 @@ export async function POST(request: NextRequest) {
       result: snapshot
     } as AssessResponse);
 
-  } catch (error) {
-    console.error('[POST /api/assess] Error:', error);
-    return NextResponse.json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: error instanceof Error ? error.message : 'Failed to process assessment',
-        details: process.env.NODE_ENV === 'development' ? error : undefined
-      }
-    } as ErrorResponse, { status: 500 });
+  } catch (e: any) {
+    return NextResponse.json({ error: 'UNKNOWN', message: e?.message || '오류' } as any, { status: 500 });
   }
 }
 

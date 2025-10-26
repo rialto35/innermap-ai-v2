@@ -16,10 +16,12 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { id: reportId } = await params;
-    if (!reportId) {
-      return NextResponse.json({ error: { code: 'INVALID_REQUEST', message: 'Report ID is required' } }, { status: 400 });
+    const session = await getServerSession(authOptions) as any;
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
+
+    const { id } = await params;
 
     // 공유 토큰 파라미터
     const token = request.nextUrl.searchParams.get('t');
@@ -28,7 +30,7 @@ export async function GET(
     const { data: report, error } = await supabaseAdmin
       .from('reports')
       .select('id, user_id, result_id, status, summary_md, visuals_json, created_at, finished_at, share_token, share_issued_at')
-      .eq('id', reportId)
+      .eq('id', id)
       .single();
 
     if (error || !report) {
@@ -47,10 +49,6 @@ export async function GET(
       // }
     } else {
       // 2) 토큰이 없으면 로그인 사용자 소유권 검증
-      const session = await getServerSession(authOptions);
-      if (!session?.user?.email) {
-        return NextResponse.json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required' } }, { status: 401 });
-      }
       const sessionUserId = session.user.email;
       if (report.user_id !== sessionUserId) {
         return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Access denied' } }, { status: 403 });
@@ -87,7 +85,7 @@ export async function GET(
         fetch(functionUrl, {
           method: 'POST',
           headers: { Authorization: `Bearer ${serviceKey}`, 'Content-Type': 'application/json' },
-          body: JSON.stringify({ reportId }),
+          body: JSON.stringify({ reportId: id }),
         }).catch(() => {});
       }
     } catch {}

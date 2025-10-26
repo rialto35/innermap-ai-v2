@@ -27,8 +27,7 @@ interface ReportResponse {
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Auth guard
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as any;
     if (!session?.user?.email) {
       console.log('[POST /api/report] Unauthorized access attempt');
       return NextResponse.json({

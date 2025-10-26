@@ -14,19 +14,20 @@ import type { ErrorResponse } from '@innermap/types';
 export async function POST(request: NextRequest) {
   try {
     // Auth guard
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions) as any;
     if (!session?.user?.email) {
       return NextResponse.json({
         error: {
           code: 'UNAUTHORIZED',
-          message: 'Authentication required'
-        }
+          message: '로그인이 필요합니다.',
+        },
       } as ErrorResponse, { status: 401 });
     }
 
-    const userId = session.user.email;
-    const body = await request.json();
-    const { draftId, answers, timestamp } = body;
+    const body = await request.json().catch(() => ({})) as any;
+    const draftId = body?.id || uuidv4();
+    const answers = body?.answers || {};
+    const timestamp = body?.timestamp || Date.now();
 
     // Validate
     if (!answers || typeof answers !== 'object') {
@@ -58,7 +59,7 @@ export async function POST(request: NextRequest) {
           updated_at: new Date(timestamp || Date.now()).toISOString()
         })
         .eq('id', draftId)
-        .eq('user_id', userId)
+        .eq('user_id', session.user.email)
         .eq('draft', true);
 
       if (error) {
@@ -75,7 +76,7 @@ export async function POST(request: NextRequest) {
         .from('assessments')
         .insert({
           id: newDraftId,
-          user_id: userId,
+          user_id: session.user.email,
           answers,
           draft: true,
           test_type: 'full',
@@ -92,15 +93,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ draftId: newDraftId });
     }
 
-  } catch (error) {
-    console.error('[POST /api/assess/draft] Error:', error);
-    return NextResponse.json({
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: 'Failed to save draft',
-        details: process.env.NODE_ENV === 'development' ? error : undefined
-      }
-    } as ErrorResponse, { status: 500 });
+  } catch (e: any) {
+    console.error('[POST /api/assess/draft] Error:', e);
+    return NextResponse.json({ error: { code: 'UNKNOWN', message: e?.message || '오류' } } as ErrorResponse, { status: 500 });
   }
 }
 
