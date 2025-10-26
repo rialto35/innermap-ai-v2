@@ -10,6 +10,11 @@ import { supabaseAdmin } from "@/lib/supabase";
 import { toSummary, toPremium } from "@/lib/resultProjector";
 import type { ResultBundle, ResultDashboard, ResultCoaching } from "@/types/result-bundle";
 import type { AssessmentResult } from "@/types/assessment";
+import {
+  ensureDashboardCache,
+  ensureCoachingCache,
+  ensureHoroscopeCache,
+} from "@/lib/results/orchestrator";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -141,7 +146,7 @@ export async function GET(
       }
     }
 
-    // 3) Dashboard bundle (result_views)
+    let dashboardGenerated = false;
     if (wants(bundleSet, "dashboard")) {
       const { data: viewRow } = await supabaseAdmin
         .from("result_views")
@@ -163,10 +168,14 @@ export async function GET(
             : [],
         };
         bundle.dashboard = dashboard;
+      } else if (resultRow && (bundle.summary || bundle.detail)) {
+        const summary = bundle.summary!;
+        const detail = bundle.detail ?? null;
+        bundle.dashboard = await ensureDashboardCache(id, summary, detail);
+        dashboardGenerated = true;
       }
     }
 
-    // 4) Coaching bundle (result_coaching)
     if (wants(bundleSet, "coaching")) {
       const { data: coachingRow } = await supabaseAdmin
         .from("result_coaching")
@@ -181,6 +190,10 @@ export async function GET(
           narrative: coachingRow.narrative,
         };
         bundle.coaching = coaching;
+      } else if (resultRow && (bundle.summary || bundle.detail)) {
+        const summary = bundle.summary!;
+        const detail = bundle.detail ?? null;
+        bundle.coaching = await ensureCoachingCache(id, summary, detail);
       }
     }
 
