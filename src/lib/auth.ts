@@ -1,6 +1,9 @@
-import NextAuth, { type NextAuthOptions } from 'next-auth'
+import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
+
+// Version-agnostic type inference (works for both v4 and v5)
+type AuthConfig = Parameters<typeof NextAuth>[0]
 
 // 카카오 프로바이더 (NextAuth v4 호환)
 const createKakaoProvider = () => ({
@@ -113,7 +116,7 @@ if (process.env.NODE_ENV === 'development') {
   console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? '✅ 설정됨' : '❌ 누락')
 }
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: AuthConfig = {
   providers: [
     // E2E 테스트 전용 Credentials Provider
     ...(process.env.NEXT_PUBLIC_E2E === '1'
@@ -273,6 +276,6 @@ export const authOptions: NextAuthOptions = {
   },
 }
 
-// v4 Route Handler export
-const handler = NextAuth(authOptions)
+// v4/v5 compatible Route Handler export
+const handler = NextAuth(authOptions as any)
 export { handler as GET, handler as POST }
