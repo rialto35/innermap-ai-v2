@@ -8,7 +8,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { toSummary, toPremium } from "@/lib/resultProjector";
-import type { ResultBundle, ResultDashboard, ResultCoaching } from "@/types/result-bundle";
+import type { ResultBundle, ResultDashboard, ResultCoaching, ResultHoroscope } from "@/types/result-bundle";
 import type { AssessmentResult } from "@/types/assessment";
 import {
   ensureDashboardCache,
@@ -94,14 +94,14 @@ export async function GET(
 
     // 2) Summary / Detail 기본 데이터 로드
     let resultRow: any | null = null;
-    if (wants(bundleSet, "summary") || wants(bundleSet, "detail") || wants(bundleSet, "dashboard") || wants(bundleSet, "coaching")) {
+    if (!resultRow && (wants(bundleSet, "summary") || wants(bundleSet, "detail") || wants(bundleSet, "dashboard") || wants(bundleSet, "coaching") || wants(bundleSet, "horoscope"))) {
       const { data, error } = await supabaseAdmin
         .from("test_assessment_results")
         .select("mbti, big5, keywords, confidence, inner9, world, created_at")
         .eq("assessment_id", id)
         .maybeSingle();
 
-      if ((wants(bundleSet, "summary") || wants(bundleSet, "detail")) && (!data || error)) {
+      if ((!data || error) && (wants(bundleSet, "summary") || wants(bundleSet, "detail"))) {
         return NextResponse.json(
           { error: "NOT_FOUND", message: "분석 결과를 찾을 수 없습니다." },
           { status: 404 }
@@ -109,39 +109,35 @@ export async function GET(
       }
 
       resultRow = data;
+    }
 
-      if (data && wants(bundleSet, "summary")) {
-        const assessmentResult: AssessmentResult = {
-          mbti: data.mbti,
-          big5: data.big5,
-          keywords: data.keywords ?? [],
-          confidence: data.confidence ?? undefined,
-        } as AssessmentResult;
-        const summary = toSummary(assessmentResult);
-        bundle.summary = {
-          mbti: summary.mbti,
-          big5: summary.big5,
-          keywords: summary.keywords,
-          confidence: summary.confidence,
-        };
+    let summaryBundle = bundle.summary;
+    let detailBundle = bundle.detail;
+
+    if (resultRow) {
+      const assessmentResult: AssessmentResult = {
+        mbti: resultRow?.mbti,
+        big5: resultRow?.big5,
+        keywords: resultRow?.keywords ?? [],
+        confidence: resultRow?.confidence ?? undefined,
+        inner9: resultRow?.inner9 ?? undefined,
+        world: resultRow?.world ?? undefined,
+      } as AssessmentResult;
+
+      if (!summaryBundle && wants(bundleSet, "summary")) {
+        summaryBundle = toSummary(assessmentResult);
+        bundle.summary = summaryBundle;
       }
 
-      if (data && wants(bundleSet, "detail")) {
-        const assessmentResult: AssessmentResult = {
-          mbti: data.mbti,
-          big5: data.big5,
-          keywords: data.keywords ?? [],
-          confidence: data.confidence ?? undefined,
-          inner9: data.inner9 ?? undefined,
-          world: data.world ?? undefined,
-        } as AssessmentResult;
+      if (!detailBundle && wants(bundleSet, "detail")) {
         const premium = toPremium(assessmentResult);
         if (premium) {
-          bundle.detail = {
+          detailBundle = {
             inner9: premium.inner9,
             world: premium.world,
             growthVector: premium.growthVector,
           };
+          bundle.detail = detailBundle;
         }
       }
     }
@@ -194,6 +190,25 @@ export async function GET(
         const summary = bundle.summary!;
         const detail = bundle.detail ?? null;
         bundle.coaching = await ensureCoachingCache(id, summary, detail);
+      }
+    }
+
+    if (wants(bundleSet, "horoscope")) {
+      const { data: horoscopeRow } = await supabaseAdmin
+        .from("result_horoscope")
+        .select("date, fortune")
+        .eq("result_id", id)
+        .maybeSingle();
+
+      if (horoscopeRow?.fortune) {
+        const horoscope: ResultHoroscope = {
+          date: horoscopeRow.date ?? new Date().toISOString().slice(0, 10),
+          fortune: horoscopeRow.fortune,
+        };
+        bundle.horoscope = horoscope;
+      } else {
+        const detail = bundle.detail ?? null;
+        bundle.horoscope = await ensureHoroscopeCache(id, detail, undefined);
       }
     }
 

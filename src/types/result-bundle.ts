@@ -25,10 +25,21 @@ export type ResultCoaching = {
   narrative: { work: string; relation: string; habit: string };
 };
 
+export type ResultHoroscope = {
+  date: string;
+  fortune: {
+    tone: string;
+    score: number;
+    message: string;
+    focus: string;
+  };
+};
+
 export type ResultBundle = {
   id: string;
   summary?: ResultSummary;
   detail?: ResultDetail;
   dashboard?: ResultDashboard;
   coaching?: ResultCoaching;
+  horoscope?: ResultHoroscope;
 };
