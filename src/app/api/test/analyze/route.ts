@@ -9,9 +9,25 @@ import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { runIMCore } from "@/lib/imcore/analyze";
 
+// 익명 검사 플래그 (기본값: false)
+const ANON_ENABLED = process.env.IM_ANON_TEST_ENABLED === "true";
+
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
+    
+    // 🔒 익명 검사 가드: 로그인 없고 플래그도 OFF면 차단
+    if (!session?.user && !ANON_ENABLED) {
+      console.log("🚫 [API /test/analyze] Anonymous test blocked (flag OFF)");
+      return NextResponse.json(
+        { 
+          error: "LOGIN_REQUIRED", 
+          message: "로그인이 필요합니다. 익명 검사는 현재 비활성화되어 있습니다." 
+        },
+        { status: 401 }
+      );
+    }
+    
     const { answers, profile, engineVersion = "imcore-1.0.0" } = await req.json();
 
     // 입력 검증
