@@ -6,40 +6,72 @@ import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import SummaryCard from "@/components/SummaryCard";
 import type { SummaryFields } from "@/types/assessment";
+import type { ResultBundle } from "@/types/result-bundle";
 
 function ResultSummaryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const id = searchParams.get("id");
+  const queryId = searchParams.get("id");
 
   const [summary, setSummary] = useState<SummaryFields | null>(null);
+  const [resultId, setResultId] = useState<string | null>(queryId);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
-      setError("결과 ID가 없습니다.");
-      setLoading(false);
-      return;
-    }
-
-    async function fetchResult() {
+    let mounted = true;
+    async function loadSummary() {
       try {
-        const res = await fetch(`/api/test/results/${id}`);
-        if (!res.ok) {
-          throw new Error("결과를 불러올 수 없습니다.");
+        setLoading(true);
+        let targetId = queryId;
+
+        if (!targetId) {
+          const latestRes = await fetch("/api/me/latest", { cache: "no-store" });
+          if (!latestRes.ok) {
+            throw new Error("최근 검사 정보를 불러올 수 없습니다.");
+          }
+          const latestData = await latestRes.json();
+          targetId = latestData?.result_id || null;
         }
-        const data = await res.json();
-        setSummary(data.summary);
+
+        if (!targetId) {
+          throw new Error("결과 ID가 없습니다. 검사를 먼저 진행해주세요.");
+        }
+
+        setResultId(targetId);
+
+        const bundleRes = await fetch(`/api/results/${targetId}?bundle=summary`, {
+          cache: "no-store",
+        });
+
+        if (!bundleRes.ok) {
+          const data = await bundleRes.json().catch(() => ({}));
+          throw new Error(data?.message || "결과를 불러올 수 없습니다.");
+        }
+
+        const bundle = (await bundleRes.json()) as ResultBundle;
+        if (!bundle.summary) {
+          throw new Error("요약 데이터를 찾을 수 없습니다.");
+        }
+
+        if (!mounted) return;
+        setSummary(bundle.summary as SummaryFields);
+        setError(null);
       } catch (err: any) {
-        setError(err.message);
+        if (!mounted) return;
+        setError(err?.message || "결과를 불러오지 못했습니다.");
+        setSummary(null);
       } finally {
-        setLoading(false);
+        if (mounted) setLoading(false);
       }
     }
 
-    fetchResult();
-  }, [id]);
+    loadSummary();
+
+    return () => {
+      mounted = false;
+    };
+  }, [queryId]);
 
   if (loading) {
     return (
@@ -99,7 +131,7 @@ function ResultSummaryContent() {
           >
             <SummaryCard
               summary={summary}
-              onViewDetail={() => router.push(`/result/detail?id=${id}`)}
+              onViewDetail={() => router.push(`/result/detail?id=${resultId ?? ""}`)}
             />
           </motion.div>
 
@@ -118,7 +150,7 @@ function ResultSummaryContent() {
               성장 벡터, Hero 카드 등을 제공합니다.
             </p>
             <button
-              onClick={() => router.push(`/result/detail?id=${id}`)}
+              onClick={() => router.push(`/result/detail?id=${resultId ?? ""}`)}
               className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-semibold shadow-lg shadow-violet-500/20 hover:scale-[1.02] transition"
             >
               심층 분석 보기 →
@@ -135,7 +167,6 @@ function ResultSummaryContent() {
             </button>
             <button
               onClick={() => {
-                // TODO: 공유 기능
                 alert("공유 기능 준비 중입니다!");
               }}
               className="px-6 py-3 rounded-xl border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition"
