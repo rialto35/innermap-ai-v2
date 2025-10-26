@@ -1,4 +1,4 @@
-import type { AuthOptions } from 'next-auth/core/types'
+import NextAuth, { type NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 
@@ -113,7 +113,7 @@ if (process.env.NODE_ENV === 'development') {
   console.log('NEXTAUTH_SECRET:', process.env.NEXTAUTH_SECRET ? '✅ 설정됨' : '❌ 누락')
 }
 
-export const authOptions: AuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     // E2E 테스트 전용 Credentials Provider
     ...(process.env.NEXT_PUBLIC_E2E === '1'
@@ -272,3 +272,7 @@ export const authOptions: AuthOptions = {
     },
   },
 }
+
+// v4 Route Handler export
+const handler = NextAuth(authOptions)
+export { handler as GET, handler as POST }
