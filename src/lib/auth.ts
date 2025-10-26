@@ -2,8 +2,16 @@ import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
 
-// Version-agnostic type inference (works for both v4 and v5)
-type AuthConfig = Parameters<typeof NextAuth>[0]
+// Version-agnostic config type (v4/v5 compatible)
+// Avoid importing AuthOptions/NextAuthOptions to prevent version conflicts
+type AuthConfig = {
+  providers: any[]
+  session?: any
+  jwt?: any
+  callbacks?: any
+  pages?: any
+  [key: string]: any
+}
 
 // 카카오 프로바이더 (NextAuth v4 호환)
 const createKakaoProvider = () => ({
@@ -207,7 +215,7 @@ export const authOptions: AuthConfig = {
     },
   },
   callbacks: {
-    async signIn({ user, account }) {
+    async signIn({ user, account }: any) {
       // 신규 사용자 체크를 위해 DB 조회
       if (account) {
         try {
@@ -236,7 +244,7 @@ export const authOptions: AuthConfig = {
       }
       return true
     },
-    async jwt({ token, account, profile, user }) {
+    async jwt({ token, account, profile, user }: any) {
       if (account) {
         const provider: string = (account as any).provider === 'credentials' ? 'dev' : (account as any).provider;
         (token as any).provider = provider;
@@ -258,7 +266,7 @@ export const authOptions: AuthConfig = {
       }
       return token
     },
-    async session({ session, token }) {
+    async session({ session, token }: any) {
       const s: any = session
       s.user = s.user || {}
       // Supabase UUID를 session.user.id로 전달
@@ -276,6 +284,7 @@ export const authOptions: AuthConfig = {
   },
 }
 
-// v4/v5 compatible Route Handler export
-const handler = NextAuth(authOptions as any)
+// v4 Route Handler export
+// @ts-expect-error - NextAuth v4 default export callable
+const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }

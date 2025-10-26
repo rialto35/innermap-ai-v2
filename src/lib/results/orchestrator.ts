@@ -71,14 +71,14 @@ export function buildDashboardFromResult(
   const quests = questSeeds.slice(0, 3).map((label, index) => ({
     id: `${resultId}-quest-${index + 1}`,
     title: `${label} 역량 강화 루틴`,
-    difficulty: index === 0 ? "MED" : index === 1 ? "EASY" : "HARD",
+    difficulty: (index === 0 ? "MED" : index === 1 ? "EASY" : "HARD") as "EASY" | "MED" | "HARD",
   }));
 
   if (quests.length === 0) {
     quests.push({
       id: `${resultId}-quest-default`,
       title: "매일 10분 자기 성찰",
-      difficulty: "EASY",
+      difficulty: "EASY" as "EASY" | "MED" | "HARD",
     });
   }
 
