@@ -1,14 +1,15 @@
 import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
+import { getServerSession } from 'next-auth/next'
 
 import { flags } from '@/lib/flags'
 import { assertPremium } from '@/lib/auth/premiumGuard'
 import { PremiumStatusBanner } from '@/components/PremiumStatusBanner'
 import { SubscriptionManage } from '@/components/SubscriptionManage'
 import { logEvent } from '@/lib/logEvent'
+import { authOptions } from '@/lib/auth'
 
 export default async function PremiumContent() {
-  const session = await getServerSession()
+  const session = await getServerSession(authOptions)
   if (!session?.user?.email) {
     redirect('/login?next=/premium/content')
   }
