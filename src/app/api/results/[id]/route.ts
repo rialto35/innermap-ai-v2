@@ -53,7 +53,7 @@ function wants(set: Set<BundleKey | "all">, key: BundleKey) {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -64,7 +64,7 @@ export async function GET(
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
     const bundleSet = parseBundle(new URL(request.url).searchParams);
 
     // 1) Assessments 기본 정보 확인 및 소유권 검증
