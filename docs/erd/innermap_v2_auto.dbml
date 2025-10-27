@@ -1,0 +1,106 @@
+Project "InnerMap AI v2" {
+  database_type: "PostgreSQL"
+  Note: "Auto-generated from database inventory"
+}
+
+Table ai_reports {
+  id uuid [pk] [not null] [default: gen_random_uuid()]
+  user_id uuid [not null]
+  test_result_id uuid [not null]
+  report_type text [not null] [default: 'hero-analysis']
+  status text [not null] [default: 'pending']
+  summary_md text
+  visual_data jsonb
+  created_at timestamptz [not null] [default: now()]
+  updated_at timestamptz [not null] [default: now()]
+}
+
+Table email_jobs {
+  id uuid [pk] [not null] [default: gen_random_uuid()]
+  user_id uuid [not null]
+  assessment_id uuid [not null]
+  template text [not null]
+  status text [not null] [default: 'queued']
+  retry_count integer [not null] [default: 0]
+  created_at timestamptz [not null] [default: now()]
+}
+
+Table plan_subscriptions {
+  id uuid [pk] [not null] [default: gen_random_uuid()]
+  user_id uuid [not null]
+  plan_type text [not null] [default: 'free']
+  stripe_customer_id text
+  stripe_subscription_id text
+  status text [not null] [default: 'active']
+  current_period_end timestamptz
+  created_at timestamptz [not null] [default: now()]
+  updated_at timestamptz [not null] [default: now()]
+}
+
+Table test_assessments {
+  id uuid [pk] [not null] [default: gen_random_uuid()]
+  user_id uuid [not null]
+  engine_version text [not null]
+  raw_answers jsonb [not null]
+  completed_at timestamptz
+  created_at timestamptz [not null] [default: now()]
+}
+
+Table test_assessment_results {
+  assessment_id uuid [pk] [not null]
+  mbti text
+  big5 jsonb
+  keywords text[]
+  inner9 jsonb
+  world jsonb
+  confidence numeric
+  created_at timestamptz [not null] [default: now()]
+}
+
+Table test_results {
+}
+
+Table test_results_v {
+}
+
+Table user_profiles {
+  user_id uuid [pk] [not null]
+  gender text
+  birthdate date
+  email text
+  consent_required_at timestamptz
+  consent_marketing_at timestamptz
+  created_at timestamptz [not null] [default: now()]
+  updated_at timestamptz [not null] [default: now()]
+}
+
+Table users {
+  id uuid [pk] [not null] [default: gen_random_uuid()]
+  email text [unique] [not null]
+  name text
+  image text
+  provider text [not null] [default: 'google']
+  provider_id text
+  level integer [not null] [default: 1]
+  exp_current integer [not null] [default: 0]
+  exp_next integer [not null] [default: 500]
+  created_at timestamptz [not null] [default: now()]
+  updated_at timestamptz [not null] [default: now()]
+}
+
+Table waitlist {
+  id uuid [pk] [not null] [default: gen_random_uuid()]
+  email text [unique] [not null]
+  name text
+  status text [not null] [default: 'pending']
+  created_at timestamptz [not null] [default: now()]
+}
+
+Ref: ai_reports.user_id > users.id
+Ref: ai_reports.test_result_id > test_assessments.id
+Ref: email_jobs.user_id > users.id
+Ref: email_jobs.assessment_id > test_assessments.id
+Ref: plan_subscriptions.user_id > users.id
+Ref: test_assessments.user_id > users.id
+Ref: test_assessment_results.assessment_id > test_assessments.id
+Ref: user_profiles.user_id > users.id

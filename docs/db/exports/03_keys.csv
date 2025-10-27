@@ -1,0 +1,11 @@
+table_name,constraint_type,column_name,constraint_name
+users,PRIMARY KEY,id,users_pkey
+users,UNIQUE,email,users_email_key
+user_profiles,PRIMARY KEY,user_id,user_profiles_pkey
+test_assessments,PRIMARY KEY,id,test_assessments_pkey
+test_assessment_results,PRIMARY KEY,assessment_id,test_assessment_results_pkey
+ai_reports,PRIMARY KEY,id,ai_reports_pkey
+email_jobs,PRIMARY KEY,id,email_jobs_pkey
+plan_subscriptions,PRIMARY KEY,id,plan_subscriptions_pkey
+waitlist,PRIMARY KEY,id,waitlist_pkey
+waitlist,UNIQUE,email,waitlist_email_key
