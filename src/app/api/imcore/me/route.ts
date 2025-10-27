@@ -147,17 +147,45 @@ export async function GET() {
       birthDate: latestResult.birth_date
     })
     
-    // 영웅 매칭 (MBTI + RETI 조합으로 정확한 매칭)
-    const hero = HEROES_144.find(h => 
-      h.mbti === latestResult.mbti_type && 
-      h.reti === latestResult.reti_top1.replace('r', '')
-    ) || HEROES_144[0]
+    // 🔍 디버깅: DB에 저장된 실제 값 확인
+    console.log('🔍 DB saved values (raw):', {
+      mbti_type: latestResult.mbti_type,
+      reti_top1: latestResult.reti_top1,
+      reti_top1_type: typeof latestResult.reti_top1,
+      hero_name: latestResult.hero_name
+    })
     
-    console.log('Hero matching:', {
+    // 영웅 매칭 (MBTI + RETI 조합으로 정확한 매칭)
+    // RETI 값에서 숫자만 추출 (r7, R7, 7 등 모두 처리)
+    const retiValue = latestResult.reti_top1?.toString().replace(/[^0-9]/g, '') || '1';
+    
+    // 1차 시도: MBTI + RETI 정확한 매칭
+    let hero = HEROES_144.find(h => 
+      h.mbti === latestResult.mbti_type && 
+      h.reti === retiValue
+    );
+    
+    // 2차 시도: MBTI만으로 매칭 (RETI 매칭 실패 시)
+    if (!hero) {
+      console.warn('⚠️ MBTI+RETI 매칭 실패, MBTI만으로 재시도');
+      hero = HEROES_144.find(h => h.mbti === latestResult.mbti_type);
+    }
+    
+    // 3차 시도: 최종 fallback
+    if (!hero) {
+      console.error('❌ Hero 매칭 완전 실패, 기본값 사용');
+      hero = HEROES_144[0];
+    }
+    
+    console.log('✅ Hero matching result:', {
       savedMBTI: latestResult.mbti_type,
       savedRETI: latestResult.reti_top1,
+      extractedRETI: retiValue,
       foundHero: hero ? `${hero.mbti}-${hero.reti}` : 'Not found',
-      heroName: hero?.name
+      heroName: hero?.name,
+      matchingStrategy: HEROES_144.find(h => h.mbti === latestResult.mbti_type && h.reti === retiValue) 
+        ? 'exact (MBTI+RETI)' 
+        : (HEROES_144.find(h => h.mbti === latestResult.mbti_type) ? 'fallback (MBTI only)' : 'default')
     })
     const tribe = getTribeFromBirthDate(latestResult.birth_date || '1990-01-01')
     const stone = recommendStone({
