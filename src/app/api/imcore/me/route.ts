@@ -96,73 +96,21 @@ export async function GET() {
       return NextResponse.json({ error: 'User lookup failed' }, { status: 500 })
     }
 
-    // 최신 검사 결과 조회 (test_assessment_results 테이블에서)
+    // 최신 검사 결과 조회 (통합된 테이블 구조)
     console.log('Fetching latest test result for user:', user.id)
     
-    // 먼저 test_assessment_results에서 조회 시도
-    const { data: assessmentResult, error: assessmentError } = await supabaseAdmin
-      .from('test_assessment_results')
-      .select(`
-        assessment_id,
-        mbti,
-        big5,
-        keywords,
-        inner9,
-        world,
-        confidence,
-        created_at,
-        test_assessments!inner(
-          user_id,
-          raw_answers,
-          completed_at
-        )
-      `)
-      .eq('test_assessments.user_id', user.id)
+    // 통합된 뷰에서 조회 (test_results_v)
+    const { data: latestResult, error: resultError } = await supabaseAdmin
+      .from('test_results_v')
+      .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(1)
       .maybeSingle()
 
-    let latestResult = null
-    if (!assessmentError && assessmentResult) {
-      // test_assessment_results 데이터를 test_results 형식으로 변환
-      latestResult = {
-        id: assessmentResult.assessment_id,
-        user_id: user.id,
-        test_type: 'imcore',
-        name: user.name || '사용자',
-        birth_date: null,
-        gender_preference: 'male',
-        mbti_type: assessmentResult.mbti,
-        mbti_confidence: {},
-        reti_top1: 'r5', // 기본값
-        reti_top2: null,
-        reti_scores: {},
-        big5_openness: assessmentResult.big5?.O ? Math.round(assessmentResult.big5.O * 100) : 50,
-        big5_conscientiousness: assessmentResult.big5?.C ? Math.round(assessmentResult.big5.C * 100) : 50,
-        big5_extraversion: assessmentResult.big5?.E ? Math.round(assessmentResult.big5.E * 100) : 50,
-        big5_agreeableness: assessmentResult.big5?.A ? Math.round(assessmentResult.big5.A * 100) : 50,
-        big5_neuroticism: assessmentResult.big5?.N ? Math.round(assessmentResult.big5.N * 100) : 50,
-        growth_innate: 50,
-        growth_acquired: 50,
-        growth_conscious: 50,
-        growth_unconscious: 50,
-        growth_growth: 50,
-        growth_stability: 50,
-        growth_harmony: 50,
-        growth_individual: 50,
-        hero_id: assessmentResult.world?.hero || 'unknown',
-        hero_name: assessmentResult.world?.hero || 'Unknown Hero',
-        tribe_name: assessmentResult.world?.tribe || null,
-        tribe_name_en: assessmentResult.world?.tribe || null,
-        stone_name: assessmentResult.world?.stone || null,
-        raw_scores: {},
-        created_at: assessmentResult.created_at
-      }
-      console.log('✅ Found assessment result:', latestResult.mbti_type)
-    } else {
-      // 기존 test_results 테이블에서도 조회 시도 (fallback)
-      console.log('Assessment result not found, trying test_results table...')
-      latestResult = await getLatestTestResult(user.id, 'imcore')
+    if (resultError) {
+      console.error('Error fetching test result:', resultError)
+      return NextResponse.json({ error: 'Failed to fetch test result' }, { status: 500 })
     }
     
     console.log('Latest test result:', latestResult ? 'Found' : 'Not found')
