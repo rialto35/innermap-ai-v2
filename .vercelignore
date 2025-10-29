@@ -5,11 +5,7 @@
 /test-results
 /playwright-report
 
-# 스크립트
-/scripts/*.mjs
-/scripts/*.ts
-
-# 문서
+# 문서 (README는 제외)
 *.md
 !README.md
 
