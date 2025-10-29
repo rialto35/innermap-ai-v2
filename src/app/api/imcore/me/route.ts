@@ -93,7 +93,7 @@ export async function GET() {
       console.error('[imcore/me] latest assessment fetch error', latestError)
       return NextResponse.json({ error: 'Failed to fetch test result' }, { status: 500 })
     }
-
+    
     // 2. result 조회 (FK 없이 명시적 조회)
     let latestResult = null
     if (latest) {
@@ -103,7 +103,14 @@ export async function GET() {
         .eq('assessment_id', latest.id)
         .maybeSingle()
       
-      console.log('🔍 [imcore/me] Result:', { mbti: result?.mbti, big5: result?.big5, error: resultError })
+      console.log('🔍 [imcore/me] Result:', { 
+        mbti: result?.mbti, 
+        big5: result?.big5, 
+        inner9: result?.inner9,
+        keywords: result?.keywords,
+        world: result?.world,
+        error: resultError 
+      })
       
       if (!resultError && result) {
         latestResult = result
@@ -156,8 +163,37 @@ export async function GET() {
 
     // 통합 분석 데이터 생성
     const big5Analysis = extractBig5StrengthsWeaknesses(latestResult.big5 || {})
-    const inner9Narrative = latestResult.inner9 
-      ? generateInner9Narrative(latestResult.inner9) 
+    
+    // Convert Inner9 data from { axes: [...], labels: [...] } to Record<string, number>
+    let inner9Scores: Record<string, number> | null = null
+    if (latestResult.inner9) {
+      const inner9Data = latestResult.inner9 as any
+      if (inner9Data.axes && inner9Data.labels) {
+        // 한글 라벨 매핑
+        const labelMap: Record<string, string> = {
+          'creation': '창조',
+          'balance': '균형',
+          'intuition': '직관',
+          'analysis': '분석',
+          'harmony': '조화',
+          'drive': '추진력',
+          'reflection': '성찰',
+          'empathy': '공감',
+          'discipline': '절제'
+        }
+        
+        inner9Scores = {}
+        for (let i = 0; i < inner9Data.labels.length; i++) {
+          const label = inner9Data.labels[i].toLowerCase() // 'Creation' -> 'creation'
+          const koreanLabel = labelMap[label] || label // 한글로 변환
+          inner9Scores[koreanLabel] = inner9Data.axes[i]
+        }
+        console.log('🔍 [imcore/me] Converted inner9Scores:', inner9Scores)
+      }
+    }
+    
+    const inner9Narrative = inner9Scores 
+      ? generateInner9Narrative(inner9Scores) 
       : null
     
     const mbtiType = latestResult.mbti
@@ -216,7 +252,7 @@ export async function GET() {
           }
         : null,
       analysis: {
-        big5: {
+      big5: {
           strengths: big5Analysis.strengths,
           weaknesses: big5Analysis.weaknesses,
         },

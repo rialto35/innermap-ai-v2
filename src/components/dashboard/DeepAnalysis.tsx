@@ -75,7 +75,7 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
         <p className="text-white/60 text-sm mb-4">5가지 핵심 성격 차원의 상세 분석</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {heroData.big5 && Object.entries(heroData.big5).map(([key, value]) => {
-            const score = Math.round(Number(value as number) * 100);
+            const score = Math.round(Number(value as number)); // 이미 0-100 범위
             const getScoreColor = (score: number) => {
               if (score >= 80) return 'text-emerald-300';
               if (score >= 60) return 'text-blue-300';
@@ -172,7 +172,7 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
       )}
 
       {/* RETI 분석 */}
-      {heroData.reti && (
+      {(heroData.reti || heroData.world?.reti) && (
         <div className="rounded-2xl border border-orange-500/20 bg-gradient-to-br from-orange-500/10 to-red-500/10 p-6">
           <div className="flex items-center gap-3 mb-4">
             <div className="text-2xl">🔢</div>
@@ -183,7 +183,9 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
             <div className="p-4 bg-white/5 rounded-xl border border-white/10">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-white/80 font-medium">주요 동기</span>
-                <span className="text-orange-300 font-bold text-lg">{heroData.reti.top1[0]}</span>
+                <span className="text-orange-300 font-bold text-lg">
+                  R{heroData.reti?.type || heroData.world?.reti || '1'}
+                </span>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
                 <div 
@@ -191,72 +193,96 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
                   style={{ width: '100%' }}
                 />
               </div>
-            </div>
-            {heroData.reti.top2 && (
-              <div className="p-4 bg-white/5 rounded-xl border border-white/10">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-white/80 font-medium">보조 동기</span>
-                  <span className="text-orange-300 font-bold text-lg">{heroData.reti.top2[0]}</span>
-                </div>
-                <div className="w-full bg-white/10 rounded-full h-2">
-                  <div 
-                    className="bg-orange-400 h-2 rounded-full transition-all duration-500"
-                    style={{ width: '80%' }}
-                  />
-                </div>
+              <div className="text-xs text-white/60 mt-2">
+                {heroData.reti?.type === 'R1' || heroData.world?.reti === 1 ? '개혁가 - 완벽을 추구하는 원칙주의자' :
+                 heroData.reti?.type === 'R2' || heroData.world?.reti === 2 ? '조력가 - 타인을 돕는 것에서 보람을 느끼는 사람' :
+                 heroData.reti?.type === 'R3' || heroData.world?.reti === 3 ? '성취자 - 목표 달성과 성공을 추구하는 사람' :
+                 heroData.reti?.type === 'R4' || heroData.world?.reti === 4 ? '예술가 - 독특함과 진정성을 추구하는 개인주의자' :
+                 heroData.reti?.type === 'R5' || heroData.world?.reti === 5 ? '관찰자 - 지식과 이해를 추구하는 사색가' :
+                 heroData.reti?.type === 'R6' || heroData.world?.reti === 6 ? '충성가 - 안정과 신뢰를 중시하는 사람' :
+                 heroData.reti?.type === 'R7' || heroData.world?.reti === 7 ? '열정가 - 즐거움과 새로운 경험을 추구하는 사람' :
+                 heroData.reti?.type === 'R8' || heroData.world?.reti === 8 ? '도전가 - 힘과 통제력을 추구하는 리더' :
+                 heroData.reti?.type === 'R9' || heroData.world?.reti === 9 ? '평화주의자 - 조화와 평온을 추구하는 중재자' :
+                 '동기 유형'}
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}
 
       {/* Inner9 분석 */}
-      {heroData.inner9_scores && (
-        <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 p-6">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="text-2xl">🧭</div>
-            <h3 className="text-xl font-bold text-white">Inner9 내면 분석</h3>
+      {heroData.inner9 && (() => {
+        // Convert Inner9 data from { axes: [...], labels: [...] } to Record<string, number>
+        const inner9Data = heroData.inner9 as any;
+        const inner9Scores: Record<string, number> = {};
+        
+        if (inner9Data.axes && inner9Data.labels) {
+          const labelMap: Record<string, string> = {
+            'creation': '창조',
+            'balance': '균형',
+            'intuition': '직관',
+            'analysis': '분석',
+            'harmony': '조화',
+            'drive': '추진력',
+            'reflection': '성찰',
+            'empathy': '공감',
+            'discipline': '절제'
+          };
+          
+          for (let i = 0; i < inner9Data.labels.length; i++) {
+            const label = inner9Data.labels[i].toLowerCase();
+            const koreanLabel = labelMap[label] || label;
+            inner9Scores[koreanLabel] = inner9Data.axes[i];
+          }
+        }
+        
+        return (
+          <div className="rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="text-2xl">🧭</div>
+              <h3 className="text-xl font-bold text-white">Inner9 내면 분석</h3>
+            </div>
+            <p className="text-white/60 text-sm mb-4">9가지 내면 차원의 상세 분석</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {Object.entries(inner9Scores).map(([key, value]) => {
+                const score = Math.round(value as number);
+                const getScoreColor = (score: number) => {
+                  if (score >= 80) return 'text-emerald-300';
+                  if (score >= 60) return 'text-cyan-300';
+                  if (score >= 40) return 'text-yellow-300';
+                  return 'text-red-300';
+                };
+                const getScoreBg = (score: number) => {
+                  if (score >= 80) return 'bg-emerald-400';
+                  if (score >= 60) return 'bg-cyan-400';
+                  if (score >= 40) return 'bg-yellow-400';
+                  return 'bg-red-400';
+                };
+                
+                return (
+                  <div key={key} className="p-4 bg-white/5 rounded-xl border border-white/10">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-white/90 font-medium">{key}</span>
+                      <span className={`font-bold ${getScoreColor(score)}`}>{score}</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-2 mb-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all duration-500 ${getScoreBg(score)}`}
+                        style={{ width: `${Math.min(score, 100)}%` }}
+                      />
+                    </div>
+                    <div className="text-xs text-white/60">
+                      {score >= 80 ? '매우 높음' : 
+                       score >= 60 ? '높음' : 
+                       score >= 40 ? '보통' : '낮음'}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
-          <p className="text-white/60 text-sm mb-4">9가지 내면 차원의 상세 분석</p>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {Object.entries(heroData.inner9_scores).map(([key, value]) => {
-              const score = Math.round(value as number);
-              const getScoreColor = (score: number) => {
-                if (score >= 80) return 'text-emerald-300';
-                if (score >= 60) return 'text-cyan-300';
-                if (score >= 40) return 'text-yellow-300';
-                return 'text-red-300';
-              };
-              const getScoreBg = (score: number) => {
-                if (score >= 80) return 'bg-emerald-400';
-                if (score >= 60) return 'bg-cyan-400';
-                if (score >= 40) return 'bg-yellow-400';
-                return 'bg-red-400';
-              };
-              
-              return (
-                <div key={key} className="p-4 bg-white/5 rounded-xl border border-white/10">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-white/90 font-medium capitalize">{key}</span>
-                    <span className={`font-bold ${getScoreColor(score)}`}>{score}%</span>
-                  </div>
-                  <div className="w-full bg-white/10 rounded-full h-2 mb-2">
-                    <div 
-                      className={`h-2 rounded-full transition-all duration-500 ${getScoreBg(score)}`}
-                      style={{ width: `${score}%` }}
-                    />
-                  </div>
-                  <div className="text-xs text-white/60">
-                    {score >= 80 ? '매우 높음' : 
-                     score >= 60 ? '높음' : 
-                     score >= 40 ? '보통' : '낮음'}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Preview Features */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
