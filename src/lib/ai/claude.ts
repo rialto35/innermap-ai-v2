@@ -1,35 +1,101 @@
 /**
- * Claude AI Service Layer
- * Handles AI-powered deep analysis report generation using Claude Sonnet 4.5
+ * AI Service Layer with Fallback
+ * Primary: Claude Sonnet 4.5 (best for storytelling)
+ * Fallback: OpenAI GPT-4 (when Claude is unavailable)
  */
 
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 
 // Lazy initialization to avoid build-time errors
 let anthropicClient: Anthropic | null = null;
+let openaiClient: OpenAI | null = null;
 
-function getAnthropicClient(): Anthropic {
-  if (!anthropicClient) {
-    if (!process.env.ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_API_KEY is not configured');
+function getAnthropicClient(): Anthropic | null {
+  try {
+    if (!anthropicClient && process.env.ANTHROPIC_API_KEY) {
+      anthropicClient = new Anthropic({
+        apiKey: process.env.ANTHROPIC_API_KEY,
+      });
     }
-    anthropicClient = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
-    });
+    return anthropicClient;
+  } catch (error) {
+    console.warn('⚠️ [AI] Claude client initialization failed:', error);
+    return null;
   }
-  return anthropicClient;
+}
+
+function getOpenAIClient(): OpenAI | null {
+  try {
+    if (!openaiClient && process.env.OPENAI_API_KEY) {
+      openaiClient = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+    }
+    return openaiClient;
+  } catch (error) {
+    console.warn('⚠️ [AI] OpenAI client initialization failed:', error);
+    return null;
+  }
+}
+
+function getAvailableAI(): { type: 'claude' | 'openai' | null; client: any } {
+  const claude = getAnthropicClient();
+  if (claude) {
+    return { type: 'claude', client: claude };
+  }
+  
+  const openai = getOpenAIClient();
+  if (openai) {
+    console.log('🔄 [AI] Falling back to OpenAI (Claude unavailable)');
+    return { type: 'openai', client: openai };
+  }
+  
+  return { type: null, client: null };
 }
 
 /**
  * Generate 13-step deep analysis report with streaming
+ * Tries Claude first, falls back to OpenAI if unavailable
  */
 export async function* generateDeepReportStream(heroData: any) {
-  const anthropic = getAnthropicClient();
+  const { type, client } = getAvailableAI();
+  
+  if (!type || !client) {
+    throw new Error('No AI service available. Please configure ANTHROPIC_API_KEY or OPENAI_API_KEY');
+  }
+  
   const prompt = buildDeepReportPrompt(heroData);
   
-  console.log('🤖 [Claude] Starting deep report generation...');
+  console.log(`🤖 [AI] Starting deep report generation with ${type.toUpperCase()}...`);
   
-  const stream = await anthropic.messages.stream({
+  try {
+    if (type === 'claude') {
+      yield* generateWithClaude(client, prompt);
+    } else {
+      yield* generateWithOpenAI(client, prompt);
+    }
+    console.log(`✅ [AI] Deep report generation completed with ${type.toUpperCase()}`);
+  } catch (error: any) {
+    console.error(`❌ [AI] ${type.toUpperCase()} failed:`, error.message);
+    
+    // Try fallback if primary fails
+    if (type === 'claude') {
+      const openai = getOpenAIClient();
+      if (openai) {
+        console.log('🔄 [AI] Retrying with OpenAI fallback...');
+        yield* generateWithOpenAI(openai, prompt);
+        console.log('✅ [AI] Deep report generation completed with OpenAI (fallback)');
+        return;
+      }
+    }
+    
+    throw error;
+  }
+}
+
+async function* generateWithClaude(client: Anthropic, prompt: string) {
+  const stream = await client.messages.stream({
     model: 'claude-sonnet-4-20250514',
     max_tokens: 8000,
     temperature: 0.7,
@@ -41,8 +107,23 @@ export async function* generateDeepReportStream(heroData: any) {
       yield chunk.delta.text;
     }
   }
-  
-  console.log('✅ [Claude] Deep report generation completed');
+}
+
+async function* generateWithOpenAI(client: OpenAI, prompt: string) {
+  const stream = await client.chat.completions.create({
+    model: 'gpt-4-turbo-preview',
+    messages: [{ role: 'user', content: prompt }],
+    max_tokens: 4096, // GPT-4-turbo max limit
+    temperature: 0.7,
+    stream: true,
+  });
+
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content;
+    if (content) {
+      yield content;
+    }
+  }
 }
 
 /**
@@ -162,9 +243,14 @@ function buildDeepReportPrompt(heroData: any): string {
 
 /**
  * Generate 12 practical analysis cards
+ * Tries Claude first, falls back to OpenAI if unavailable
  */
 export async function generatePracticalCards(heroData: any): Promise<any[]> {
-  const anthropic = getAnthropicClient();
+  const { type, client } = getAvailableAI();
+  
+  if (!type || !client) {
+    throw new Error('No AI service available. Please configure ANTHROPIC_API_KEY or OPENAI_API_KEY');
+  }
   
   const cards = [
     // Career (4 cards)
@@ -186,23 +272,45 @@ export async function generatePracticalCards(heroData: any): Promise<any[]> {
     { id: 'lifestyle', title: '라이프스타일 설계', icon: '🏡', category: 'growth' },
   ];
 
-  console.log('🤖 [Claude] Generating 12 practical cards...');
+  console.log(`🤖 [AI] Generating 12 practical cards with ${type.toUpperCase()}...`);
 
-  // Generate all cards in parallel
-  const results = await Promise.all(
-    cards.map(card => generateCardContent(card, heroData))
-  );
+  try {
+    // Generate all cards in parallel
+    const results = await Promise.all(
+      cards.map(card => generateCardContent(card, heroData, type, client))
+    );
 
-  console.log('✅ [Claude] 12 practical cards generated');
-
-  return results;
+    console.log(`✅ [AI] 12 practical cards generated with ${type.toUpperCase()}`);
+    return results;
+  } catch (error: any) {
+    console.error(`❌ [AI] ${type.toUpperCase()} failed:`, error.message);
+    
+    // Try fallback if primary fails
+    if (type === 'claude') {
+      const openai = getOpenAIClient();
+      if (openai) {
+        console.log('🔄 [AI] Retrying cards with OpenAI fallback...');
+        const results = await Promise.all(
+          cards.map(card => generateCardContent(card, heroData, 'openai', openai))
+        );
+        console.log('✅ [AI] 12 practical cards generated with OpenAI (fallback)');
+        return results;
+      }
+    }
+    
+    throw error;
+  }
 }
 
 /**
  * Generate content for a single practical card
  */
-async function generateCardContent(card: any, heroData: any): Promise<any> {
-  const anthropic = getAnthropicClient();
+async function generateCardContent(
+  card: any, 
+  heroData: any, 
+  aiType: 'claude' | 'openai',
+  client: any
+): Promise<any> {
   const { user, mbti, world, big5 } = heroData;
   
   const prompt = `당신은 심리 분석 전문가입니다.
@@ -225,30 +333,53 @@ async function generateCardContent(card: any, heroData: any): Promise<any> {
 
 따뜻하고 실용적으로 작성해주세요.`;
 
-  const message = await anthropic.messages.create({
-    model: 'claude-sonnet-4-20250514',
-    max_tokens: 1000,
-    temperature: 0.7,
-    messages: [{ role: 'user', content: prompt }],
-  });
-
-  const content = message.content[0];
-  if (content.type === 'text') {
+  try {
+    let responseText = '';
+    
+    if (aiType === 'claude') {
+      const message = await client.messages.create({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        temperature: 0.7,
+        messages: [{ role: 'user', content: prompt }],
+      });
+      const content = message.content[0];
+      responseText = content.type === 'text' ? content.text : '';
+    } else {
+      const completion = await client.chat.completions.create({
+        model: 'gpt-4-turbo-preview',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 1000, // Within GPT-4-turbo limit
+        temperature: 0.7,
+      });
+      responseText = completion.choices[0]?.message?.content || '';
+    }
+    
+    // Try to parse JSON
     try {
-      return JSON.parse(content.text);
+      return JSON.parse(responseText);
     } catch {
       // Fallback if JSON parsing fails
       return {
         id: card.id,
         title: card.title,
         icon: card.icon,
-        insight: content.text,
+        insight: responseText,
         details: [],
         actionItems: [],
       };
     }
+  } catch (error) {
+    console.error(`❌ [AI] Failed to generate card ${card.id}:`, error);
+    // Return basic card structure on error
+    return {
+      id: card.id,
+      title: card.title,
+      icon: card.icon,
+      insight: '분석 중 오류가 발생했습니다. 나중에 다시 시도해주세요.',
+      details: [],
+      actionItems: [],
+    };
   }
-
-  return card;
 }
 
