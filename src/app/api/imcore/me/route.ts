@@ -6,8 +6,38 @@ import { supabaseAdmin } from '@/lib/supabase'
 import { matchHero } from '@/lib/data/heroes144'
 import { getTribeFromBirthDate } from '@/lib/innermapLogic'
 import { recommendStone } from '@/lib/data/tribesAndStones'
+import { generateInner9Narrative } from '@/lib/analysis/inner9Narrative'
+import { detailedMBTIAnalysis, detailedRETIAnalysis } from '@/data/detailedAnalysis.js'
 
 export const dynamic = 'force-dynamic'
+
+// Big5 기반 강점/약점 추출 함수
+function extractBig5StrengthsWeaknesses(big5: any): {
+  strengths: string[];
+  weaknesses: string[];
+} {
+  const traitNames: Record<string, string> = {
+    O: '개방성',
+    C: '성실성',
+    E: '외향성',
+    A: '친화성',
+    N: '신경성 관리',
+  };
+  
+  const strengths: string[] = [];
+  const weaknesses: string[] = [];
+  
+  if (!big5) return { strengths, weaknesses };
+  
+  for (const [trait, score] of Object.entries(big5) as Array<[string, number]>) {
+    if (typeof score === 'number') {
+      if (score >= 70) strengths.push(traitNames[trait] || trait);
+      else if (score <= 30) weaknesses.push(traitNames[trait] || trait);
+    }
+  }
+  
+  return { strengths, weaknesses };
+}
 
 export async function GET() {
   try {
@@ -124,6 +154,15 @@ export async function GET() {
     } as const
     const stone = recommendStone(stoneInput)
 
+    // 통합 분석 데이터 생성
+    const big5Analysis = extractBig5StrengthsWeaknesses(latestResult.big5 || {})
+    const inner9Narrative = latestResult.inner9 
+      ? generateInner9Narrative(latestResult.inner9) 
+      : null
+    
+    const mbtiType = latestResult.mbti
+    const retiCode = String(latestResult.world?.reti ?? '1')
+
     const responseData = {
       user: {
         id: user.id,
@@ -176,6 +215,24 @@ export async function GET() {
             effect: stone.effect,
           }
         : null,
+      analysis: {
+        big5: {
+          strengths: big5Analysis.strengths,
+          weaknesses: big5Analysis.weaknesses,
+        },
+        inner9: inner9Narrative ? {
+          strengths: inner9Narrative.strengths.map(s => s.dimension),
+          growthAreas: inner9Narrative.growthAreas.map(g => g.dimension),
+        } : null,
+        mbti: detailedMBTIAnalysis[mbtiType as keyof typeof detailedMBTIAnalysis] ? {
+          strengths: detailedMBTIAnalysis[mbtiType as keyof typeof detailedMBTIAnalysis].strengths,
+          challenges: detailedMBTIAnalysis[mbtiType as keyof typeof detailedMBTIAnalysis].challenges,
+        } : null,
+        reti: detailedRETIAnalysis[retiCode as keyof typeof detailedRETIAnalysis] ? {
+          coreTraits: detailedRETIAnalysis[retiCode as keyof typeof detailedRETIAnalysis].coreTraits,
+          challenges: detailedRETIAnalysis[retiCode as keyof typeof detailedRETIAnalysis].challenges,
+        } : null,
+      },
     }
 
     return NextResponse.json(responseData, {
