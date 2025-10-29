@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Debug - InnerMap</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .success {
+            background: #d4edda;
+            border-left-color: #28a745;
+        }
+        .error {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+        }
+        .warning {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        .info {
+            background: #d1ecf1;
+            border-left-color: #17a2b8;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+        .badge-success { background: #28a745; color: white; }
+        .badge-danger { background: #dc3545; color: white; }
+        .badge-warning { background: #ffc107; color: #333; }
+        h3 { margin-top: 20px; color: #333; }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 InnerMap API Debugger</h1>
+        <p class="subtitle">현재 로그인된 사용자의 API 응답을 확인합니다</p>
+        
+        <button onclick="checkAPI()">
+            <span id="btnText">API 확인하기</span>
+        </button>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        async function checkAPI() {
+            const results = document.getElementById('results');
+            const btnText = document.getElementById('btnText');
+            
+            btnText.innerHTML = '<span class="loading"></span>확인 중...';
+            results.innerHTML = '';
+            
+            try {
+                // 1. Session 확인
+                const sessionRes = await fetch('/api/auth/session');
+                const session = await sessionRes.json();
+                
+                let html = `
+                    <div class="result ${session.user ? 'success' : 'error'}">
+                        <h3>🔐 세션 상태</h3>
+                        <p><strong>로그인:</strong> ${session.user ? '✅ 로그인됨' : '❌ 로그인 안됨'}</p>
+                        ${session.user ? `
+                            <p><strong>이메일:</strong> ${session.user.email || 'N/A'}</p>
+                            <p><strong>이름:</strong> ${session.user.name || 'N/A'}</p>
+                        ` : '<p>⚠️ 로그인이 필요합니다. <a href="/login">로그인하기</a></p>'}
+                    </div>
+                `;
+                
+                if (!session.user) {
+                    results.innerHTML = html;
+                    btnText.textContent = 'API 확인하기';
+                    return;
+                }
+                
+                // 2. /api/imcore/me 호출
+                const apiRes = await fetch('/api/imcore/me', {
+                    credentials: 'include'
+                });
+                
+                html += `
+                    <div class="result ${apiRes.ok ? 'success' : 'error'}">
+                        <h3>📡 API 응답</h3>
+                        <p><strong>Status:</strong> ${apiRes.status} ${apiRes.statusText}
+                            <span class="badge ${apiRes.ok ? 'badge-success' : 'badge-danger'}">${apiRes.ok ? 'OK' : 'ERROR'}</span>
+                        </p>
+                    </div>
+                `;
+                
+                if (!apiRes.ok) {
+                    const errorText = await apiRes.text();
+                    html += `
+                        <div class="result error">
+                            <h3>❌ 에러 상세</h3>
+                            <pre>${errorText}</pre>
+                        </div>
+                    `;
+                    results.innerHTML = html;
+                    btnText.textContent = 'API 확인하기';
+                    return;
+                }
+                
+                const data = await apiRes.json();
+                
+                // 3. 검사 결과 여부
+                html += `
+                    <div class="result ${data.hasTestResult ? 'success' : 'warning'}">
+                        <h3>📊 검사 결과</h3>
+                        <p><strong>Has Test Result:</strong> ${data.hasTestResult ? '✅ 있음' : '⚠️ 없음'}</p>
+                        ${!data.hasTestResult ? '<p>검사를 먼저 완료해주세요. <a href="/test/questions">검사하러 가기</a></p>' : ''}
+                    </div>
+                `;
+                
+                if (data.hasTestResult && data.hero && data.mbti) {
+                    // 4. Hero 정보
+                    html += `
+                        <div class="result info">
+                            <h3>🦸 Hero 정보</h3>
+                            <p><strong>이름:</strong> ${data.hero.name || 'N/A'}</p>
+                            <p><strong>MBTI:</strong> ${data.hero.mbti || 'N/A'}</p>
+                            <p><strong>RETI:</strong> ${data.hero.reti || 'N/A'}</p>
+                            <p><strong>Hero Code:</strong> ${data.hero.mbti}-${data.hero.reti}</p>
+                        </div>
+                    `;
+                    
+                    // 5. 검사 결과
+                    html += `
+                        <div class="result info">
+                            <h3>📈 검사 결과</h3>
+                            <p><strong>MBTI Type:</strong> ${data.mbti.type || 'N/A'}</p>
+                            <p><strong>RETI Top1:</strong> ${data.reti?.top1?.[0] || 'N/A'}</p>
+                        </div>
+                    `;
+                    
+                    // 6. 매칭 확인
+                    const match = data.hero.mbti === data.mbti.type;
+                    html += `
+                        <div class="result ${match ? 'success' : 'error'}">
+                            <h3>${match ? '✅' : '❌'} 매칭 결과</h3>
+                            <p><strong>DB MBTI:</strong> ${data.mbti.type}</p>
+                            <p><strong>Hero MBTI:</strong> ${data.hero.mbti}</p>
+                            <p><strong>결과:</strong> ${match ? '✅ 정확히 매칭됨!' : '❌ 매칭 실패 - 버그 발생!'}</p>
+                        </div>
+                    `;
+                }
+                
+                // 7. 전체 응답
+                html += `
+                    <div class="result">
+                        <h3>📄 전체 API 응답</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ 오류 발생</h3>
+                        <p><strong>메시지:</strong> ${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            } finally {
+                btnText.textContent = 'API 확인하기';
+            }
+        }
+        
+        // 페이지 로드 시 자동 실행
+        window.addEventListener('load', () => {
+            setTimeout(checkAPI, 500);
+        });
+    </script>
+</body>
+</html>
+
+

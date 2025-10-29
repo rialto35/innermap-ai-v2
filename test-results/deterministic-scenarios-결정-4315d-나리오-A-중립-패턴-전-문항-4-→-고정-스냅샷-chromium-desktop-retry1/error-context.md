@@ -1,0 +1,73 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e7] [cursor=pointer]:
+    - img [ref=e8]
+  - banner [ref=e11]:
+    - generic [ref=e12]:
+      - link "🗺️ InnerMap AI" [ref=e13] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e14]: 🗺️
+        - generic [ref=e15]: InnerMap AI
+      - generic [ref=e16]:
+        - navigation [ref=e17]:
+          - link "검사하기" [ref=e18] [cursor=pointer]:
+            - /url: /test
+          - link "영웅 도감" [ref=e19] [cursor=pointer]:
+            - /url: /heroes
+          - link "세계관" [ref=e20] [cursor=pointer]:
+            - /url: /world
+          - link "빠른 추천" [ref=e21] [cursor=pointer]:
+            - /url: /wizard
+          - link "인사이트" [ref=e22] [cursor=pointer]:
+            - /url: /insight
+        - navigation [ref=e23]:
+          - link "요금제" [ref=e24] [cursor=pointer]:
+            - /url: /pricing
+          - link "소개" [ref=e25] [cursor=pointer]:
+            - /url: /about
+      - generic [ref=e26]:
+        - link "로그인" [ref=e27] [cursor=pointer]:
+          - /url: /login
+        - link "무료로 시작하기" [ref=e28] [cursor=pointer]:
+          - /url: /analyze
+  - main [ref=e29]:
+    - generic [ref=e31]:
+      - heading "404" [level=1] [ref=e32]
+      - heading "This page could not be found." [level=2] [ref=e34]
+  - contentinfo [ref=e35]:
+    - generic [ref=e36]:
+      - generic [ref=e37]:
+        - generic [ref=e38]:
+          - heading "InnerMap AI" [level=3] [ref=e39]
+          - paragraph [ref=e40]:
+            - text: AI 기반 심리 분석 플랫폼
+            - text: 당신의 내면을 지도화합니다
+        - generic [ref=e41]:
+          - heading "바로가기" [level=3] [ref=e42]
+          - list [ref=e43]:
+            - listitem [ref=e44]:
+              - link "검사하기" [ref=e45] [cursor=pointer]:
+                - /url: /analyze
+            - listitem [ref=e46]:
+              - link "서비스 소개" [ref=e47] [cursor=pointer]:
+                - /url: /about
+            - listitem [ref=e48]:
+              - link "요금제" [ref=e49] [cursor=pointer]:
+                - /url: /pricing
+            - listitem [ref=e50]:
+              - link "인사이트" [ref=e51] [cursor=pointer]:
+                - /url: /insight
+        - generic [ref=e52]:
+          - heading "문의" [level=3] [ref=e53]
+          - paragraph [ref=e54]: contact@innermap.ai
+          - generic [ref=e55]:
+            - link "개인정보처리방침" [ref=e56] [cursor=pointer]:
+              - /url: /privacy
+            - text: ·
+            - link "이용약관" [ref=e57] [cursor=pointer]:
+              - /url: /terms
+      - generic [ref=e58]: © 2025 InnerMap AI. All rights reserved.
+  - alert [ref=e59]
+```

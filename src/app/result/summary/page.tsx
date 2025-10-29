@@ -13,6 +13,7 @@ function ResultSummaryContent() {
   const id = searchParams.get("id");
 
   const [summary, setSummary] = useState<SummaryFields | null>(null);
+  const [meta, setMeta] = useState<{ createdAt?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -31,6 +32,7 @@ function ResultSummaryContent() {
         }
         const data = await res.json();
         setSummary(data.summary);
+        setMeta({ createdAt: data.createdAt });
       } catch (err: any) {
         setError(err.message);
       } finally {

@@ -146,3 +146,4 @@ Write-Host "Next steps:" -ForegroundColor Yellow
 Write-Host "  1. Review docs/erd/innermap_v2_auto.dbml" -ForegroundColor White
 Write-Host "  2. Upload to dbdiagram.io for visual ERD" -ForegroundColor White
 Write-Host "  3. Commit changes: git add docs/ && git commit -m 'chore(db): export schema & ERD'" -ForegroundColor White
+

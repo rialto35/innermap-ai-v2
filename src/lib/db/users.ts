@@ -39,7 +39,15 @@ export async function findOrCreateUser(data: {
         .eq('provider', data.provider)
         .eq('provider_id', data.providerId)
         .maybeSingle()
-      if (!providerFindError && byProvider) existingUser = byProvider as any
+      
+      if (providerFindError) {
+        console.log('⚠️ Provider lookup error:', providerFindError);
+      }
+      
+      if (!providerFindError && byProvider) {
+        console.log('📍 Found by provider:', { id: byProvider.id, provider: data.provider, providerId: data.providerId });
+        existingUser = byProvider as any;
+      }
     }
 
     // 2) 이메일 키로 조회 (prefix 적용)
@@ -49,34 +57,69 @@ export async function findOrCreateUser(data: {
         .select('*')
         .eq('email', effectiveEmail)
         .maybeSingle()
-      if (!emailFindError && byEmail) existingUser = byEmail as any
-      else if (emailFindError && (emailFindError as any).code !== 'PGRST116') {
-        console.error('Error finding user by email:', emailFindError)
+      
+      if (emailFindError && (emailFindError as any).code !== 'PGRST116') {
+        console.log('⚠️ Email lookup error:', emailFindError);
+      }
+      
+      if (!emailFindError && byEmail) {
+        console.log('📍 Found by email:', { id: byEmail.id, email: effectiveEmail });
+        existingUser = byEmail as any;
       }
     }
 
     if (existingUser) {
-      // 기존 사용자 정보 업데이트 (이름/이미지가 변경되었을 수 있음)
-      const { data: updatedUser, error: updateError } = await supabaseAdmin
+      console.log('✅ Found existing user:', { id: existingUser.id, email: existingUser.email });
+      
+      // 실제로 users 테이블에 존재하는지 직접 COUNT 확인 (RLS 무시)
+      const { count, error: countError } = await supabaseAdmin
         .from('users')
-        .update({
-          name: data.name || existingUser.name,
-          image: data.image || existingUser.image,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', (existingUser as any).id)
-        .select()
-        .single()
+        .select('id', { count: 'exact', head: true })
+        .eq('id', existingUser.id)
+      
+      console.log('🔍 User existence check:', { id: existingUser.id, count, error: countError });
+      
+      if (countError || count === 0) {
+        console.error('❌ User does not exist in users table, will recreate');
+        existingUser = null;
+      } else {
+        // 기존 사용자 정보 업데이트 (이름/이미지/provider_id가 변경되었을 수 있음)
+        const { data: updatedUser, error: updateError } = await supabaseAdmin
+          .from('users')
+          .update({
+            name: data.name || existingUser.name,
+            image: data.image || existingUser.image,
+            provider: data.provider || existingUser.provider,
+            provider_id: data.providerId || existingUser.provider_id,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', (existingUser as any).id)
+          .select()
+          .single()
 
-      if (updateError) {
-        console.error('Error updating user:', updateError)
-        return { user: existingUser, isNewUser: false }
+        if (updateError) {
+          console.error('❌ Error updating user:', updateError);
+          // UPDATE 실패 = 레코드가 실제로 없음 → 새로 생성
+          console.log('🔄 Update failed, will create new user...');
+          existingUser = null;
+        } else if (!updatedUser) {
+          console.error('❌ Update returned no data, user does not exist');
+          existingUser = null;
+        } else {
+          console.log('✅ User updated successfully');
+          return { user: updatedUser, isNewUser: false }
+        }
       }
-
-      return { user: updatedUser, isNewUser: false }
+    }
+    
+    // existingUser가 null이면 (새 사용자이거나 재생성 필요) 아래로 진행
+    if (!existingUser) {
+      console.log('🔍 No existing user found, will create new one');
     }
 
     // 새 사용자 생성
+    console.log('🆕 Creating new user:', { email: effectiveEmail, provider: data.provider, providerId: data.providerId });
+    
     const { data: newUser, error: createError } = await supabaseAdmin
       .from('users')
       .insert({
@@ -90,9 +133,11 @@ export async function findOrCreateUser(data: {
       .single()
 
     if (createError) {
-      console.error('Error creating user:', createError)
+      console.error('❌ Error creating user:', createError)
       return { user: null, isNewUser: false }
     }
+
+    console.log('✅ New user created:', { id: newUser.id });
 
     // 기본 설정 생성
     await supabaseAdmin

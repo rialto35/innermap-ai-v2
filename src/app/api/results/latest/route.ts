@@ -1,32 +1,110 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getSupabaseServer } from "@/lib/supabaseServer";
+import { supabaseAdmin } from "@/lib/supabase";
+import { matchHero } from "@/lib/data/heroes144";
+import { getTribeFromBirthDate } from "@/lib/innermapLogic";
+import { recommendStone } from "@/lib/data/tribesAndStones";
 
 export async function GET() {
-  const session = await getServerSession(authOptions as any);
-  const userId = (session as any)?.user?.id;
+  const session = (await getServerSession(authOptions as any)) as any;
+  const email = session?.user?.email || session?.effectiveEmail;
 
-  console.log("[LATEST][USER]", userId);
-
-  if (!userId) {
+  if (!email) {
     return new Response(JSON.stringify({ error: "UNAUTHENTICATED" }), { status: 401 });
   }
 
-  const supabase = await getSupabaseServer();
-  const { data, error } = await supabase
-    .from("results")
-    .select("id,user_id,created_at,big5,mbti,reti,inner9,analysis")
-    .eq("user_id", userId)
-    .order("created_at", { ascending: false })
+  const { data: userRow } = await supabaseAdmin
+    .from('users')
+    .select('id')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (!userRow?.id) {
+    return new Response(JSON.stringify({ data: null }), { status: 200 });
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from('test_assessments')
+    .select(`
+      id,
+      created_at,
+      raw_answers,
+      test_assessment_results (
+        assessment_id,
+        mbti,
+        big5,
+        inner9,
+        keywords,
+        world,
+        confidence
+      )
+    `)
+    .eq('user_id', userRow.id)
+    .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  console.log("[LATEST][ROW]", !!data, data?.id);
-
   if (error) {
-    console.error("[RESULTS/LATEST][DB ERROR]", error);
+    console.error('[RESULTS/LATEST][DB ERROR]', error);
     return new Response(JSON.stringify({ error: "DB_ERROR" }), { status: 500 });
   }
 
-  return new Response(JSON.stringify({ data: data ?? null }), { status: 200 });
+  const result = data?.test_assessment_results?.[0] ?? null;
+
+  if (!result || !data) {
+    return new Response(JSON.stringify({ data: null }), { status: 200 });
+  }
+
+  const birthdate = data.raw_answers?.profile?.birthdate || result.world?.birthdate || null;
+  const tribeMatch = birthdate ? getTribeFromBirthDate(birthdate) : null;
+  const hero = matchHero(result.mbti, result.world?.reti ?? result.world?.retiTop ?? result.world?.reti_type ?? '1');
+  const stoneInput = {
+    openness: result.big5?.O ?? result.big5?.openness ?? 50,
+    conscientiousness: result.big5?.C ?? result.big5?.conscientiousness ?? 50,
+    extraversion: result.big5?.E ?? result.big5?.extraversion ?? 50,
+    agreeableness: result.big5?.A ?? result.big5?.agreeableness ?? 50,
+    neuroticism: result.big5?.N ?? result.big5?.neuroticism ?? 50,
+  } as const;
+  const stone = recommendStone(stoneInput);
+
+  const enriched = {
+    ...result,
+    assessment_id: data.id,
+    created_at: data.created_at,
+    hero: hero
+      ? {
+          id: hero.id,
+          name: hero.name,
+          nameEn: hero.nameEn,
+          tagline: hero.tagline,
+          description: hero.description,
+          abilities: hero.abilities,
+        }
+      : null,
+    tribe: tribeMatch
+      ? {
+          id: tribeMatch.tribe.id,
+          name: tribeMatch.tribe.nameKo,
+          nameEn: tribeMatch.tribe.nameEn,
+          symbol: tribeMatch.tribe.symbol,
+          color: tribeMatch.tribe.colorHex,
+          essence: tribeMatch.tribe.essence ?? null,
+        }
+      : null,
+    stone: stone
+      ? {
+          id: stone.id,
+          name: stone.nameKo,
+          nameEn: stone.nameEn,
+          icon: stone.icon ?? '💎',
+          color: stone.color ?? '#8B5CF6',
+          keywords: stone.keywords ?? [],
+          summary: stone.summary ?? stone.description,
+          coreValue: stone.coreValue,
+          effect: stone.effect,
+        }
+      : null,
+  };
+
+  return new Response(JSON.stringify({ data: enriched }), { status: 200 });
 }

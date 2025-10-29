@@ -167,3 +167,4 @@ BEGIN
   RAISE NOTICE '- test_results_v 뷰 생성됨 (기존 코드 호환성)';
   RAISE NOTICE '- RLS 정책 업데이트됨';
 END $$;
+

@@ -5,13 +5,14 @@
 
 'use client';
 
-import { useEffect, useState, useCallback, Suspense } from 'react';
+import { useEffect, useState, useCallback, Suspense, FormEvent } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 // import dynamic from 'next/dynamic';
 
 import EnhancedHeroCard from '@/components/hero/EnhancedHeroCard';
+import HeroGuardEmptyState from '@/components/hero/HeroGuardEmptyState';
 // import DashboardTabs from '@/components/dashboard/DashboardTabs';
 // import { useSearchTab } from '@/lib/hooks/useSearchTab';
 
@@ -48,14 +49,51 @@ function DashboardContent() {
   // const { currentTab } = useSearchTab();
   const [heroData, setHeroData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [birthdate, setBirthdate] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleLogout = async () => {
     try {
-      sessionStorage.removeItem('hero_data_cache');
       await signOut({ redirect: false });
       router.push('/');
     } catch (error) {
       console.error('Logout error:', error);
+    }
+  };
+
+  // 생년월일 저장 핸들러
+  const handleBirthdateSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    
+    if (!birthdate) {
+      alert('생년월일을 입력해주세요.');
+      return;
+    }
+
+    setIsUpdating(true);
+
+    try {
+      const res = await fetch('/api/profile/birthdate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ birthdate })
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to save birthdate');
+      }
+
+      alert('생년월일이 저장되었습니다! 페이지를 새로고침합니다.');
+      
+      // 데이터 새로고침
+      setHeroData(null);
+      fetchHeroData();
+      
+    } catch (error) {
+      console.error('Failed to save birthdate:', error);
+      alert('저장에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -65,22 +103,9 @@ function DashboardContent() {
 
     const userKey = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
     const cacheKey = `hero_data_cache:${userKey}`;
-    const cached = sessionStorage.getItem(cacheKey);
-    if (cached) {
-      try {
-        const { data: cachedData, timestamp } = JSON.parse(cached);
-        const now = Date.now();
-        const CACHE_DURATION = 5 * 60 * 1000;
-
-        if (now - timestamp < CACHE_DURATION) {
-          setHeroData(cachedData);
-          setLoading(false);
-          return;
-        }
-      } catch {
-        // Ignore cache parsing errors
-      }
-    }
+    
+    // 캐시 비활성화: 항상 최신 데이터 가져오기
+    sessionStorage.removeItem(cacheKey);
 
     try {
       setLoading(true);
@@ -91,24 +116,19 @@ function DashboardContent() {
       }
 
       const data = await response.json();
-      sessionStorage.setItem(cacheKey, JSON.stringify({ data, timestamp: Date.now() }));
-      setHeroData(data);
-      
-      // 신규 사용자이고 검사 결과가 없으면 웰컴 페이지로 리다이렉트
+
       if (!data.hasTestResult) {
+        console.log('❌ 검사 결과 없음 - 웰컴 페이지로 리다이렉트');
+        setHeroData(null);
         router.push('/welcome');
         return;
       }
+
+      // 캐시 저장 제거: 항상 최신 데이터 사용
+      setHeroData(data);
     } catch (error) {
       console.error('Error fetching hero data:', error);
-      // 에러 발생 시 빈 데이터로 설정 (검사 필요 상태)
-      setHeroData({
-        user: {
-          name: session?.user?.name || 'Guest',
-          email: session?.user?.email || '',
-        },
-        hasTestResult: false
-      });
+      setHeroData(null);
     } finally {
       setLoading(false);
     }
@@ -153,6 +173,15 @@ function DashboardContent() {
       </div>
     );
   }
+  if (!heroData.hasTestResult) {
+    return (
+      <HeroGuardEmptyState
+        name={session?.user?.name || '여행자'}
+        onStartTest={() => router.push('/test/intro')}
+      />
+    );
+  }
+
 
   const userName = heroData.user?.name || session?.user?.name || '여행자';
 
@@ -168,18 +197,61 @@ function DashboardContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Hero Card (2 columns) */}
         <div className="lg:col-span-2">
+          {/* 생년월일 입력 배너 (birthdate 없을 때만 표시) */}
+          {!heroData.birthDate && (
+            <div className="mb-6 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-6">
+              <div className="flex items-start gap-4">
+                <span className="text-4xl">🎂</span>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-amber-300 mb-2">
+                    부족을 확인하고 싶으신가요?
+                  </h3>
+                  <p className="text-sm text-white/70 mb-4">
+                    생년월일을 입력하면 60갑자 기반 12부족과 오늘의 운세를 확인할 수 있습니다.
+                    <br />
+                    <span className="text-xs text-white/40">(선택사항이며, 나중에 입력할 수 있습니다)</span>
+                  </p>
+                  
+                  <form onSubmit={handleBirthdateSubmit} className="flex gap-3">
+                    <input
+                      type="date"
+                      value={birthdate}
+                      onChange={(e) => setBirthdate(e.target.value)}
+                      className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition"
+                      placeholder="YYYY-MM-DD"
+                      disabled={isUpdating}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isUpdating || !birthdate}
+                      className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    >
+                      {isUpdating ? '저장 중...' : '확인하기'}
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          )}
+
           <EnhancedHeroCard
-            hero={heroData.hero}
+            hero={{
+              ...heroData.hero,
+              mbti: heroData.mbti?.type,
+              reti: heroData.world?.reti,
+            }}
             gem={heroData.gem}
             tribe={heroData.tribe}
             growth={heroData.growth}
             strengths={heroData.strengths}
             weaknesses={heroData.weaknesses}
             genderPreference={heroData.genderPreference || 'male'}
-            testResultId={heroData.testResultId}
-            tribeKey={heroData.tribe?.nameEn || 'lumin'}
-            stoneKey={heroData.gem?.nameEn || 'arche'}
-            birthDate={heroData.birthDate || '1990-01-01'}
+            testResultId={heroData.assessmentId}
+            tribeKey={heroData.tribe?.nameEn?.split(' ')[0]?.toLowerCase()}
+            stoneKey={heroData.gem?.nameEn?.split(' ')[0]?.toLowerCase()}
+            birthDate={heroData.birthDate}
+            mbti={heroData.mbti?.type}
+            reti={heroData.world?.reti}
           />
         </div>
 

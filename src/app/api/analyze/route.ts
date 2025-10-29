@@ -70,16 +70,29 @@ export async function POST(req: Request) {
     
     // Enhanced Inner9 calculation with type weighting
     const config = getInner9Config();
-    const inner9Scores = toInner9({
+    const analysisResult = await runAnalysis({
       big5: { o: O, c: C, e: E, a: A, n: N },
       mbti: body.mbti as string,
       reti: body.reti as number,
       weights: config.useTypeWeights ? { big5: 1, mbti: 0.5, reti: 0.5 } : { big5: 1, mbti: 0, reti: 0 }
     });
     
+    const inner9Scores = analysisResult.inner9;
+    
+    // NaN 값 처리 - 기본값으로 대체
+    const sanitizedInner9 = Object.fromEntries(
+      Object.entries(inner9Scores).map(([key, value]) => [
+        key, 
+        typeof value === 'number' && !isNaN(value) ? value : 0.5
+      ])
+    );
+    
+    console.log('🔍 [API /analyze] Original Inner9:', inner9Scores);
+    console.log('🔍 [API /analyze] Sanitized Inner9:', sanitizedInner9);
+    
     // Validate Inner9 scores
     try {
-      Inner9Schema.parse(inner9Scores);
+      Inner9Schema.parse(sanitizedInner9);
       console.log('✅ [API /analyze] Inner9 scores validated');
     } catch (error) {
       console.error('❌ [API /analyze] Inner9 validation failed:', error);
@@ -97,15 +110,15 @@ export async function POST(req: Request) {
         big5Percentiles,
         mbtiRatios,
         analysisText: '', // Will be filled
-        growth: out.inner9 ? {
-          innate: out.inner9.creation ?? 50,
-          acquired: out.inner9.will ?? 50,
-          conscious: out.inner9.insight ?? 50,
-          unconscious: out.inner9.sensitivity ?? 50,
-          growth: out.inner9.growth ?? 50,
-          stability: out.inner9.balance ?? 50,
-          harmony: out.inner9.harmony ?? 50,
-          individual: out.inner9.expression ?? 50,
+        growth: sanitizedInner9 ? {
+          innate: sanitizedInner9.creation ?? 50,
+          acquired: sanitizedInner9.will ?? 50,
+          conscious: sanitizedInner9.insight ?? 50,
+          unconscious: sanitizedInner9.sensitivity ?? 50,
+          growth: sanitizedInner9.growth ?? 50,
+          stability: sanitizedInner9.balance ?? 50,
+          harmony: sanitizedInner9.harmony ?? 50,
+          individual: sanitizedInner9.expression ?? 50,
         } : undefined,
       });
       console.log('✅ [API /analyze] AI analysis generated:', analysisText.length, 'chars');
@@ -179,7 +192,7 @@ export async function POST(req: Request) {
     };
 
     // Log Inner9 scores for monitoring
-    const inner9Map = inner9Scores.reduce((acc, axis) => {
+    const inner9Map = inner9Scores.reduce((acc: Record<string, number>, axis: any) => {
       acc[axis.label.toLowerCase()] = axis.value;
       return acc;
     }, {} as Record<string, number>);
@@ -204,7 +217,7 @@ export async function POST(req: Request) {
         },
         mbti_scores: body.mbti ? { type: body.mbti } : { type: null },
         reti_scores: typeof body.reti === 'number' ? { score: body.reti } : { score: null },
-        inner_nine: out.inner9,
+        inner_nine: sanitizedInner9,
         inner9_scores: inner9Map,
         model_version: out.modelVersion,
         engine_version: out.engineVersion,
@@ -258,7 +271,7 @@ export async function POST(req: Request) {
         ...out,
         big5Percentiles,
         mbtiRatios,
-        inner9Scores,
+        inner9Scores: sanitizedInner9,
         analysisText,
       }
     });

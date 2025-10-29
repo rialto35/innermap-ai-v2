@@ -114,23 +114,29 @@ function ResultDetailContent() {
               <span>Inner9 그래프</span>
             </h2>
             <LockGuard>
-              <Inner9Graph
-                labels={premium.inner9.labels}
-                values={premium.inner9.axes}
-              />
-              <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
-                {premium.inner9.labels.map((label, i) => (
-                  <div
-                    key={i}
-                    className="text-center p-3 rounded-lg bg-white/5"
-                  >
-                    <div className="text-white/70 font-medium">{label}</div>
-                    <div className="text-white font-bold text-lg">
-                      {premium.inner9.axes[i]}
-                    </div>
+              {premium.inner9 ? (
+                <>
+                  <Inner9Graph
+                    labels={premium.inner9.labels}
+                    values={premium.inner9.axes}
+                  />
+                  <div className="mt-6 grid grid-cols-3 gap-3 text-sm">
+                    {premium.inner9.labels.map((label, i) => (
+                      <div
+                        key={i}
+                        className="text-center p-3 rounded-lg bg-white/5"
+                      >
+                        <div className="text-white/70 font-medium">{label}</div>
+                        <div className="text-white font-bold text-lg">
+                          {premium.inner9.axes[i]}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </>
+              ) : (
+                <div className="text-sm text-white/60">Inner9 데이터가 아직 준비되지 않았습니다.</div>
+              )}
             </LockGuard>
           </motion.div>
 
@@ -146,30 +152,34 @@ function ResultDetailContent() {
               <span>세계관 매핑</span>
             </h2>
             <LockGuard>
-              <div className="space-y-6">
-                <div className="text-center space-y-4">
-                  <div>
-                    <div className="text-sm text-white/60 mb-1">대륙</div>
-                    <div className="text-2xl font-bold text-white">
-                      {premium.world.continent}
+              {premium.world ? (
+                <div className="space-y-6">
+                  <div className="text-center space-y-4">
+                    <div>
+                      <div className="text-sm text-white/60 mb-1">대륙</div>
+                      <div className="text-2xl font-bold text-white">
+                        {premium.world.continent}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-4xl">↓</div>
-                  <div>
-                    <div className="text-sm text-white/60 mb-1">12부족</div>
-                    <div className="text-2xl font-bold text-white">
-                      {premium.world.tribe}
+                    <div className="text-4xl">↓</div>
+                    <div>
+                      <div className="text-sm text-white/60 mb-1">12부족</div>
+                      <div className="text-2xl font-bold text-white">
+                        {premium.world.tribe}
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-4xl">↓</div>
-                  <div>
-                    <div className="text-sm text-white/60 mb-1">결정석</div>
-                    <div className="text-2xl font-bold text-white">
-                      {premium.world.stone}
+                    <div className="text-4xl">↓</div>
+                    <div>
+                      <div className="text-sm text-white/60 mb-1">결정석</div>
+                      <div className="text-2xl font-bold text-white">
+                        {premium.world.stone}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="text-sm text-white/60">세계관 매핑 정보가 아직 준비되지 않았습니다.</div>
+              )}
             </LockGuard>
           </motion.div>
 

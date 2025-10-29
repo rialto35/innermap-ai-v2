@@ -79,3 +79,4 @@ foreach ($table in $tables) {
 "@ | Out-File -FilePath $OutputPath -Append -Encoding UTF8
 
 Write-Host "Table usage scan completed: $OutputPath"
+

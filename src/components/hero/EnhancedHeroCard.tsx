@@ -25,6 +25,8 @@ interface EnhancedHeroCardProps {
   tribeKey?: string; // balance, creation, etc.
   stoneKey?: string; // arche, kairos, etc.
   birthDate?: string; // YYYY-MM-DD for daily luck
+  mbti?: string; // MBTI type
+  reti?: string | number; // RETI type
 }
 
 export default function EnhancedHeroCard({
@@ -40,6 +42,8 @@ export default function EnhancedHeroCard({
   tribeKey,
   stoneKey,
   birthDate,
+  mbti,
+  reti,
 }: EnhancedHeroCardProps) {
   const [luck, setLuck] = useState<any>(null);
   const [loadingLuck, setLoadingLuck] = useState(false);
@@ -83,52 +87,51 @@ export default function EnhancedHeroCard({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
         {/* Left: Hero Profile (2 columns) */}
         <div className="lg:col-span-2">
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            {/* Hero Image */}
-            <div className="relative flex-shrink-0">
-              <HeroImage heroCode={computedHeroCode} width={180} height={180} priority />
-            </div>
-
-            {/* Hero Info & Badges */}
-            <div className="flex-1 text-center sm:text-left">
+          <div className="flex flex-col items-center gap-6">
+            {/* Hero Image & Name */}
+            <div className="text-center">
+              <div className="relative inline-block mb-4">
+                <HeroImage heroCode={computedHeroCode} width={200} height={200} priority />
+              </div>
               <h2 className="text-2xl font-bold text-white mb-2">{hero?.name || 'Unknown Hero'}</h2>
               <p className="text-white/60 text-sm mb-4">{hero?.subtitle || hero?.tagline || 'Hero Description'}</p>
-
-              {/* Tribe & Stone Badges */}
-              <div className="flex items-center justify-center sm:justify-start gap-4 mb-4">
-                {tribeKey && (
-                  <div className="flex flex-col items-center gap-1">
-                    <TribeBadge tribe={tribeKey} size={72} showLabel={false} />
-                    <span className="text-xs text-white/50">부족</span>
-                  </div>
-                )}
-                {stoneKey && (
-                  <div className="flex flex-col items-center gap-1">
-                    <StoneBadge stone={stoneKey} size={72} variant="natal" showLabel={false} />
-                    <span className="text-xs text-white/50">결정석</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
+              
+              {/* Tags below image */}
+              <div className="flex flex-wrap gap-2 justify-center mb-4">
                 <span
                   className={`px-3 py-1 rounded-lg text-sm font-medium bg-gradient-to-r ${tribeColors.gradient} text-white`}
                 >
                   Lv.{hero?.level || 1}
                 </span>
                 <span className="px-3 py-1 rounded-lg bg-zinc-800 text-zinc-300 border border-zinc-700 text-sm">
-                  MBTI {hero?.mbti || 'ENFP'}
+                  MBTI {mbti || hero?.mbti || 'N/A'}
                 </span>
                 <span className="px-3 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-600/40 text-sm">
-                  RETI {hero?.reti?.code || `R${hero?.reti}` || 'R1'}
+                  RETI {reti ? `R${reti}` : (hero?.reti?.code || (hero?.reti ? `R${hero?.reti}` : 'N/A'))}
                 </span>
-                {gem && (
-                  <span className="px-3 py-1 rounded-lg bg-sky-500/15 text-sky-300 border border-sky-600/40 text-sm">
-                    {gem.name}
-                  </span>
-                )}
               </div>
+            </div>
+
+            {/* Tribe & Stone Badges - Horizontal Layout */}
+            <div className="flex items-center justify-center gap-6 w-full">
+              {tribe && (
+                <div className="flex flex-col items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 min-w-[140px]">
+                  <TribeBadge tribe={tribeKey || tribe.nameEn?.toLowerCase()} size={64} showLabel={false} />
+                  <div className="text-center">
+                    <div className="text-xs text-white/50 mb-1">부족</div>
+                    <div className="text-sm font-semibold text-white">{tribe.name || tribe.nameEn}</div>
+                  </div>
+                </div>
+              )}
+              {gem && (
+                <div className="flex flex-col items-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/20 min-w-[140px]">
+                  <StoneBadge stone={stoneKey || gem.nameEn?.toLowerCase()} size={64} variant="natal" showLabel={false} />
+                  <div className="text-center">
+                    <div className="text-xs text-white/50 mb-1">결정석</div>
+                    <div className="text-sm font-semibold text-white">{gem.name || gem.nameEn}</div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

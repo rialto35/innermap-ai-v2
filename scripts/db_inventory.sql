@@ -95,3 +95,4 @@
   WHERE t.schemaname = 'public'
   ORDER BY tablename
 ) TO 'docs/db/exports/07_table_stats.csv' CSV HEADER;
+

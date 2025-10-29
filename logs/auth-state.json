@@ -1,0 +1,180 @@
+{
+  "cookies": [
+    {
+      "name": "NACT",
+      "value": "1",
+      "domain": ".naver.com",
+      "path": "/oauth2.0",
+      "expires": 1761641431.876835,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Host-next-auth.csrf-token",
+      "value": "cbd6cc2fc02ae9b75ee8d41d5373024c24dd821ca537330136d4d7959c4edbe5%7C2abccdeaa9255ee07b25953ed60b43c294dc78b907b268d32203d689adafdf5d",
+      "domain": "innermap-ai-v2.vercel.app",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "__Secure-next-auth.callback-url",
+      "value": "https%3A%2F%2Finnermap-ai-v2.vercel.app%2Fmypage",
+      "domain": "innermap-ai-v2.vercel.app",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "NID_JST",
+      "value": "JzGdx+23CAvG7+LRv3Hw6XPf/J7mat7TSPzDOZ5iDZZ/G2taszXF9v5h9pkEJl+WhMYWvikQJcKYYmL7MI32pp1jpToEbQV/12rqAhPOeT5PS+BOU/3xaR1/EYhabJd1V0NLf62BQB3yLa5dGlcJuHYZr7ehVXxjYq4TzJ3mgkg=",
+      "domain": ".nid.naver.com",
+      "path": "/",
+      "expires": 1778835031.260273,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "nid_slevel",
+      "value": "1",
+      "domain": ".nid.naver.com",
+      "path": "/",
+      "expires": 1793091031,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "NAC",
+      "value": "6fU1DoBxUcWmA",
+      "domain": ".naver.com",
+      "path": "/",
+      "expires": 1796115031.851466,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "NNB",
+      "value": "ICYCCXSXGL7WQ",
+      "domain": ".naver.com",
+      "path": "/",
+      "expires": 1796115038.71796,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "SRT30",
+      "value": "1761555031",
+      "domain": ".naver.com",
+      "path": "/",
+      "expires": 1761556838.124391,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "SRT5",
+      "value": "1761555031",
+      "domain": ".naver.com",
+      "path": "/",
+      "expires": 1761555338.124456,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "nid_inf",
+      "value": "1348869372",
+      "domain": ".naver.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": false,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "NID_AUT",
+      "value": "LJG1LrSDBikGM2PKNzoMYhfFL7BYSNKH/RlXIrMel04HjmBToZjRiQvjgnvW6ObW",
+      "domain": ".naver.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "NID_SES",
+      "value": "AAABtQwXEz55EG4docYKY8LJQytpNATG9UKnqCA4c93zNmdkOFcj6SuF0cyGWtfcRyz3ASktTUBXJihdvUhEW8a5hiORp8GyBTpkekX9IfwA64zn/cIb1+C3TRdFTTO/KXlcSY7aga3qxZCFEd1poy1/CSNe79zjhRThO90kV6mYD2sewCrHy+Nre7RRJgArl4R3ZVHTircj0c30Nfuct4TIryUgXyGGUboHsuBn5O5dKJvI8kI06qhNOXz5Ho0eB68OIce6FniNpzPnCD0yzLjsCjhqgKzib8e7eumex4twq92bWt64pDbmPNHNgW+X+1+lrmFH9QTk910/gA+oyUl/i4rzXkhKyMEI/JmDJN9EgZk4JzG4thJlLXvJ2RX2ycG9Vxqy23TZMOiblz4WeWhFmEY9sjyYlJh6ZG7MbpIfQYIR51C8dvYMqDbV3A5vBFmKQCYvZ2Eqhe7ugNcoaKYRt1dzgXdVKJ5cIc70MnB5ASN8ZPs3e0vJ8dHeb5VLQwwsonqYFwxc3gB2Mjjb6t4wKMT3gA64zCcSbItLx5rQ/AlpsS1Wu3EDs3fbnSEIpy42wwdSTUAoImnscWlU+fHtzbs=",
+      "domain": ".naver.com",
+      "path": "/",
+      "expires": -1,
+      "httpOnly": false,
+      "secure": true,
+      "sameSite": "Lax"
+    },
+    {
+      "name": "BUC",
+      "value": "RX2rzrBN5skPfqRZMYk6OFkCmZgglx9VBhE-zzDIrlE=",
+      "domain": ".naver.com",
+      "path": "/",
+      "expires": 1796115063.286248,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    },
+    {
+      "name": "__Secure-next-auth.session-token",
+      "value": "eyJhbGciOiJkaXIiLCJlbmMiOiJBMjU2R0NNIn0..aNVtJjcczwfROTVS.GC6vpDrYhllbrkn1OdhX3v7wP2nFkj-RDLOeMmR3EnlxejykQiQlWQzXBVALxnQCkiyBgI0zvPGDW-X_DLAwKVGhkFgSfX17jt6WFqLkLdpafPc1HbEWxIouAUNmgtAoPdvVyuoH-EAqzGlKCIbkfix-lexRxL7SNW5JtvovOBZHB6dEyb6xKuzHVoZWicLJuebtoyJdCjc0Y4132oGhf4_XH3HZqE6KNZ5LGx_Cuq-O_0pfWqFRo5g0gp84HQisysz23VMnb-bHG8_MR5oV9mz1upzFncf4sPSGTynFhHVhkK239p72XO5BiZWI0VIAnLToV8loaB7GmYhXlxrYKkubCMJjgQxJ_tx-BK5mqUGvrEmot3wsAXZNA5HzncN6nP2mCpUTCKGtaeRqCnSziTowoDPTgQ.3QKvkzMmNbAtQ_gkAxH3lw",
+      "domain": "innermap-ai-v2.vercel.app",
+      "path": "/",
+      "expires": 1764147066.46845,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "Lax"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "https://innermap-ai-v2.vercel.app",
+      "localStorage": [
+        {
+          "name": "nextauth.message",
+          "value": "{\"event\":\"session\",\"data\":{\"trigger\":\"getSession\"},\"timestamp\":1761555026}"
+        }
+      ]
+    },
+    {
+      "origin": "https://nid.naver.com",
+      "localStorage": [
+        {
+          "name": "glad_loader_policy_info",
+          "value": "{\"regDate\":\"2025-10-27T08:50:31.543Z\",\"data\":{\"versionInfo\":{\"policyVersion\":\"251021.01\",\"loaderVersion\":\"1.6.0\",\"sdkVersion\":\"3.5.0\"},\"sdkInfo\":{\"latestRatio\":1,\"config\":{}},\"sentryInfo\":{\"enableSentry\":false,\"config\":{\"sampleRate\":0.001}}}}"
+        },
+        {
+          "name": "3fbddd8d15feb0d3",
+          "value": "ea9f802a9606c9281a8e6c1764b406420c105a3932d70b4c3aae6542c4ce0db3"
+        },
+        {
+          "name": "ls",
+          "value": "ICYCCXSXGL7WQ"
+        },
+        {
+          "name": "d6277b37e628876c",
+          "value": "5301a917902b515627c5f10c46fc6f2f616f18ba124d8c0f01d36918d9a621f7"
+        },
+        {
+          "name": "gfp_uuid_iv",
+          "value": "bd251915-a19e-4d02-b91e-3c51fe11f112"
+        }
+      ]
+    }
+  ]
+}
