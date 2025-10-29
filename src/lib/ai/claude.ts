@@ -6,7 +6,7 @@
 
 import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
-import { TRIBES_12, STONES_12, getStoneByName, getTribeByName } from '@/lib/data/tribesAndStones';
+import { getStoneByName } from '@/lib/data/tribesAndStones';
 import innermapTribes from '@/data/innermapTribes.json';
 
 // Lazy initialization to avoid build-time errors
@@ -134,7 +134,6 @@ async function* generateWithOpenAI(client: OpenAI, prompt: string) {
 function getAttachmentType(big5: any): string {
   const n = big5?.N || 50;
   const a = big5?.A || 50;
-  const e = big5?.E || 50;
   
   if (n < 40 && a > 60) return '안정형 (Secure)';
   if (n > 60 && a < 40) return '회피형 (Avoidant)';
@@ -243,9 +242,9 @@ Start your response with { and end with }. Nothing else.
 ${tribeData ? `
 - 이름: ${tribeData.nameKor} (${tribeData.nameEn})
 - 상징: ${tribeData.symbol?.icon || tribeData.symbol}
-- 핵심 가치: ${tribeData.essence?.coreValue || tribeData.coreValue}
-- 철학: ${tribeData.essence?.philosophy || tribeData.description}
-- 키워드: ${tribeData.personality?.keywords?.join(', ') || tribeData.keywords?.join(', ')}
+- 핵심 가치: ${tribeData.essence?.coreValue || ''}
+- 철학: ${tribeData.essence?.philosophy || ''}
+- 키워드: ${tribeData.personality?.keywords?.join(', ') || ''}
 - AI 톤: ${tribeData.aiPrompt?.tone || '따뜻하고 공감적'}
 - AI 포커스: ${tribeData.aiPrompt?.focus || '내면 성장'}
 ` : `- 이름: ${tribe?.name || '알 수 없음'}`}
@@ -489,7 +488,7 @@ async function generateCardContent(
   aiType: 'claude' | 'openai',
   client: any
 ): Promise<any> {
-  const { user, mbti, world, big5 } = heroData;
+  const { mbti, world, big5 } = heroData;
   
   const prompt = `당신은 심리 분석 전문가입니다.
 다음 사용자 데이터를 바탕으로 "${card.title}" 분석 카드를 작성해주세요.
@@ -558,7 +557,7 @@ async function generateCardContent(
     // Try to parse JSON
     try {
       // Remove markdown code blocks if present
-      let cleanText = responseText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+      const cleanText = responseText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
       return JSON.parse(cleanText);
     } catch (error) {
       console.warn(`⚠️ [AI] Failed to parse card ${card.id} JSON:`, error);
