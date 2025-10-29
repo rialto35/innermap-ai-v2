@@ -4,7 +4,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { supabaseAdmin } from "@/lib/supabase";
 import { runIMCore } from "@/lib/imcore/analyze";
@@ -17,7 +17,7 @@ const ANON_ENABLED = process.env.IM_ANON_TEST_ENABLED === "true";
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession(authOptions as any) as any;
     
     // 🔒 익명 검사 가드: 로그인 없고 플래그도 OFF면 차단
     if (!session?.user && !ANON_ENABLED) {
