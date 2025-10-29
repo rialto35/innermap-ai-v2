@@ -97,11 +97,27 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
               try {
                 let jsonText = data.fullText || fullText;
                 
-                // Remove markdown code blocks if present (OpenAI sometimes wraps JSON in ```json...```)
+                console.log('🔍 [DeepAnalysis] Raw response length:', jsonText.length);
+                console.log('🔍 [DeepAnalysis] First 500 chars:', jsonText.substring(0, 500));
+                
+                // Remove markdown code blocks if present
                 jsonText = jsonText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '');
                 jsonText = jsonText.trim();
                 
+                // Check if response starts with valid JSON
+                if (!jsonText.startsWith('{')) {
+                  console.error('❌ [DeepAnalysis] Response is not JSON! First 200 chars:', jsonText.substring(0, 200));
+                  throw new Error('AI returned non-JSON response. This usually means the prompt is too complex or token limit exceeded.');
+                }
+                
                 const parsed = JSON.parse(jsonText);
+                
+                // Validate structure
+                if (!parsed.sections || !Array.isArray(parsed.sections)) {
+                  throw new Error('Invalid report structure: missing sections array');
+                }
+                
+                console.log('✅ [DeepAnalysis] Report parsed successfully:', parsed.sections.length, 'sections');
                 setReport(parsed);
                 
                 // Save to database
@@ -116,7 +132,8 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
                   }),
                 });
               } catch (parseError) {
-                console.error('Failed to parse report:', parseError, 'Raw text:', (data.fullText || fullText).substring(0, 200));
+                console.error('❌ [DeepAnalysis] Failed to parse report:', parseError);
+                console.error('❌ [DeepAnalysis] Raw text (first 500):', (data.fullText || fullText).substring(0, 500));
                 setError('리포트 파싱에 실패했습니다. 다시 시도해주세요.');
               }
             }

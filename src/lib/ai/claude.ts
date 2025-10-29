@@ -208,8 +208,11 @@ function buildDeepReportPrompt(heroData: any): string {
   const extremeBig5 = getExtremeBig5(big5);
   const maxInner9 = getMaxInner9(inner9);
   
-  return `당신은 innerMap AI의 심리 분석 전문가이자 스토리텔러입니다.
-다음 사용자의 심층 데이터를 바탕으로 "13단계 통합 심리 리포트"를 작성해주세요.
+  return `You are a psychological analysis expert and storyteller for innerMap AI.
+Create a "13-Step Integrated Psychological Report" based on the user's data below.
+
+**CRITICAL**: You MUST respond with ONLY valid JSON. No explanations, no apologies, no markdown.
+Start your response with { and end with }. Nothing else.
 
 # 📊 사용자 핵심 데이터
 
@@ -267,73 +270,73 @@ ${stoneData ? `
       "id": 1,
       "title": "성격 지형 분석",
       "icon": "🎭",
-      "content": "MBTI, RETI, Hero를 통합한 성격 분석. 700-1000자. ${tribeData?.aiPrompt?.tone || '따뜻하고 공감적인 톤'}으로 작성."
+      "content": "MBTI, RETI, Hero를 통합한 성격 분석. 500-700자. ${tribeData?.aiPrompt?.tone || '따뜻하고 공감적인 톤'}으로 작성."
     },
     {
       "id": 2,
       "title": "감정 흐름 진단",
       "icon": "🌊",
-      "content": "Big5 신경성(${big5?.N}점)과 애착 유형(${attachmentType})을 중심으로 감정 패턴 분석. 700-1000자. 회복 루틴 3가지 포함."
+      "content": "Big5 신경성(${big5?.N}점)과 애착 유형(${attachmentType})을 중심으로 감정 패턴 분석. 500-700자. 회복 루틴 2가지 포함."
     },
     {
       "id": 3,
       "title": "내면의 우주 (Inner9)",
       "icon": "🌌",
-      "content": "Inner9 최강 차원(${maxInner9})을 중심으로 내면 세계 시각화. 700-1000자. 은유와 스토리텔링 활용."
+      "content": "Inner9 최강 차원(${maxInner9})을 중심으로 내면 세계 시각화. 500-700자. 은유와 스토리텔링 활용."
     },
     {
       "id": 4,
       "title": "그림자 영역 탐색",
       "icon": "🌑",
-      "content": "성장 영역(${analysis?.inner9?.growthAreas?.map((g: any) => g.dimension || g).join(', ')})을 성장 기회로 재해석. 700-1000자. 통합 연습 2가지 포함."
+      "content": "성장 영역(${analysis?.inner9?.growthAreas?.map((g: any) => g.dimension || g).join(', ')})을 성장 기회로 재해석. 500-700자. 통합 연습 1-2가지 포함."
     },
     {
       "id": 5,
       "title": "관계 패턴 분석",
       "icon": "🤝",
-      "content": "Big5 외향성(${big5?.E}점), 친화성(${big5?.A}점) 기반 관계 분석. 700-1000자. ${tribeData?.personality?.keywords?.includes('관계') ? '부족 특성 반영.' : ''}"
+      "content": "Big5 외향성(${big5?.E}점), 친화성(${big5?.A}점) 기반 관계 분석. 500-700자. ${tribeData?.personality?.keywords?.includes('관계') ? '부족 특성 반영.' : ''}"
     },
     {
       "id": 6,
       "title": "성장 나침반 (Tribe + Stone)",
       "icon": "🌱",
-      "content": "부족(${tribeData?.nameKor || tribe?.name})의 선천 본질과 결정석(${stoneData?.nameKo || stone?.name})의 후천 성장을 통합. 700-1000자. 단기/중기/장기 목표 각 1개씩."
+      "content": "부족(${tribeData?.nameKor || tribe?.name})의 선천 본질과 결정석(${stoneData?.nameKo || stone?.name})의 후천 성장을 통합. 500-700자. 단기/중기/장기 목표 각 1개씩."
     },
     {
       "id": 7,
       "title": "직장/커리어 패턴",
       "icon": "💼",
-      "content": "MBTI(${mbti?.type})와 Big5 성실성(${big5?.C}점) 기반 직무 적합성. 700-1000자. ${tribeData?.life?.careers ? `추천 직업: ${tribeData.life.careers.slice(0, 3).join(', ')}` : ''}"
+      "content": "MBTI(${mbti?.type})와 Big5 성실성(${big5?.C}점) 기반 직무 적합성. 500-700자. ${tribeData?.life?.careers ? `추천 직업: ${tribeData.life.careers.slice(0, 3).join(', ')}` : ''}"
     },
     {
       "id": 8,
       "title": "궁합 & 관계 시너지",
       "icon": "💞",
-      "content": "MBTI 궁합 및 ${attachmentType} 애착 유형 기반 관계 전략. 700-1000자. ${tribeData?.life?.relationships || ''}"
+      "content": "MBTI 궁합 및 ${attachmentType} 애착 유형 기반 관계 전략. 500-700자. ${tribeData?.life?.relationships || ''}"
     },
     {
       "id": 9,
       "title": "라이프 밸런스 & 웰빙",
       "icon": "⚖️",
-      "content": "Big5 신경성(${big5?.N}점) 기반 스트레스 관리. 700-1000자. ${stoneData?.effect || '균형 유지'} 전략 포함."
+      "content": "Big5 신경성(${big5?.N}점) 기반 스트레스 관리. 500-700자. ${stoneData?.effect || '균형 유지'} 전략 포함."
     },
     {
       "id": 10,
       "title": "미래 성장 시나리오",
       "icon": "🚀",
-      "content": "1년/3년/5년 후 성장 비전. 700-1000자. ${tribeData?.aiPrompt?.focus || '내면 성장'}을 중심으로 구체적 시나리오."
+      "content": "1년/3년/5년 후 성장 비전. 500-700자. ${tribeData?.aiPrompt?.focus || '내면 성장'}을 중심으로 구체적 시나리오."
     },
     {
       "id": 11,
       "title": "추천 멘토링",
       "icon": "👥",
-      "content": "학습 스타일과 피드백 방식 제안. 700-1000자. Big5 개방성(${big5?.O}점) 반영."
+      "content": "학습 스타일과 피드백 방식 제안. 500-700자. Big5 개방성(${big5?.O}점) 반영."
     },
     {
       "id": 12,
       "title": "통합 메시지",
       "icon": "💎",
-      "content": "부족(${tribeData?.nameKor})의 철학과 결정석(${stoneData?.nameKo})의 성장 키워드를 통합한 핵심 메시지. 700-1000자. 감동적이고 격려하는 마무리."
+      "content": "부족(${tribeData?.nameKor})의 철학과 결정석(${stoneData?.nameKo})의 성장 키워드를 통합한 핵심 메시지. 500-700자. 감동적이고 격려하는 마무리."
     },
     {
       "id": 13,
@@ -395,17 +398,25 @@ ${stoneData ? `
 
 # ✍️ 작성 가이드
 
-1. **분량**: 각 단계 700-1000자 (13단계 제외)
+1. **분량**: 각 단계 500-700자 (13단계 제외) - 간결하게!
 2. **톤**: ${tribeData?.aiPrompt?.tone || '따뜻하고 공감적이며, 존댓말 사용'}
-3. **구조**: 도입(1-2문장) → 분석(3-4문단) → 실천(1-2문단)
+3. **구조**: 도입(1문장) → 분석(2-3문단) → 실천(1문단)
 4. **데이터 활용**: 부족/결정석 철학을 자연스럽게 녹여내기
 5. **구체성**: 추상적 표현보다 구체적 예시와 실천 방법
 6. **이모지**: 적절히 활용 (과도하지 않게)
-7. **JSON**: 순수 JSON만 출력 (\`\`\`json 금지)
 
 ${tribeData?.aiPrompt?.context || ''}
 
-지금 시작하세요!`;
+---
+
+# ⚠️ FINAL WARNING
+
+- **OUTPUT FORMAT**: Pure JSON only. Start with { and end with }.
+- **NO MARKDOWN**: Do not use \`\`\`json or any markdown syntax.
+- **NO EXPLANATIONS**: Do not add "Here is the report:" or similar text.
+- **NO APOLOGIES**: If you cannot complete, return partial JSON, not error messages.
+
+**START YOUR RESPONSE NOW WITH {**`;
 }
 
 /**
