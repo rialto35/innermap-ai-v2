@@ -47,7 +47,7 @@ function getAvailableAI(): { type: 'claude' | 'openai' | null; client: any } {
   
   const openai = getOpenAIClient();
   if (openai) {
-    console.log('🔄 [AI] Falling back to OpenAI (Claude unavailable)');
+    console.log('🔄 [AI] Using GPT-4o (Claude unavailable)');
     return { type: 'openai', client: openai };
   }
   
@@ -111,9 +111,9 @@ async function* generateWithClaude(client: Anthropic, prompt: string) {
 
 async function* generateWithOpenAI(client: OpenAI, prompt: string) {
   const stream = await client.chat.completions.create({
-    model: 'gpt-4-turbo-preview',
+    model: 'gpt-4o',
     messages: [{ role: 'user', content: prompt }],
-    max_tokens: 4096, // GPT-4-turbo max limit
+    max_tokens: 3500,
     temperature: 0.7,
     stream: true,
   });
@@ -231,15 +231,15 @@ function buildDeepReportPrompt(heroData: any): string {
 }
 
 # 작성 가이드
-1. 각 단계마다 스토리텔링 방식으로 작성
-2. 데이터를 나열하지 말고, 의미를 해석
+1. 각 단계 **2-3 문단**으로 간결하게 작성
+2. 핵심 인사이트 위주, 불필요한 반복 제거
 3. 존댓말 사용, 따뜻하고 공감적인 톤
-4. 구체적인 예시와 실천 방법 포함
+4. 구체적인 예시 1-2개만 포함
 5. 이모지 적절히 활용
-6. **중요**: 반드시 유효한 JSON 형식으로만 응답 (주석, 마크다운 코드 블록, 설명 없음)
-7. **중요**: \`\`\`json 같은 마크다운 문법을 사용하지 마세요. 순수 JSON만 출력하세요.
+6. **중요**: 반드시 유효한 JSON 형식으로만 응답 (주석, 마크다운 없음)
+7. **중요**: \`\`\`json 같은 마크다운 문법 사용 금지. 순수 JSON만 출력
 
-각 단계를 풍부하고 따뜻하게 작성해주세요.`;
+간결하고 핵심적으로 작성해주세요.`;
 }
 
 /**
@@ -341,7 +341,7 @@ async function generateCardContent(
     if (aiType === 'claude') {
       const message = await client.messages.create({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
+        max_tokens: 800,
         temperature: 0.7,
         messages: [{ role: 'user', content: prompt }],
       });
@@ -349,9 +349,9 @@ async function generateCardContent(
       responseText = content.type === 'text' ? content.text : '';
     } else {
       const completion = await client.chat.completions.create({
-        model: 'gpt-4-turbo-preview',
+        model: 'gpt-4o',
         messages: [{ role: 'user', content: prompt }],
-        max_tokens: 1000, // Within GPT-4-turbo limit
+        max_tokens: 800,
         temperature: 0.7,
       });
       responseText = completion.choices[0]?.message?.content || '';

@@ -53,16 +53,24 @@ export async function GET(req: NextRequest) {
 
     console.log('✅ [API /deep-report/cached] Cached report found');
 
-    return NextResponse.json({
-      ok: true,
-      report: {
-        sections: data.report_sections,
-        practicalCards: data.practical_cards,
-        generatedAt: data.generated_at,
-        modelVersion: data.model_version,
-        tokenCount: data.token_count,
+    return NextResponse.json(
+      {
+        ok: true,
+        report: {
+          sections: data.report_sections,
+          practicalCards: data.practical_cards,
+          generatedAt: data.generated_at,
+          modelVersion: data.model_version,
+          tokenCount: data.token_count,
+        },
       },
-    });
+      {
+        headers: {
+          'Cache-Control': 'private, max-age=86400, stale-while-revalidate=604800',
+          'CDN-Cache-Control': 'private, max-age=86400',
+        },
+      }
+    );
   } catch (error) {
     console.error('❌ [API /deep-report/cached] Error:', error);
     return NextResponse.json(

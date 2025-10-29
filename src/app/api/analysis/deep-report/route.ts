@@ -6,7 +6,7 @@
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { generateDeepReportStream } from '@/lib/ai/claude';
+import { generateDeepReportStream, generatePracticalCards } from '@/lib/ai/claude';
 
 export async function POST(req: NextRequest) {
   try {
@@ -24,20 +24,31 @@ export async function POST(req: NextRequest) {
 
     console.log('🚀 [API /deep-report] Starting report generation for user:', session.user.email);
 
-    // Create streaming response
+    // Create streaming response with parallel generation
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
           let fullText = '';
+          let practicalCards: any[] = [];
           
+          // Start practical cards generation in parallel
+          const cardsPromise = generatePracticalCards(heroData);
+          console.log('🎴 [API /deep-report] Started parallel card generation');
+          
+          // Stream report generation
           for await (const chunk of generateDeepReportStream(heroData)) {
             fullText += chunk;
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ chunk })}\n\n`));
           }
 
-          // Send completion signal with full text
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, fullText })}\n\n`));
+          // Report streaming complete, wait for cards
+          console.log('📝 [API /deep-report] Report streaming complete, waiting for cards...');
+          practicalCards = await cardsPromise;
+          console.log('✅ [API /deep-report] Cards ready');
+
+          // Send completion signal with full text and cards
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ done: true, fullText, practicalCards })}\n\n`));
           controller.close();
           
           console.log('✅ [API /deep-report] Report generation completed');
