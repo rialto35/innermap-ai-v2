@@ -4,15 +4,16 @@
  */
 
 import { NextRequest } from 'next/server';
-import { getServerSession } from 'next-auth';
+import { getServerSession } from 'next-auth/next';
+import type { Session } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { generateDeepReportStream, generatePracticalCards } from '@/lib/ai/claude';
 
 export async function POST(req: NextRequest) {
   try {
     // Check authentication
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const session = await getServerSession(authOptions) as Session | null;
+    if (!session?.user?.email) {
       return new Response('Unauthorized', { status: 401 });
     }
 
