@@ -298,6 +298,60 @@ function ReportHeader({ onRegenerate, generatedAt }: { onRegenerate: () => void;
 
 // Report Section Component
 function ReportSection({ section }: { section: any }) {
+  // Special rendering for Word Cloud (step 13)
+  if (section.id === 13 && section.keywords && Array.isArray(section.keywords)) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 sm:p-8"
+      >
+        <div className="flex items-center gap-3 mb-6">
+          <div className="text-3xl sm:text-4xl">{section.icon}</div>
+          <div>
+            <div className="text-xs text-white/40 mb-1">{section.id}단계</div>
+            <h3 className="text-xl sm:text-2xl font-bold text-white">{section.title}</h3>
+          </div>
+        </div>
+        
+        {/* Word Cloud Display */}
+        <div className="flex flex-wrap gap-3 justify-center">
+          {section.keywords.map((keyword: any, index: number) => {
+            const size = keyword.weight >= 8 ? 'text-3xl' : keyword.weight >= 6 ? 'text-2xl' : 'text-xl';
+            const opacity = keyword.weight >= 8 ? 'opacity-100' : keyword.weight >= 6 ? 'opacity-80' : 'opacity-60';
+            
+            return (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${opacity}`}
+                style={{
+                  borderColor: keyword.color || '#8B5CF6',
+                  backgroundColor: `${keyword.color || '#8B5CF6'}20`,
+                }}
+                title={keyword.source}
+              >
+                <span className={size}>{keyword.emoji}</span>
+                <span className={`${size} font-bold text-white`}>{keyword.word}</span>
+              </motion.div>
+            );
+          })}
+        </div>
+        
+        {/* Source Legend */}
+        <div className="mt-6 pt-6 border-t border-white/10">
+          <p className="text-white/40 text-sm text-center">
+            💡 각 키워드는 MBTI, Big5, Inner9, Tribe, Stone 분석에서 도출되었습니다
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+  
+  // Default rendering for other sections
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}

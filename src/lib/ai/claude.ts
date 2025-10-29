@@ -516,14 +516,35 @@ async function generateCardContent(
     let responseText = '';
     
     if (aiType === 'claude') {
-      const message = await client.messages.create({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 800,
-        temperature: 0.7,
-        messages: [{ role: 'user', content: prompt }],
-      });
-      const content = message.content[0];
-      responseText = content.type === 'text' ? content.text : '';
+      try {
+        const message = await client.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 800,
+          temperature: 0.7,
+          messages: [{ role: 'user', content: prompt }],
+        });
+        const content = message.content[0];
+        responseText = content.type === 'text' ? content.text : '';
+      } catch (claudeError: any) {
+        // If Claude fails (e.g., credit issues), try OpenAI fallback
+        if (claudeError.status === 400 && claudeError.error?.error?.message?.includes('credit balance')) {
+          console.log(`🔄 [AI] Card ${card.id}: Claude credit low, using OpenAI fallback`);
+          const openai = getOpenAIClient();
+          if (openai) {
+            const completion = await openai.chat.completions.create({
+              model: 'gpt-4o',
+              messages: [{ role: 'user', content: prompt }],
+              max_tokens: 800,
+              temperature: 0.7,
+            });
+            responseText = completion.choices[0]?.message?.content || '';
+          } else {
+            throw claudeError;
+          }
+        } else {
+          throw claudeError;
+        }
+      }
     } else {
       const completion = await client.chat.completions.create({
         model: 'gpt-4o',
