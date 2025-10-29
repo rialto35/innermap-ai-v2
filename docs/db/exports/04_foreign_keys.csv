@@ -1,0 +1,10 @@
+child_table,child_column,parent_table,parent_column,constraint_name
+user_profiles,user_id,users,id,user_profiles_user_id_fkey
+test_assessments,user_id,users,id,test_assessments_user_id_fkey
+test_assessment_results,assessment_id,test_assessments,id,test_assessment_results_assessment_id_fkey
+ai_reports,user_id,users,id,ai_reports_user_id_fkey
+ai_reports,test_result_id,test_assessments,id,ai_reports_test_result_id_fkey
+email_jobs,user_id,users,id,email_jobs_user_id_fkey
+email_jobs,assessment_id,test_assessments,id,email_jobs_assessment_id_fkey
+plan_subscriptions,user_id,users,id,plan_subscriptions_user_id_fkey
+

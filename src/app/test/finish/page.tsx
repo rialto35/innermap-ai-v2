@@ -1,30 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 
 export default function TestFinishPage() {
   const router = useRouter();
-  const [assessmentId, setAssessmentId] = useState<string | null>(null);
 
   useEffect(() => {
-    // localStorage에서 assessmentId 가져오기
-    const id = localStorage.getItem("last_assessment_id");
-    
-    if (!id) {
-      console.warn("⚠️ [TestFinish] No assessment ID found, redirecting to intro");
-      router.push("/test/intro");
-      return;
-    }
-
-    setAssessmentId(id);
-
-    // 3초 후 요약 결과 페이지로 자동 이동
     const timer = setTimeout(() => {
-      localStorage.removeItem("last_assessment_id"); // 정리
-      router.push(`/result/summary?id=${id}`);
+      const latestAssessmentId = sessionStorage.getItem("latest_assessment_id");
+      if (latestAssessmentId) {
+        router.push(`/result/summary?id=${latestAssessmentId}`);
+      } else {
+        router.push("/result/summary");
+      }
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -38,7 +29,6 @@ export default function TestFinishPage() {
           animate={{ opacity: 1, scale: 1 }}
           className="max-w-lg w-full text-center space-y-8"
         >
-          {/* 완료 아이콘 */}
           <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
@@ -48,7 +38,6 @@ export default function TestFinishPage() {
             ✓
           </motion.div>
 
-          {/* 메시지 */}
           <div className="space-y-4">
             <h1 className="text-3xl md:text-4xl font-bold text-white">
               검사 완료!
@@ -58,7 +47,6 @@ export default function TestFinishPage() {
             </p>
           </div>
 
-          {/* 로딩 바 */}
           <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
             <motion.div
               initial={{ width: "0%" }}
@@ -68,7 +56,6 @@ export default function TestFinishPage() {
             />
           </div>
 
-          {/* 안내 */}
           <div className="rounded-xl border border-white/10 bg-white/5 p-6 text-left space-y-2">
             <p className="text-sm text-white/70">
               ✅ 검사 데이터가 저장되었습니다
@@ -81,18 +68,19 @@ export default function TestFinishPage() {
             </p>
           </div>
 
-          {/* 즉시 이동 버튼 */}
-          {assessmentId && (
-            <button
-              onClick={() => {
-                localStorage.removeItem("last_assessment_id");
-                router.push(`/result/summary?id=${assessmentId}`);
-              }}
-              className="text-white/60 hover:text-white text-sm transition underline"
-            >
-              지금 바로 보기 →
-            </button>
-          )}
+          <button
+            onClick={() => {
+              const latestAssessmentId = sessionStorage.getItem("latest_assessment_id");
+              if (latestAssessmentId) {
+                router.push(`/result/summary?id=${latestAssessmentId}`);
+              } else {
+                router.push("/result/summary");
+              }
+            }}
+            className="text-white/60 hover:text-white text-sm transition underline"
+          >
+            지금 바로 보기 →
+          </button>
         </motion.div>
       </div>
     </PageContainer>

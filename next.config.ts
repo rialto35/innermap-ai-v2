@@ -37,6 +37,8 @@ const nextConfig: NextConfig = {
     return [
       { source: '/report/:id', destination: '/result/:id', permanent: true },
       { source: '/reports/:id', destination: '/result/:id', permanent: true },
+      // /test/profile 페이지 완전 차단 (404로 처리)
+      { source: '/test/profile', destination: '/404', permanent: false },
     ];
   },
   async headers() {

@@ -13,14 +13,19 @@ const requiredEnvVars = [
   'NEXTAUTH_SECRET',
   'NEXT_PUBLIC_SUPABASE_URL',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
-  'SUPABASE_SERVICE_ROLE_KEY',
-  'GOOGLE_CLIENT_ID',
-  'GOOGLE_CLIENT_SECRET'
+  'SUPABASE_SERVICE_ROLE_KEY'
 ];
 
 const optionalEnvVars = [
   'OPENAI_API_KEY',
-  'ANTHROPIC_API_KEY'
+  'ANTHROPIC_API_KEY',
+  // OAuth 환경 변수 (로그인 기능 사용 시 필수)
+  'GOOGLE_CLIENT_ID',
+  'GOOGLE_CLIENT_SECRET',
+  'KAKAO_CLIENT_ID',
+  'KAKAO_CLIENT_SECRET',
+  'NAVER_CLIENT_ID',
+  'NAVER_CLIENT_SECRET'
 ];
 
 function checkEnvFile() {
@@ -39,6 +44,25 @@ function checkEnvFile() {
   return false;
 }
 
+function checkAuthProviders() {
+  const hasGoogle = process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET;
+  const hasKakao = process.env.KAKAO_CLIENT_ID && process.env.KAKAO_CLIENT_SECRET;
+  const hasNaver = process.env.NAVER_CLIENT_ID && process.env.NAVER_CLIENT_SECRET;
+  
+  if (!hasGoogle && !hasKakao && !hasNaver) {
+    console.warn('⚠️  No OAuth providers configured. Login will not work.');
+    console.warn('   Configure at least one: Google, Kakao, or Naver');
+    return false;
+  } else {
+    const providers = [];
+    if (hasGoogle) providers.push('Google');
+    if (hasKakao) providers.push('Kakao');
+    if (hasNaver) providers.push('Naver');
+    console.log(`✓ OAuth providers configured: ${providers.join(', ')}`);
+    return true;
+  }
+}
+
 function checkEnvVars() {
   // CI 환경(Vercel 등)에서는 process.env 직접 체크
   const isCI = process.env.CI || process.env.VERCEL;
@@ -47,7 +71,6 @@ function checkEnvVars() {
     console.log('✓ CI environment detected, checking process.env');
     const missing = [];
     const warnings = [];
-    const authWarnings = [];
     
     for (const envVar of requiredEnvVars) {
       if (!process.env[envVar]) {
@@ -67,7 +90,7 @@ function checkEnvVars() {
       console.error('\n💡 Important:');
       console.error('   - NEXTAUTH_URL must be set to your production domain (e.g., https://innermap-ai-v2.vercel.app)');
       console.error('   - NEXTAUTH_SECRET must be a random string (generate with: openssl rand -base64 32)');
-      console.error('   - GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET from Google Cloud Console');
+      console.error('   - Supabase keys from your Supabase project settings');
       return false;
     }
     
@@ -75,6 +98,9 @@ function checkEnvVars() {
       console.warn('⚠️  Missing optional environment variables:');
       warnings.forEach(envVar => console.warn(`   - ${envVar}`));
     }
+    
+    // OAuth 제공자 체크
+    checkAuthProviders();
     
     console.log('✓ All required environment variables are set');
     return true;
@@ -122,6 +148,9 @@ function checkEnvVars() {
     console.warn('⚠️  Missing optional environment variables:');
     warnings.forEach(envVar => console.warn(`   - ${envVar}`));
   }
+  
+  // OAuth 제공자 체크 (로컬 환경)
+  checkAuthProviders();
   
   console.log('✓ All required environment variables are set');
   return true;

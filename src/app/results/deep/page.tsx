@@ -88,15 +88,13 @@ function DeepContent() {
     if (reportData) return;
 
     try {
-      // 최신 리포트 ID 가져오기
       const reportResponse = await fetch('/api/results/latest');
       const reportResult = await reportResponse.json();
-      
-      if (reportResult.data && reportResult.data.id) {
-        // 리포트 데이터 가져오기
-        const response = await fetch(`/api/report/${reportResult.data.id}`);
+
+      if (reportResult.data && reportResult.data.assessment_id) {
+        const response = await fetch(`/api/test/results/${reportResult.data.assessment_id}`);
         const data = await response.json();
-        
+
         if (data && !data.error) {
           setReportData(data);
         }

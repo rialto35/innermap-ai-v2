@@ -1,0 +1,12 @@
+schemaname,tablename
+public,ai_reports
+public,email_jobs
+public,plan_subscriptions
+public,test_assessments
+public,test_assessment_results
+public,test_results
+public,test_results_v
+public,user_profiles
+public,users
+public,waitlist
+

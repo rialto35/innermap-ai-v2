@@ -96,23 +96,40 @@ function ReportContent() {
       return;
     }
 
-    if (status === 'authenticated' && !heroData) {
+    if (status !== 'authenticated') {
+      return;
+    }
+
+    if (!heroData) {
       fetchHeroData();
     }
 
-    // Inner9 캐시된 데이터 확인
-    if (status === 'authenticated' && !inner9Data) {
+    if (!inner9Data) {
       const userKey = session?.user?.email || (session as any)?.providerId || 'anon';
       const cached = localStorage.getItem(`inner9_data_cache:${userKey}`);
       if (cached) {
         try {
           const data = JSON.parse(cached);
           setInner9Data(data);
-          console.log('Loaded cached Inner9 data');
         } catch (error) {
           console.error('Error parsing cached Inner9 data:', error);
           localStorage.removeItem(`inner9_data_cache:${userKey}`);
         }
+      } else {
+        fetch('/api/results/latest')
+          .then(res => res.json())
+          .then(result => {
+            if (result.data?.assessment_id) {
+              fetch(`/api/test/results/${result.data.assessment_id}`)
+                .then(res => res.json())
+                .then(detail => {
+                  if (detail?.premium?.inner9) {
+                    setInner9Data(detail.premium.inner9);
+                    localStorage.setItem(`inner9_data_cache:${userKey}`, JSON.stringify(detail.premium.inner9));
+                  }
+                });
+            }
+          });
       }
     }
   }, [status, router, fetchHeroData, heroData, inner9Data, session]);

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>InnerMap API Check</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a2e;
+            color: #eee;
+        }
+        .result {
+            background: #16213e;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #0f3460;
+        }
+        .success { border-left-color: #4caf50; }
+        .error { border-left-color: #f44336; }
+        pre {
+            background: #0f0f23;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        button {
+            background: #5865f2;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #4752c4;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 InnerMap API Checker</h1>
+    <p>이 페이지를 프로덕션 사이트에서 열어주세요: <code>https://innermap-ai-v2.vercel.app</code></p>
+    
+    <button onclick="checkAPI()">API 확인하기</button>
+    
+    <div id="results"></div>
+
+    <script>
+        async function checkAPI() {
+            const results = document.getElementById('results');
+            results.innerHTML = '<div class="result">⏳ API 호출 중...</div>';
+            
+            try {
+                const response = await fetch('/api/imcore/me', {
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                
+                let html = `
+                    <div class="result ${response.ok ? 'success' : 'error'}">
+                        <h3>📡 API Response</h3>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Has Test Result:</strong> ${data.hasTestResult ? '✅ Yes' : '❌ No'}</p>
+                    </div>
+                `;
+                
+                if (data.hero) {
+                    html += `
+                        <div class="result success">
+                            <h3>🦸 Hero Data</h3>
+                            <p><strong>Name:</strong> ${data.hero.name || 'N/A'}</p>
+                            <p><strong>MBTI:</strong> ${data.hero.mbti || 'N/A'}</p>
+                            <p><strong>RETI:</strong> ${data.hero.reti || 'N/A'}</p>
+                            <p><strong>Code:</strong> ${data.hero.mbti}-${data.hero.reti}</p>
+                        </div>
+                    `;
+                }
+                
+                if (data.mbti) {
+                    html += `
+                        <div class="result">
+                            <h3>📊 Test Results</h3>
+                            <p><strong>MBTI Type:</strong> ${data.mbti.type || 'N/A'}</p>
+                            <p><strong>RETI Top1:</strong> ${data.reti?.top1?.[0] || 'N/A'}</p>
+                        </div>
+                    `;
+                }
+                
+                html += `
+                    <div class="result">
+                        <h3>📄 Full Response</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>
+                `;
+                
+                // 매칭 확인
+                if (data.hero && data.mbti) {
+                    const match = data.hero.mbti === data.mbti.type;
+                    html += `
+                        <div class="result ${match ? 'success' : 'error'}">
+                            <h3>${match ? '✅' : '❌'} Matching Result</h3>
+                            <p><strong>Hero MBTI:</strong> ${data.hero.mbti}</p>
+                            <p><strong>Test MBTI:</strong> ${data.mbti.type}</p>
+                            <p><strong>Match:</strong> ${match ? 'SUCCESS ✅' : 'FAILED ❌'}</p>
+                        </div>
+                    `;
+                }
+                
+                results.innerHTML = html;
+                
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ Error</h3>
+                        <p>${error.message}</p>
+                        <pre>${error.stack}</pre>
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
+

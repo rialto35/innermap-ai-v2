@@ -5,244 +5,413 @@
 
 'use client';
 
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, useCallback, Suspense, FormEvent } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+// import dynamic from 'next/dynamic';
 
-import AssessmentHistory from '@/components/mypage/AssessmentHistory';
-import type { ResultBundle, ResultDashboard } from '@/types/result-bundle';
+import EnhancedHeroCard from '@/components/hero/EnhancedHeroCard';
+import HeroGuardEmptyState from '@/components/hero/HeroGuardEmptyState';
+// import DashboardTabs from '@/components/dashboard/DashboardTabs';
+// import { useSearchTab } from '@/lib/hooks/useSearchTab';
+
+// Lazy load tab content components - Hidden for now
+// const DetailedReport = dynamic(() => import('@/components/dashboard/DetailedReport'), {
+//   ssr: false,
+//   loading: () => <TabLoadingState />,
+// });
+
+// const DeepAnalysis = dynamic(() => import('@/components/dashboard/DeepAnalysis'), {
+//   ssr: false,
+//   loading: () => <TabLoadingState />,
+// });
+
+// const FortuneCard = dynamic(() => import('@/components/dashboard/FortuneCard'), {
+//   ssr: false,
+//   loading: () => <TabLoadingState />,
+// });
+
+// function TabLoadingState() {
+//   return (
+//     <div className="min-h-[400px] flex items-center justify-center">
+//       <div className="text-center">
+//         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-violet-500 mx-auto mb-4" />
+//         <p className="text-white/60">로딩 중...</p>
+//       </div>
+//     </div>
+//   );
+// }
 
 function DashboardContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  // const { currentTab } = useSearchTab();
+  const [heroData, setHeroData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [resultId, setResultId] = useState<string | null>(null);
-  const [dashboard, setDashboard] = useState<ResultDashboard | null>(null);
-
-  useEffect(() => {
-    let mounted = true;
-    async function loadDashboard() {
-      try {
-        if (status === 'loading') return;
-        if (status === 'unauthenticated') {
-          router.push('/login');
-          return;
-        }
-
-        setLoading(true);
-
-        const latestRes = await fetch('/api/me/latest', { cache: 'no-store' });
-        if (!latestRes.ok) {
-          throw new Error('최신 검사 정보를 불러올 수 없습니다.');
-        }
-        const latestData = await latestRes.json();
-        if (!latestData?.result_id) {
-          throw new Error('아직 검사 기록이 없습니다. 새로운 검사를 시작해주세요.');
-        }
-        const targetId = latestData.result_id as string;
-        setResultId(targetId);
-
-        const bundleRes = await fetch(`/api/results/${targetId}?bundle=summary,detail,dashboard`, {
-          cache: 'no-store',
-        });
-        if (!bundleRes.ok) {
-          const data = await bundleRes.json().catch(() => ({}));
-          throw new Error(data?.message || '결과 번들을 불러올 수 없습니다.');
-        }
-
-        const bundle = (await bundleRes.json()) as ResultBundle;
-        if (!bundle.dashboard) {
-          throw new Error('대시보드 데이터가 아직 생성되지 않았습니다. 잠시 후 다시 시도해주세요.');
-        }
-
-        if (!mounted) return;
-        setDashboard(bundle.dashboard);
-        setError(null);
-      } catch (err: any) {
-        if (!mounted) return;
-        setError(err?.message || '마이페이지 정보를 불러오지 못했습니다.');
-        setDashboard(null);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    }
-
-    loadDashboard();
-    return () => {
-      mounted = false;
-    };
-  }, [status, router]);
+  const [birthdate, setBirthdate] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleLogout = async () => {
     try {
       await signOut({ redirect: false });
       router.push('/');
-    } catch (err) {
-      console.error('Logout error:', err);
+    } catch (error) {
+      console.error('Logout error:', error);
     }
   };
 
-  if (loading || status === 'loading') {
+  // 생년월일 저장 핸들러
+  const handleBirthdateSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    
+    if (!birthdate) {
+      alert('생년월일을 입력해주세요.');
+      return;
+    }
+
+    setIsUpdating(true);
+
+    try {
+      const res = await fetch('/api/profile/birthdate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ birthdate })
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to save birthdate');
+      }
+
+      alert('생년월일이 저장되었습니다! 페이지를 새로고침합니다.');
+      
+      // 데이터 새로고침
+      setHeroData(null);
+      fetchHeroData();
+      
+    } catch (error) {
+      console.error('Failed to save birthdate:', error);
+      alert('저장에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+
+  const fetchHeroData = useCallback(async () => {
+    if (heroData) return;
+
+    const userKey = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+    const cacheKey = `hero_data_cache:${userKey}`;
+    
+    // 캐시 비활성화: 항상 최신 데이터 가져오기
+    sessionStorage.removeItem(cacheKey);
+
+    try {
+      setLoading(true);
+      const response = await fetch('/api/imcore/me');
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch hero data');
+      }
+
+      const data = await response.json();
+
+      if (!data.hasTestResult) {
+        console.log('❌ 검사 결과 없음 - 웰컴 페이지로 리다이렉트');
+        setHeroData(null);
+        router.push('/welcome');
+        return;
+      }
+
+      // 캐시 저장 제거: 항상 최신 데이터 사용
+      setHeroData(data);
+    } catch (error) {
+      console.error('Error fetching hero data:', error);
+      setHeroData(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [session, heroData]);
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/login');
+      return;
+    }
+
+    // 웰컴 이동은 실제 데이터 응답에서 hasTestResult로만 판단 (세션 플래그에 의존하지 않음)
+
+    if (status === 'authenticated' && !heroData) {
+      fetchHeroData();
+    }
+  }, [status, session, router, fetchHeroData, heroData]);
+
+  if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white/70">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4" />
-          <p>대시보드를 불러오는 중...</p>
+      <div className="min-h-screen flex items-center justify-center text-white/70" suppressHydrationWarning>
+        <div className="text-center" suppressHydrationWarning>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4" suppressHydrationWarning />
+          <p>영웅 데이터를 불러오는 중...</p>
         </div>
       </div>
     );
   }
 
-  if (error || !dashboard) {
+  if (!heroData) {
     return (
-      <div className="min-h-screen flex items-center justify-center text-white/70 px-4">
-        <div className="text-center space-y-4 max-w-md">
-          <h1 className="text-2xl font-semibold text-white">마이페이지를 불러올 수 없습니다</h1>
-          <p>{error}</p>
-          <div className="flex flex-wrap justify-center gap-3">
-            <button
-              onClick={() => router.push('/test/intro')}
-              className="px-6 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 text-white font-semibold"
-            >
-              새로운 검사 시작하기
-            </button>
-            <button
-              onClick={() => router.push('/')}
-              className="px-6 py-3 rounded-xl border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition"
-            >
-              홈으로 가기
-            </button>
-          </div>
+      <div className="min-h-screen flex items-center justify-center text-white/70" suppressHydrationWarning>
+        <div className="text-center" suppressHydrationWarning>
+          <p>데이터를 불러올 수 없습니다.</p>
+          <button
+            onClick={fetchHeroData}
+            className="mt-4 px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+          >
+            다시 시도
+          </button>
         </div>
       </div>
     );
   }
+  if (!heroData.hasTestResult) {
+    return (
+      <HeroGuardEmptyState
+        name={session?.user?.name || '여행자'}
+        onStartTest={() => router.push('/test/intro')}
+      />
+    );
+  }
 
-  const userName = session?.user?.name || '여행자';
+
+  const userName = heroData.user?.name || session?.user?.name || '여행자';
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
+      {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-white mb-2">{userName}님의 여정</h1>
-        <p className="text-white/60">당신의 최신 검사 결과를 기반으로 인사이트를 제공합니다.</p>
+        <p className="text-white/60">당신의 내면 세계를 탐험하세요</p>
       </div>
 
+      {/* Main Content: Hero Card + Sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-6">
-            <h2 className="text-xl font-semibold text-violet-200 mb-4">현재 레벨</h2>
-            <div className="flex items-center gap-4">
-              <div className="text-4xl font-bold text-white">Lv. {dashboard.level}</div>
-              <div className="flex-1">
-                <div className="text-white/60 text-sm mb-1">
-                  경험치 {dashboard.xp.current} / {dashboard.xp.max}
-                </div>
-                <div className="w-full h-2 rounded-full bg-white/10 overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-violet-500 to-cyan-500"
-                    style={{ width: `${Math.min(100, Math.round((dashboard.xp.current / dashboard.xp.max) * 100))}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6">
-            <h2 className="text-xl font-semibold text-emerald-200 mb-4">강점 & 성장 영역</h2>
-            <div className="grid md:grid-cols-2 gap-4 text-sm text-white/80">
-              <div>
-                <div className="text-white/50 text-xs uppercase mb-2">Strengths</div>
-                <div className="space-y-2">
-                  {dashboard.strengths.map((item, idx) => (
-                    <div key={idx} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2">
-                      {item}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <div className="text-white/50 text-xs uppercase mb-2">Growth Areas</div>
-                <div className="space-y-2">
-                  {dashboard.growthAreas.map((item, idx) => (
-                    <div key={idx} className="rounded-xl border border-white/10 bg-white/5 px-4 py-2">
-                      {item}
-                    </div>
-                  ))}
+        {/* Left: Hero Card (2 columns) */}
+        <div className="lg:col-span-2">
+          {/* 생년월일 입력 배너 (birthdate 없을 때만 표시) */}
+          {!heroData.birthDate && (
+            <div className="mb-6 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-6">
+              <div className="flex items-start gap-4">
+                <span className="text-4xl">🎂</span>
+                <div className="flex-1">
+                  <h3 className="text-xl font-semibold text-amber-300 mb-2">
+                    부족을 확인하고 싶으신가요?
+                  </h3>
+                  <p className="text-sm text-white/70 mb-4">
+                    생년월일을 입력하면 60갑자 기반 12부족과 오늘의 운세를 확인할 수 있습니다.
+                    <br />
+                    <span className="text-xs text-white/40">(선택사항이며, 나중에 입력할 수 있습니다)</span>
+                  </p>
+                  
+                  <form onSubmit={handleBirthdateSubmit} className="flex gap-3">
+                    <input
+                      type="date"
+                      value={birthdate}
+                      onChange={(e) => setBirthdate(e.target.value)}
+                      className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition"
+                      placeholder="YYYY-MM-DD"
+                      disabled={isUpdating}
+                    />
+                    <button
+                      type="submit"
+                      disabled={isUpdating || !birthdate}
+                      className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+                    >
+                      {isUpdating ? '저장 중...' : '확인하기'}
+                    </button>
+                  </form>
                 </div>
               </div>
             </div>
-          </div>
+          )}
 
-          <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-6">
-            <h2 className="text-xl font-semibold text-sky-200 mb-4">추천 퀘스트</h2>
-            <div className="space-y-3">
-              {dashboard.quests.map((quest, idx) => (
-                <div key={quest.id || idx} className="rounded-xl border border-white/10 bg-white/5 p-4">
-                  <div className="flex items-center justify-between text-xs text-white/50 mb-2">
-                    <span>#{quest.id}</span>
-                    <span className="rounded-full px-2 py-1 bg-white/10 text-white/80 uppercase text-2xs">
-                      {quest.difficulty}
+          <EnhancedHeroCard
+            hero={{
+              ...heroData.hero,
+              mbti: heroData.mbti?.type,
+              reti: heroData.world?.reti,
+            }}
+            gem={heroData.gem}
+            tribe={heroData.tribe}
+            growth={heroData.growth}
+            strengths={heroData.strengths}
+            weaknesses={heroData.weaknesses}
+            genderPreference={heroData.genderPreference || 'male'}
+            testResultId={heroData.assessmentId}
+            tribeKey={heroData.tribe?.nameEn?.split(' ')[0]?.toLowerCase()}
+            stoneKey={heroData.gem?.nameEn?.split(' ')[0]?.toLowerCase()}
+            birthDate={heroData.birthDate}
+            mbti={heroData.mbti?.type}
+            reti={heroData.world?.reti}
+          />
+        </div>
+
+        {/* Right: Sidebar (1 column) */}
+        <div className="lg:col-span-1 space-y-4">
+          {/* 계정 관리 */}
+          <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
+            <h3 className="text-lg font-semibold text-violet-300 mb-4">계정 관리</h3>
+            <div className="space-y-4">
+              {/* 사용자 정보 */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-r from-violet-500 to-blue-500 flex items-center justify-center text-white text-sm font-semibold">
+                    {session?.user?.name?.charAt(0) || userName?.charAt(0) || 'U'}
+                  </div>
+                  <div>
+                    <div className="text-white/90 font-medium">{session?.user?.name || userName}</div>
+                    <div className="text-white/50 text-xs">{session?.user?.email}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 로그인 정보 */}
+              <div className="space-y-3">
+                <div className="text-sm font-medium text-violet-300">로그인 정보</div>
+                
+                {/* 로그인 방식 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">로그인 방식</span>
+                  <div className="flex items-center gap-1">
+                    {session?.user?.image ? (
+                      <img src={session.user.image} alt="Provider" className="w-4 h-4 rounded" />
+                    ) : (
+                      <span className="w-4 h-4 bg-gray-500 rounded flex items-center justify-center text-white text-xs">?</span>
+                    )}
+                    <span className="text-white/80">
+                      {session?.user?.email?.includes('@gmail.com') ? 'Google' : 
+                       session?.user?.email?.includes('@kakao.com') ? 'Kakao' : 
+                       session?.user?.email?.includes('@naver.com') ? 'Naver' : 
+                       'Email'}
                     </span>
                   </div>
-                  <div className="text-sm font-medium text-white/90 mb-1">{quest.title}</div>
-                  <p className="text-xs text-white/60">강점을 살려 미션을 수행해보세요.</p>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
 
-        <div className="lg:col-span-1 space-y-4">
-          <AssessmentHistory />
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="text-lg font-semibold text-white mb-4">빠른 이동</h3>
-            <div className="space-y-3 text-sm text-white/70">
-              <Link
-                href={resultId ? `/result/summary?id=${resultId}` : '/result/summary'}
-                className="block rounded-xl border border-white/10 px-4 py-2 hover:border-white/20 hover:text-white transition"
-              >
-                요약 리포트 보기
-              </Link>
-              <Link
-                href={resultId ? `/result/detail?id=${resultId}` : '/result/detail'}
-                className="block rounded-xl border border-white/10 px-4 py-2 hover:border-white/20 hover:text-white transition"
-              >
-                심층 분석 보기
-              </Link>
-              <Link
-                href="/test/intro"
-                className="block rounded-xl border border-violet-500/40 px-4 py-2 text-violet-200 hover:border-violet-500/60 hover:text-violet-100 transition"
-              >
-                새로운 검사 시작하기
-              </Link>
-            </div>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-            <h3 className="text-lg font-semibold text-white mb-4">계정 관리</h3>
-            <div className="space-y-3 text-sm text-white/70">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-violet-500 to-cyan-500 flex items-center justify-center text-white font-semibold">
-                  {session?.user?.name?.charAt(0) || 'U'}
+                {/* 로그인 시간 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">로그인 시간</span>
+                  <span className="text-white/80">
+                    {new Date().toLocaleString('ko-KR', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </span>
                 </div>
-                <div>
-                  <div className="text-white font-medium">{session?.user?.name || '회원'}</div>
-                  <div className="text-white/50 text-xs">{session?.user?.email}</div>
+
+                {/* 계정 생성일 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">계정 생성일</span>
+                  <span className="text-white/80">
+                    {(session?.user as any)?.createdAt ? 
+                      new Date((session?.user as any).createdAt).toLocaleDateString('ko-KR') : 
+                      '정보 없음'
+                    }
+                  </span>
+                </div>
+
+                {/* 마지막 활동 */}
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-white/60">마지막 활동</span>
+                  <span className="text-white/80">방금 전</span>
                 </div>
               </div>
-              <button
-                onClick={handleLogout}
-                className="w-full rounded-xl border border-red-400/30 px-3 py-2 text-sm text-red-300 transition hover:border-red-400/60 hover:text-red-100 hover:bg-red-500/10"
+
+              {/* 액션 버튼들 */}
+              <div className="space-y-2 pt-2 border-t border-white/10">
+                <button
+                  onClick={handleLogout}
+                  className="w-full rounded-xl border border-red-400/30 px-3 py-2 text-sm text-red-300 transition hover:border-red-300/60 hover:text-red-200 hover:bg-red-500/10"
+                >
+                  로그아웃
+                </button>
+                <button className="w-full rounded-xl border border-white/20 px-3 py-2 text-sm text-white/70 transition hover:border-white/30 hover:text-white hover:bg-white/5">
+                  계정 설정
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* 추천 퀘스트 */}
+          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-5">
+            <h3 className="text-lg font-semibold text-emerald-300 mb-4">추천 퀘스트</h3>
+            <div className="space-y-3">
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center justify-between text-xs text-white/50 mb-2">
+                  <span>#quest-1</span>
+                  <span className="rounded-full px-2 py-1 bg-emerald-500/10 text-emerald-200">EASY</span>
+                </div>
+                <div className="text-sm font-medium text-white/90 mb-1">매일 10분 아이디어 노트 작성</div>
+                <p className="text-xs text-white/60 mb-2">자유로운 발상을 기록하며 사고 확장 하기</p>
+                <Link
+                  href="/analyze"
+                  className="inline-flex items-center gap-1 text-xs text-emerald-300 hover:text-emerald-200"
+                >
+                  설명하기 →
+                </Link>
+              </div>
+
+              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
+                <div className="flex items-center justify-between text-xs text-white/50 mb-2">
+                  <span>#quest-2</span>
+                  <span className="rounded-full px-2 py-1 bg-amber-500/10 text-amber-200">MID</span>
+                </div>
+                <div className="text-sm font-medium text-white/90 mb-1">감정 코칭 세션 예약</div>
+                <p className="text-xs text-white/60 mb-2">프로 코치와 1:1 세션으로 감정 밸런스 잡기</p>
+                <Link
+                  href="/analyze"
+                  className="inline-flex items-center gap-1 text-xs text-amber-300 hover:text-amber-200"
+                >
+                  설명하기 →
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* 리포트 도구 */}
+          <div className="rounded-2xl border border-sky-500/20 bg-sky-500/5 p-5">
+            <h3 className="text-lg font-semibold text-sky-300 mb-4">리포트 도구</h3>
+            <div className="flex flex-col gap-2 text-sm">
+              <Link
+                href="/report"
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
               >
-                로그아웃
-              </button>
+                리포트 목록 보기
+              </Link>
+              <Link
+                href="/report"
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
+              >
+                공유 링크 관리
+              </Link>
+              <Link
+                href="/report"
+                className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-white/70 transition hover:border-white/20 hover:text-white hover:bg-white/10"
+              >
+                PDF 다운로드 기록
+              </Link>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Tabbed Content - Hidden for now */}
+      {/* <DashboardTabs>
+        {currentTab === 'report' && <DetailedReport heroData={heroData} />}
+        {currentTab === 'deep' && <DeepAnalysis heroData={heroData} />}
+        {currentTab === 'fortune' && <FortuneCard />}
+      </DashboardTabs> */}
     </div>
   );
 }
