@@ -95,7 +95,13 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
             if (data.done) {
               // Parse the complete JSON response
               try {
-                const parsed = JSON.parse(data.fullText || fullText);
+                let jsonText = data.fullText || fullText;
+                
+                // Remove markdown code blocks if present (OpenAI sometimes wraps JSON in ```json...```)
+                jsonText = jsonText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '');
+                jsonText = jsonText.trim();
+                
+                const parsed = JSON.parse(jsonText);
                 setReport(parsed);
                 
                 // Save to database
@@ -110,8 +116,8 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
                   }),
                 });
               } catch (parseError) {
-                console.error('Failed to parse report:', parseError);
-                setError('Failed to parse report');
+                console.error('Failed to parse report:', parseError, 'Raw text:', (data.fullText || fullText).substring(0, 200));
+                setError('리포트 파싱에 실패했습니다. 다시 시도해주세요.');
               }
             }
             

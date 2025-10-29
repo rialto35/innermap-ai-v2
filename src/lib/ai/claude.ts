@@ -236,7 +236,8 @@ function buildDeepReportPrompt(heroData: any): string {
 3. 존댓말 사용, 따뜻하고 공감적인 톤
 4. 구체적인 예시와 실천 방법 포함
 5. 이모지 적절히 활용
-6. 반드시 유효한 JSON 형식으로만 응답 (주석 없음)
+6. **중요**: 반드시 유효한 JSON 형식으로만 응답 (주석, 마크다운 코드 블록, 설명 없음)
+7. **중요**: \`\`\`json 같은 마크다운 문법을 사용하지 마세요. 순수 JSON만 출력하세요.
 
 각 단계를 풍부하고 따뜻하게 작성해주세요.`;
 }
@@ -331,6 +332,7 @@ async function generateCardContent(
   "actionItems": ["실천 방법 1", "실천 방법 2"]
 }
 
+**중요**: \`\`\`json 같은 마크다운 문법을 사용하지 마세요. 순수 JSON만 출력하세요.
 따뜻하고 실용적으로 작성해주세요.`;
 
   try {
@@ -357,8 +359,11 @@ async function generateCardContent(
     
     // Try to parse JSON
     try {
-      return JSON.parse(responseText);
-    } catch {
+      // Remove markdown code blocks if present
+      let cleanText = responseText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+      return JSON.parse(cleanText);
+    } catch (error) {
+      console.warn(`⚠️ [AI] Failed to parse card ${card.id} JSON:`, error);
       // Fallback if JSON parsing fails
       return {
         id: card.id,
