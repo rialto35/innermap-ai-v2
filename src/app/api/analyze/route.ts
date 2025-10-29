@@ -71,7 +71,7 @@ export async function POST(req: Request) {
     // Enhanced Inner9 calculation with type weighting
     const config = getInner9Config();
     const analysisResult = await runAnalysis({
-      big5: { o: O, c: C, e: E, a: A, n: N },
+      big5: { O, C, E, A, N }, // 대문자 키 사용, 0~100 범위 그대로 전달
       mbti: body.mbti as string,
       reti: body.reti as number,
       weights: config.useTypeWeights ? { big5: 1, mbti: 0.5, reti: 0.5 } : { big5: 1, mbti: 0, reti: 0 }
@@ -192,10 +192,8 @@ export async function POST(req: Request) {
     };
 
     // Log Inner9 scores for monitoring
-    const inner9Map = inner9Scores.reduce((acc: Record<string, number>, axis: any) => {
-      acc[axis.label.toLowerCase()] = axis.value;
-      return acc;
-    }, {} as Record<string, number>);
+    // sanitizedInner9 사용 (NaN 값이 0.5로 대체된 버전)
+    const inner9Map = sanitizedInner9 || {};
     
     console.info('inner9-save', { 
       user: userId, 
@@ -251,7 +249,7 @@ export async function POST(req: Request) {
         `Big5 성격 분석: ${body.big5.O}% 개방성, ${body.big5.C}% 성실성`,
         `MBTI 유형: ${body.mbti || '미분류'}`,
         `RETI 동기: ${body.reti || 5}점`,
-        `Inner9 내면 지도: ${inner9Scores.length}개 축 분석 완료`
+        `Inner9 내면 지도: ${Object.keys(inner9Scores || {}).length}개 축 분석 완료`
       ]
     };
 

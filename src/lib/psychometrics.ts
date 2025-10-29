@@ -7,6 +7,7 @@
 
 import OpenAI from 'openai';
 import type { Big5Percentiles, MBTIRatios, AnalyzeResult } from './types';
+import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
 
 // Lazy initialization of OpenAI client (to avoid build-time errors)
 let openaiClient: OpenAI | null = null;
@@ -299,5 +300,131 @@ export function interpretBig5Factor(
   if (percentile > 60) return interpretation.high;
   if (percentile < 40) return interpretation.low;
   return interpretation.mid;
+}
+
+/**
+ * Generate rich, AI-powered Inner9 detailed story
+ * 
+ * @param inner9Scores - Inner9 dimension scores
+ * @param personalityType - Personality type (visionary, achiever, empath, innovator, balanced)
+ * @param topDimension - Highest scoring dimension [key, score]
+ * @param lowDimension - Lowest scoring dimension [key, score]
+ * @param avg - Average score across all dimensions
+ * @param mbti - Optional MBTI type
+ * @returns AI-generated detailed story (500-800 characters)
+ */
+export async function generateInner9DetailedStory(
+  inner9Scores: Record<string, number>,
+  personalityType: string,
+  topDimension: [string, number],
+  lowDimension: [string, number],
+  avg: number,
+  mbti?: string
+): Promise<string> {
+  console.log('🤖 [generateInner9DetailedStory] Starting AI story generation...');
+
+  const openai = getOpenAIClient();
+
+  const topKey = topDimension[0];
+  const topScore = Math.round(topDimension[1]);
+  const lowKey = lowDimension[0];
+  const lowScore = Math.round(lowDimension[1]);
+
+  const topLabel = INNER9_DESCRIPTIONS[topKey as keyof typeof INNER9_DESCRIPTIONS]?.label || topKey;
+  const lowLabel = INNER9_DESCRIPTIONS[lowKey as keyof typeof INNER9_DESCRIPTIONS]?.label || lowKey;
+
+  const personalityTypeLabels: Record<string, string> = {
+    visionary: '비전형 인재',
+    achiever: '성취형 인재',
+    empath: '감성형 인재',
+    innovator: '혁신형 인재',
+    balanced: '조화형 인재'
+  };
+
+  const prompt = `
+당신은 전문 심리 분석가이자 커리어 코치입니다. 
+사용자의 Inner9 분석 결과를 바탕으로 개인화되고 풍성한 해설을 작성해주세요.
+
+## 분석 데이터
+
+**성격 유형**: ${personalityTypeLabels[personalityType] || '조화형 인재'}
+**MBTI**: ${mbti || '정보 없음'}
+**전체 평균 점수**: ${avg}점
+
+**가장 강한 영역**: ${topLabel} (${topScore}점)
+**성장 영역**: ${lowLabel} (${lowScore}점)
+
+**Inner9 상세 점수**:
+${Object.entries(inner9Scores)
+  .map(([key, score]) => `- ${INNER9_DESCRIPTIONS[key as keyof typeof INNER9_DESCRIPTIONS]?.label || key}: ${Math.round(score)}점`)
+  .join('\n')}
+
+## 요청사항
+
+다음 구조로 **3-4개 단락**의 풍성한 해설을 작성해주세요:
+
+### 첫 번째 단락: 성격 유형 소개 및 전반적 특성
+- 이 사람이 어떤 유형의 인재인지 구체적으로 설명
+- 전체 평균 점수(${avg}점)가 의미하는 바
+- 2-3문장
+
+### 두 번째 단락: 가장 강한 영역(${topLabel}) 심층 분석
+- ${topScore}점이 어느 정도 수준인지 (예: 상위 5%, 평균 이상 등)
+- 이 강점이 실제 생활/업무에서 어떻게 나타나는지
+- 이 강점이 주는 가치와 영향력
+- 3-4문장
+
+### 세 번째 단락: 성장 영역(${lowLabel}) 기회 제시
+- ${lowScore}점의 의미 (약점이 아닌 성장 기회로 프레이밍)
+- 이 영역을 발전시키면 어떤 변화가 있을지
+- 구체적인 성장 방향 제시
+- 3-4문장
+
+### 네 번째 단락 (선택): 미래 비전
+- 강점을 유지하면서 성장 영역을 발전시켰을 때의 모습
+- 완성된 인재상
+- 1-2문장
+
+**중요 가이드라인**:
+1. 긍정적이고 격려하는 톤 유지
+2. 구체적인 예시와 비유 사용
+3. "상위 X%", "평균 이상" 등 객관적 지표 포함
+4. 전문적이면서도 따뜻한 언어
+5. **각 단락을 명확히 구분: 단락 사이에 빈 줄 2개 (줄바꿈 2번)**
+6. **각 단락 내에서는 문장 간 자연스러운 흐름 유지**
+7. 총 길이: 500-800자
+
+**형식 예시**:
+당신은 비전형 인재로서...첫 번째 단락 내용...
+
+두 번째 단락 시작...강점 분석...
+
+세 번째 단락 시작...성장 기회...
+
+네 번째 단락 시작...미래 비전...
+
+**중요**: 마크다운 없이 순수 텍스트로 작성. 단락 구분은 반드시 빈 줄 2개로.
+`.trim();
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: process.env.OPENAI_MODEL || 'gpt-4o',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.8, // 창의성 높임
+      max_tokens: 1200,
+    });
+
+    const story = completion.choices[0].message?.content?.trim() ?? '';
+
+    console.log('✅ [generateInner9DetailedStory] AI story generated');
+    console.log('📝 [generateInner9DetailedStory] Story length:', story.length, 'chars');
+
+    return story;
+  } catch (error) {
+    console.error('❌ [generateInner9DetailedStory] Failed:', error);
+    
+    // Fallback to simple story if AI fails
+    return `당신은 ${personalityTypeLabels[personalityType] || '조화형 인재'}로서 전반적으로 균형 잡힌 성향을 보입니다. 특히 ${topLabel} 영역에서 ${topScore}점의 강점을 보이며, ${lowLabel} 영역(${lowScore}점)의 발전을 통해 더욱 완성도 높은 인재가 될 수 있습니다.`;
+  }
 }
 

@@ -96,9 +96,37 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       ];
       setChartData(dimensions);
       
-      // Generate hybrid narrative
-      const richNarrative = generateRichNarrative(src);
+      // Generate basic narrative (synchronous, rule-based)
+      const mbti = inner9Data?.mbti || inner9Data?.summary?.mbti;
+      const richNarrative = generateRichNarrative(src, mbti);
       setNarrative(richNarrative);
+      
+      // Fetch AI-enhanced story from server (async)
+      if (richNarrative._meta) {
+        fetch('/api/inner9/story', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            inner9Scores: src,
+            personalityType: richNarrative.personalityType,
+            topDimension: richNarrative._meta.topDimension,
+            lowDimension: richNarrative._meta.lowDimension,
+            avg: richNarrative.average,
+            mbti: richNarrative._meta.mbti
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok && data.story) {
+            console.log('✅ AI story loaded:', data.story.length, 'chars');
+            // Update narrative with AI story
+            setNarrative(prev => prev ? { ...prev, detailedStory: data.story } : prev);
+          }
+        })
+        .catch(error => {
+          console.warn('⚠️ AI story generation failed, keeping rule-based story:', error);
+        });
+      }
       
       // Try to get LLM enhancement from server
       fetch('/api/analyze/enhance', {
@@ -299,66 +327,95 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
 
       {/* Enhanced Narrative Summary */}
       {narrative && (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6" data-testid="inner9-interpretation">
-          <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
-            <span>📖</span>
-            <span>당신의 이야기</span>
+        <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-purple-500/5 p-5 sm:p-6 backdrop-blur-sm" data-testid="inner9-interpretation">
+          {/* 섹션 제목 - text-lg (다른 페이지와 일관성) */}
+          <h3 className="text-base sm:text-lg font-bold text-white mb-4 sm:mb-5 flex items-center gap-2 sm:gap-3">
+            <span className="text-2xl sm:text-3xl">📖</span>
+            <span className="bg-gradient-to-r from-purple-300 to-blue-300 bg-clip-text text-transparent">
+              당신의 이야기
+            </span>
           </h3>
           
-          {/* Personality Type Badge */}
+          {/* Personality Type Badge - text-sm (다른 페이지와 일관성) */}
           {narrative.personalityType && (
-            <div className="mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full border border-purple-500/30">
-                <span className="text-purple-300 text-sm font-medium">
-                  {narrative.personalityType === 'visionary' && '🔮 비전형'}
-                  {narrative.personalityType === 'achiever' && '🎯 성취형'}
-                  {narrative.personalityType === 'empath' && '💝 감성형'}
-                  {narrative.personalityType === 'innovator' && '🚀 혁신형'}
-                  {narrative.personalityType === 'balanced' && '⚖️ 조화형'}
+            <div className="mb-5 sm:mb-6">
+              <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-2.5 bg-gradient-to-r from-purple-500/30 to-blue-500/30 rounded-xl sm:rounded-2xl border border-purple-400/40 shadow-lg shadow-purple-500/20">
+                <span className="text-xl sm:text-2xl">
+                  {narrative.personalityType === 'visionary' && '🔮'}
+                  {narrative.personalityType === 'achiever' && '🎯'}
+                  {narrative.personalityType === 'empath' && '💝'}
+                  {narrative.personalityType === 'innovator' && '🚀'}
+                  {narrative.personalityType === 'balanced' && '⚖️'}
+                </span>
+                <span className="text-purple-200 text-sm sm:text-base font-bold">
+                  {narrative.personalityType === 'visionary' && '비전형 인재'}
+                  {narrative.personalityType === 'achiever' && '성취형 인재'}
+                  {narrative.personalityType === 'empath' && '감성형 인재'}
+                  {narrative.personalityType === 'innovator' && '혁신형 인재'}
+                  {narrative.personalityType === 'balanced' && '조화형 인재'}
                 </span>
               </div>
             </div>
           )}
           
-          {/* Detailed Story */}
+          {/* Detailed Story - text-sm, 가독성 개선 (단락 구분, 줄바꿈 2번) */}
           {narrative.detailedStory && (
-            <div className="mb-4 p-4 bg-gradient-to-r from-slate-800/50 to-slate-700/50 rounded-lg border border-white/10">
-              <p className="text-white/90 text-sm leading-relaxed">
+            <div className="mb-5 sm:mb-6 p-4 sm:p-5 bg-gradient-to-br from-slate-800/70 to-slate-700/70 rounded-xl sm:rounded-2xl border border-white/20 shadow-xl">
+              <div className="flex items-start gap-2 sm:gap-3 mb-2 sm:mb-3">
+                <span className="text-xl sm:text-2xl flex-shrink-0">✨</span>
+                <h4 className="text-xs sm:text-sm font-semibold text-purple-300 uppercase tracking-wide">핵심 인사이트</h4>
+              </div>
+              {/* 가독성 개선: leading-7 (1.75rem), 단락 구분 whitespace-pre-line */}
+              <p className="text-white/95 text-sm sm:text-base leading-7 pl-7 sm:pl-9 whitespace-pre-line">
                 {narrative.detailedStory}
               </p>
             </div>
           )}
           
-          {/* Rule-based summary */}
-          <p className="text-white/80 leading-relaxed mb-4">{narrative.headline}</p>
+          {/* Rule-based summary - text-xs (중요도 낮음) */}
+          <div className="mb-4 sm:mb-5 p-3 sm:p-4 bg-white/5 rounded-lg sm:rounded-xl border border-white/10">
+            <p className="text-white/80 text-xs sm:text-sm leading-relaxed">{narrative.headline}</p>
+          </div>
           
-          {/* AI enhancement */}
+          {/* AI enhancement - text-xs */}
           {aiEnhancement && (
-            <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-4 mb-4">
-              <h4 className="text-sm font-semibold text-purple-300 mb-2 flex items-center gap-1">
+            <div className="rounded-lg sm:rounded-xl border border-purple-500/20 bg-purple-500/5 p-3 sm:p-4 mb-4">
+              <h4 className="text-xs sm:text-sm font-semibold text-purple-300 mb-2 flex items-center gap-1">
                 <span>🤖</span>
                 <span>AI 코칭 피드백</span>
               </h4>
-              <p className="text-sm text-white/80 leading-relaxed">{aiEnhancement}</p>
+              <p className="text-xs sm:text-sm text-white/80 leading-relaxed">{aiEnhancement}</p>
             </div>
           )}
           
-          {/* Strengths & Growth Areas */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          {/* Strengths & Growth Areas - text-sm (헤딩), text-xs (항목) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-5 sm:mt-6">
             {/* Strengths */}
             {narrative.strengths && (
-              <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4">
-                <h4 className="text-sm font-semibold text-green-300 mb-2 flex items-center gap-1">
-                  <span>💪</span>
+              <div className="rounded-xl sm:rounded-2xl border border-green-500/30 bg-gradient-to-br from-green-500/10 to-emerald-500/5 p-4 sm:p-6 shadow-lg">
+                <h4 className="text-sm sm:text-base font-bold text-green-300 mb-3 sm:mb-4 flex items-center gap-2">
+                  <span className="text-xl sm:text-2xl">💪</span>
                   <span>강점 영역</span>
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-2 sm:space-y-3">
                   {narrative.strengths.map((strength: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between">
-                      <span className="text-sm text-white/80">{INNER9_DESCRIPTIONS[strength.key as keyof typeof INNER9_DESCRIPTIONS]?.label || strength.key}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-green-300">{strength.score}</span>
-                        <span className="text-xs text-green-200">{strength.label}</span>
+                    <div key={idx} className="group p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-green-500/20 hover:border-green-500/40">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs sm:text-sm font-medium text-white/90">
+                          {INNER9_DESCRIPTIONS[strength.key as keyof typeof INNER9_DESCRIPTIONS]?.label || strength.key}
+                        </span>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <div className="px-1.5 sm:px-2 py-0.5 rounded-full bg-green-500/20 border border-green-500/30">
+                            <span className="text-xs sm:text-sm font-bold text-green-300">{strength.score}</span>
+                          </div>
+                          <span className="text-[10px] sm:text-xs font-semibold text-green-200 uppercase">{strength.label}</span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-green-400 to-emerald-400 rounded-full transition-all duration-500"
+                          style={{ width: `${strength.score}%` }}
+                        />
                       </div>
                     </div>
                   ))}
@@ -368,18 +425,30 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
             
             {/* Growth Areas */}
             {narrative.growth && (
-              <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-4">
-                <h4 className="text-sm font-semibold text-blue-300 mb-2 flex items-center gap-1">
-                  <span>🌱</span>
+              <div className="rounded-xl sm:rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-500/10 to-cyan-500/5 p-4 sm:p-6 shadow-lg">
+                <h4 className="text-sm sm:text-base font-bold text-blue-300 mb-3 sm:mb-4 flex items-center gap-2">
+                  <span className="text-xl sm:text-2xl">🌱</span>
                   <span>성장 영역</span>
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-2 sm:space-y-3">
                   {narrative.growth.map((area: any, idx: number) => (
-                    <div key={idx} className="flex items-center justify-between">
-                      <span className="text-sm text-white/80">{INNER9_DESCRIPTIONS[area.key as keyof typeof INNER9_DESCRIPTIONS]?.label || area.key}</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-blue-300">{area.score}</span>
-                        <span className="text-xs text-blue-200">{area.label}</span>
+                    <div key={idx} className="group p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-blue-500/20 hover:border-blue-500/40">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs sm:text-sm font-medium text-white/90">
+                          {INNER9_DESCRIPTIONS[area.key as keyof typeof INNER9_DESCRIPTIONS]?.label || area.key}
+                        </span>
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <div className="px-1.5 sm:px-2 py-0.5 rounded-full bg-blue-500/20 border border-blue-500/30">
+                            <span className="text-xs sm:text-sm font-bold text-blue-300">{area.score}</span>
+                          </div>
+                          <span className="text-[10px] sm:text-xs font-semibold text-blue-200 uppercase">{area.label}</span>
+                        </div>
+                      </div>
+                      <div className="w-full bg-white/10 rounded-full h-1.5 overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-blue-400 to-cyan-400 rounded-full transition-all duration-500"
+                          style={{ width: `${area.score}%` }}
+                        />
                       </div>
                     </div>
                   ))}

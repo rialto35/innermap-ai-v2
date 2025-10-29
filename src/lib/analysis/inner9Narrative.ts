@@ -87,8 +87,10 @@ export function generateInner9Narrative(scores: Record<string, number>): Inner9N
 
 /**
  * Generate rich, personalized narrative with personality type and detailed story
+ * Client-side version - returns basic narrative without AI story
+ * Use generateRichNarrativeWithAI for server-side AI generation
  */
-export function generateRichNarrative(scores: Record<string, number>) {
+export function generateRichNarrative(scores: Record<string, number>, mbti?: string) {
   const entries = Object.entries(scores);
   const sorted = [...entries].sort((a, b) => b[1] - a[1]);
   const top3 = sorted.slice(0, 3);
@@ -108,6 +110,9 @@ export function generateRichNarrative(scores: Record<string, number>) {
   const personalityType = getPersonalityType(top3, low3);
   const storyElements = generateStoryElements(topDimension, lowDimension, avg);
   
+  // Use rule-based story (AI story will be fetched separately via API)
+  const detailedStory = generateDetailedStory(topDimension, lowDimension, avg, personalityType);
+  
   return {
     headline: `평균 ${avg}점, 강점은 ${top3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}, 성장영역은 ${low3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}입니다.`,
     strengths: top3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
@@ -115,7 +120,13 @@ export function generateRichNarrative(scores: Record<string, number>) {
     average: avg,
     personalityType,
     storyElements,
-    detailedStory: generateDetailedStory(topDimension, lowDimension, avg, personalityType)
+    detailedStory,
+    // Metadata for AI story generation
+    _meta: {
+      topDimension,
+      lowDimension,
+      mbti
+    }
   };
 }
 
