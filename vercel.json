@@ -5,10 +5,14 @@
   },
   "routes": [
     {
-      "src": "/test/profile",
-      "status": 404
+      "src": "/test/profile(.*)?",
+      "status": 404,
+      "headers": {
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+      }
     }
-  ]
+  ],
+  "cleanUrls": true
 }
 
 
