@@ -69,21 +69,21 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
   return (
     <div className="space-y-6">
       {/* Big5 & Growth Charts */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {heroData.big5 && (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <span>🌌</span>
+          <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+              <span className="text-xl sm:text-2xl">🌌</span>
               <span>Big5 레이더</span>
             </h3>
             <Big5RadarChart big5={heroData.big5} />
             
             {/* Big5 설명 카드 */}
-            <div className="grid grid-cols-5 gap-2 mt-4 text-xs">
+            <div className="grid grid-cols-5 gap-1.5 sm:gap-2 mt-3 sm:mt-4 text-[10px] sm:text-xs">
               {['openness', 'conscientiousness', 'extraversion', 'agreeableness', 'neuroticism'].map(trait => (
-                <div key={trait} className="p-2 bg-white/5 rounded">
+                <div key={trait} className="p-1.5 sm:p-2 bg-white/5 rounded">
                   <div className="font-medium">{big5Data.traits[trait as keyof typeof big5Data.traits].name}</div>
-                  <div className="text-white/60">{big5Data.traits[trait as keyof typeof big5Data.traits].description}</div>
+                  <div className="text-white/60 line-clamp-2">{big5Data.traits[trait as keyof typeof big5Data.traits].description}</div>
                   <div className="mt-1 text-emerald-300">높음: {big5Data.traits[trait as keyof typeof big5Data.traits].high}</div>
                   <div className="text-amber-300">낮음: {big5Data.traits[trait as keyof typeof big5Data.traits].low}</div>
                 </div>
@@ -93,9 +93,9 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
         )}
 
         {heroData.growth && (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
-              <span>📈</span>
+          <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4 flex items-center gap-2">
+              <span className="text-xl sm:text-2xl">📈</span>
               <span>성장 벡터</span>
             </h3>
             <GrowthVectorChart growth={heroData.growth} />
@@ -104,11 +104,11 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
       </div>
 
       {/* Strengths & Weaknesses */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Strengths */}
-        <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6">
-          <h3 className="text-lg font-semibold text-emerald-300 mb-4 flex items-center gap-2">
-            <span>✨</span>
+        <div className="rounded-xl sm:rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-emerald-300 mb-3 sm:mb-4 flex items-center gap-2">
+            <span className="text-xl sm:text-2xl">✨</span>
             <span>강점</span>
           </h3>
           <ul className="space-y-2">
@@ -122,13 +122,13 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
                   <span className="text-emerald-400 mt-1">•</span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{strength}</span>
+                      <span className="font-medium text-sm sm:text-base">{strength}</span>
                       <span className="text-xs text-white/40">
                         {expandedStrength === idx ? '▲' : '▼'}
                       </span>
                     </div>
                     {expandedStrength === idx && strengthDetails[strength] && (
-                      <div className="mt-2 text-sm text-white/70 space-y-1 pl-2 border-l-2 border-emerald-500/30">
+                      <div className="mt-2 text-xs sm:text-sm text-white/70 space-y-1 pl-2 border-l-2 border-emerald-500/30">
                         <p>{strengthDetails[strength].description}</p>
                         <p className="text-emerald-300">
                           💡 활용법: {strengthDetails[strength].howToUse}
@@ -143,9 +143,9 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
         </div>
 
         {/* Weaknesses */}
-        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-6">
-          <h3 className="text-lg font-semibold text-amber-300 mb-4 flex items-center gap-2">
-            <span>⚠️</span>
+        <div className="rounded-xl sm:rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-amber-300 mb-3 sm:mb-4 flex items-center gap-2">
+            <span className="text-xl sm:text-2xl">⚠️</span>
             <span>성장 영역</span>
           </h3>
           <ul className="space-y-2">
@@ -159,13 +159,13 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
                   <span className="text-amber-400 mt-1">•</span>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{weakness}</span>
+                      <span className="font-medium text-sm sm:text-base">{weakness}</span>
                       <span className="text-xs text-white/40">
                         {expandedWeakness === idx ? '▲' : '▼'}
                       </span>
                     </div>
                     {expandedWeakness === idx && weaknessDetails[weakness] && (
-                      <div className="mt-2 text-sm text-white/70 space-y-1 pl-2 border-l-2 border-amber-500/30">
+                      <div className="mt-2 text-xs sm:text-sm text-white/70 space-y-1 pl-2 border-l-2 border-amber-500/30">
                         <p>{weaknessDetails[weakness].description}</p>
                         <p className="text-amber-300">
                           🎯 개선 방법: {weaknessDetails[weakness].improvement}
@@ -191,29 +191,29 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
       )}
 
       {/* MBTI & RETI Info */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* MBTI 섹션 */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">MBTI 유형</h3>
-          <div className="text-3xl font-bold text-violet-300 mb-2">
+        <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">MBTI 유형</h3>
+          <div className="text-2xl sm:text-3xl font-bold text-violet-300 mb-2">
             {heroData.hero?.mbti}
           </div>
-          <div className="text-lg text-white/80 mb-2">
+          <div className="text-base sm:text-lg text-white/80 mb-2">
             {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.koreanName}
           </div>
-          <p className="text-sm text-white/60 mb-4">
+          <p className="text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
             {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.detailedDescription}
           </p>
           
           <button 
             onClick={() => setShowMBTIDetails(!showMBTIDetails)}
-            className="text-sm text-violet-300 hover:text-violet-200 transition"
+            className="text-xs sm:text-sm text-violet-300 hover:text-violet-200 transition"
           >
             {showMBTIDetails ? '접기 ▲' : '자세히 보기 ▼'}
           </button>
           
           {showMBTIDetails && (
-            <div className="mt-4 space-y-3 text-sm">
+            <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3 text-xs sm:text-sm">
               <div>
                 <div className="font-medium text-emerald-300 mb-1">강점</div>
                 <ul className="list-disc list-inside text-white/70 space-y-1">
@@ -232,9 +232,9 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
               </div>
               <div>
                 <div className="font-medium text-blue-300 mb-1">추천 직업</div>
-                <div className="flex flex-wrap gap-2 mt-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-2">
                   {detailedMBTIAnalysis[heroData.hero?.mbti as keyof typeof detailedMBTIAnalysis]?.careerPaths.map((career, i) => (
-                    <span key={i} className="px-2 py-1 bg-blue-500/20 rounded text-blue-300 text-xs">
+                    <span key={i} className="px-2 py-1 bg-blue-500/20 rounded text-blue-300 text-[10px] sm:text-xs">
                       {career}
                     </span>
                   ))}
@@ -251,32 +251,32 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
         </div>
 
         {/* RETI 섹션 */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <h3 className="text-lg font-semibold text-white mb-4">RETI 점수</h3>
-          <div className="text-3xl font-bold text-blue-300 mb-2">
+        <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+          <h3 className="text-base sm:text-lg font-semibold text-white mb-3 sm:mb-4">RETI 점수</h3>
+          <div className="text-2xl sm:text-3xl font-bold text-blue-300 mb-2">
             {heroData.hero?.reti?.code} ({heroData.hero?.reti?.score?.toFixed(2)})
           </div>
-          <div className="text-lg text-white/80 mb-2">
+          <div className="text-base sm:text-lg text-white/80 mb-2">
             {detailedRETIAnalysis[heroData.hero?.reti?.code as keyof typeof detailedRETIAnalysis]?.koreanName}
           </div>
-          <p className="text-sm text-white/60 mb-4">
+          <p className="text-xs sm:text-sm text-white/60 mb-3 sm:mb-4">
             {detailedRETIAnalysis[heroData.hero?.reti?.code as keyof typeof detailedRETIAnalysis]?.detailedDescription}
           </p>
           
           <button 
             onClick={() => setShowRETIDetails(!showRETIDetails)}
-            className="text-sm text-blue-300 hover:text-blue-200 transition"
+            className="text-xs sm:text-sm text-blue-300 hover:text-blue-200 transition"
           >
             {showRETIDetails ? '접기 ▲' : '자세히 보기 ▼'}
           </button>
           
           {showRETIDetails && (
-            <div className="mt-4 space-y-3 text-sm">
+            <div className="mt-3 sm:mt-4 space-y-2 sm:space-y-3 text-xs sm:text-sm">
               <div>
                 <div className="font-medium text-white/80 mb-1">핵심 특성</div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {detailedRETIAnalysis[heroData.hero?.reti?.code as keyof typeof detailedRETIAnalysis]?.coreTraits.map((trait, i) => (
-                    <span key={i} className="px-2 py-1 bg-white/10 rounded text-white/80 text-xs">
+                    <span key={i} className="px-2 py-1 bg-white/10 rounded text-white/80 text-[10px] sm:text-xs">
                       {trait}
                     </span>
                   ))}
