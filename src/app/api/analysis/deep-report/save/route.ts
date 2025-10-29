@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   try {
     // Check authentication
     const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
@@ -23,8 +23,20 @@ export async function POST(req: NextRequest) {
 
     console.log('💾 [API /deep-report/save] Saving report for assessment:', assessmentId);
 
-    // Get user ID from session
-    const userId = (session.user as any).id || session.user.email;
+    // Get user UUID from email
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('email', session.user.email)
+      .single();
+
+    if (userError || !user) {
+      console.error('❌ [API /deep-report/save] User not found:', userError);
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const userId = user.id;
+    console.log('✅ [API /deep-report/save] Resolved user UUID:', userId);
 
     // Upsert report (update if exists, insert if not)
     const { data, error } = await supabaseAdmin
