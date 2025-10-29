@@ -5,7 +5,7 @@
 
 import { NextRequest } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { generateDeepReportStream } from '@/lib/ai/claude';
 
 export async function POST(req: NextRequest) {

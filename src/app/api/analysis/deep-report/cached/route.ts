@@ -4,8 +4,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { createClient } from '@/lib/supabase/server';
+import { authOptions } from '@/lib/auth';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function GET(req: NextRequest) {
   try {
@@ -24,13 +24,11 @@ export async function GET(req: NextRequest) {
 
     console.log('🔍 [API /deep-report/cached] Checking cache for assessment:', assessmentId);
 
-    const supabase = await createClient();
-
     // Get user ID from session
     const userId = (session.user as any).id || session.user.email;
 
     // Fetch cached report
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('deep_analysis_reports')
       .select('*')
       .eq('user_id', userId)

@@ -4,8 +4,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { createClient } from '@/lib/supabase/server';
+import { authOptions } from '@/lib/auth';
+import { supabaseAdmin } from '@/lib/supabase';
 
 export async function POST(req: NextRequest) {
   try {
@@ -23,13 +23,11 @@ export async function POST(req: NextRequest) {
 
     console.log('💾 [API /deep-report/save] Saving report for assessment:', assessmentId);
 
-    const supabase = await createClient();
-
     // Get user ID from session
     const userId = (session.user as any).id || session.user.email;
 
     // Upsert report (update if exists, insert if not)
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from('deep_analysis_reports')
       .upsert({
         user_id: userId,
