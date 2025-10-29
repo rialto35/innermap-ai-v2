@@ -120,7 +120,7 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
           if (data.ok && data.story) {
             console.log('✅ AI story loaded:', data.story.length, 'chars');
             // Update narrative with AI story
-            setNarrative(prev => prev ? { ...prev, detailedStory: data.story } : prev);
+            setNarrative((prev: any) => prev ? { ...prev, detailedStory: data.story } : prev);
           }
         })
         .catch(error => {
