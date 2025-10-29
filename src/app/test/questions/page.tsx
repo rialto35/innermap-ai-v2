@@ -151,7 +151,7 @@ export default function TestQuestionsPage() {
   };
 
   // Handle complete
-  const handleComplete = () => {
+  const handleComplete = async () => {
     const validation = validateCompleteness(answers);
 
     if (!validation.isValid) {
@@ -161,12 +161,49 @@ export default function TestQuestionsPage() {
       return;
     }
 
-    // Save to localStorage
-    if (typeof window !== "undefined") {
-      localStorage.setItem("test_answers", JSON.stringify(answers));
-    }
+    try {
+      // answers 객체를 배열로 변환
+      const answersArray: number[] = [];
+      for (let i = 0; i < 55; i++) {
+        const questionId = `q_${String(i + 1).padStart(3, '0')}`;
+        const value = answers[questionId];
+        if (value == null) {
+          alert(`문항 ${i + 1}의 답변이 누락되었습니다.`);
+          return;
+        }
+        answersArray.push(value);
+      }
 
-    router.push("/test/profile");
+      console.log("📊 [TestQuestions] Calling API with answers:", answersArray.length);
+
+      const res = await fetch("/api/test/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          answers: answersArray,
+          profile: null,
+          engineVersion: "imcore-1.0.0",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(`분석 실패: ${data?.message || data?.error || "알 수 없는 오류"}`);
+        return;
+      }
+
+      console.log("✅ [TestQuestions] Analysis complete:", data.assessmentId);
+
+      sessionStorage.setItem('latest_assessment_id', data.assessmentId);
+      localStorage.removeItem("test_answers");
+
+      // 결과 페이지로 바로 이동
+      router.push(`/result/summary?id=${data.assessmentId}`);
+    } catch (error) {
+      console.error("❌ [TestQuestions] Error:", error);
+      alert("분석 중 오류가 발생했습니다. 다시 시도해주세요.");
+    }
   };
 
   if (status === "loading") {
