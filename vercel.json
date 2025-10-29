@@ -3,11 +3,12 @@
   "env": {
     "NODE_ENV": "production"
   },
-  "build": {
-    "env": {
-      "VERCEL_FORCE_NO_BUILD_CACHE": "1"
+  "routes": [
+    {
+      "src": "/test/profile",
+      "status": 404
     }
-  }
+  ]
 }
 
 
