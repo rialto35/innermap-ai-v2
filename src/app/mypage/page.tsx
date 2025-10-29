@@ -51,17 +51,16 @@ function DashboardContent() {
   const [loading, setLoading] = useState(true);
   const [birthdate, setBirthdate] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isEditingBirthdate, setIsEditingBirthdate] = useState(false);
 
-  // YYYY-MM-DD 입력을 강건하게 보정 (백스페이스/모바일 입력 대응)
-  const normalizeDate = (v: string) =>
-    v
-      .replace(/[^0-9-]/g, '')
-      .slice(0, 10)
-      .replace(/^(
-        \d{0,4}
-      )(?:-?)(\d{0,2})(?:-?)(\d{0,2}).*$/x, (_m, y: string, m: string, d: string) =>
-        [y, m && m.length ? `-${m}` : '', d && d.length ? `-${d}` : ''].join('')
-      );
+  // YYYY-MM-DD 입력 보정: 백스페이스/모바일 입력 대응
+  const normalizeDate = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 8);
+    const y = digits.slice(0, 4);
+    const m = digits.slice(4, 6);
+    const d = digits.slice(6, 8);
+    return [y, m && `-${m}`, d && `-${d}`].filter(Boolean).join('');
+  };
 
   const handleLogout = async () => {
     try {
@@ -97,6 +96,7 @@ function DashboardContent() {
       alert('생년월일이 저장되었습니다! 페이지를 새로고침합니다.');
       
       // 데이터 새로고침
+      setIsEditingBirthdate(false);
       setHeroData(null);
       fetchHeroData();
       
@@ -208,15 +208,20 @@ function DashboardContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Hero Card (2 columns) */}
         <div className="lg:col-span-2">
-          {/* 생년월일 입력 배너 (birthdate 없을 때만 표시) */}
-          {!heroData.birthDate && (
+          {/* 생년월일 입력 배너 (birthdate 없거나 수정 모드일 때 표시) */}
+          {(!heroData.birthDate || isEditingBirthdate) && (
             <div className="mb-5 rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-4 sm:p-5">
               <div className="flex items-start gap-3">
                 <span className="text-3xl sm:text-4xl">🎂</span>
                 <div className="flex-1">
-                  <h3 className="text-lg sm:text-xl font-semibold text-amber-300 mb-1.5">부족을 확인하고 싶으신가요?</h3>
+                  <h3 className="text-lg sm:text-xl font-semibold text-amber-300 mb-1.5">
+                    {isEditingBirthdate ? '생년월일 수정' : '부족을 확인하고 싶으신가요?'}
+                  </h3>
                   <p className="text-xs sm:text-sm text-amber-200/80 mb-3">
-                    생년월일을 입력하면 12부족과 오늘의 운세를 확인할 수 있습니다. (선택사항)
+                    {isEditingBirthdate 
+                      ? '생년월일을 수정하면 부족과 운세가 업데이트됩니다.'
+                      : '생년월일을 입력하면 12부족과 오늘의 운세를 확인할 수 있습니다. (선택사항)'
+                    }
                   </p>
                   <form onSubmit={handleBirthdateSubmit} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 max-w-md">
                     <input
@@ -230,6 +235,18 @@ function DashboardContent() {
                       disabled={isUpdating}
                     />
                     <div className="flex items-center gap-2">
+                      {isEditingBirthdate && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsEditingBirthdate(false);
+                            setBirthdate('');
+                          }}
+                          className="px-3 py-2 text-xs sm:text-sm rounded-lg border border-white/20 text-white/70 hover:bg-white/10"
+                        >
+                          취소
+                        </button>
+                      )}
                       <button
                         type="button"
                         onClick={() => setBirthdate('')}
@@ -270,6 +287,23 @@ function DashboardContent() {
             mbti={heroData.mbti?.type}
             reti={heroData.world?.reti}
           />
+
+          {/* 생년월일 수정 버튼 (부족이 설정된 경우에만 표시) */}
+          {heroData.birthDate && !isEditingBirthdate && (
+            <div className="mt-4 flex justify-center">
+              <button
+                onClick={() => {
+                  setBirthdate(heroData.birthDate);
+                  setIsEditingBirthdate(true);
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20 transition text-sm"
+              >
+                <span>📅</span>
+                <span>생년월일 수정 (현재: {heroData.birthDate})</span>
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Right: Sidebar (1 column) */}
