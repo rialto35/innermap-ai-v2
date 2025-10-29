@@ -4,8 +4,8 @@
 
 CREATE TABLE IF NOT EXISTS public.deep_analysis_reports (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  assessment_id UUID NOT NULL REFERENCES public.test_assessments(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL,
+  assessment_id UUID NOT NULL,
   
   -- 13-step report sections (JSON)
   report_sections JSONB NOT NULL,
