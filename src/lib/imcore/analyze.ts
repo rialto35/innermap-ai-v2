@@ -34,6 +34,7 @@ export type AnalyzeOutput = {
       continent: string; 
       tribe: string; 
       stone: string;
+      reti: number; // 추가: 세계관에 계산된 RETI 포함
     };
     growthVector?: { 
       from: number[]; 
@@ -77,7 +78,8 @@ export async function runIMCore(input: AnalyzeInput): Promise<AnalyzeOutput> {
   const keywords = generateKeywords(big5, result.mbti);
 
   // 세계관 매핑 (MBTI + RETI 기반)
-  const world = mapWorld(result.mbti, result.reti);
+  const worldBase = mapWorld(result.mbti, result.reti);
+  const world = { ...worldBase, reti: result.reti };
 
   // 신뢰도 계산 (Big5 분산 기반)
   const confidence = calculateConfidence(big5);

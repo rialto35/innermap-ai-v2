@@ -52,6 +52,17 @@ function DashboardContent() {
   const [birthdate, setBirthdate] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // YYYY-MM-DD 입력을 강건하게 보정 (백스페이스/모바일 입력 대응)
+  const normalizeDate = (v: string) =>
+    v
+      .replace(/[^0-9-]/g, '')
+      .slice(0, 10)
+      .replace(/^(
+        \d{0,4}
+      )(?:-?)(\d{0,2})(?:-?)(\d{0,2}).*$/x, (_m, y: string, m: string, d: string) =>
+        [y, m && m.length ? `-${m}` : '', d && d.length ? `-${d}` : ''].join('')
+      );
+
   const handleLogout = async () => {
     try {
       await signOut({ redirect: false });
@@ -199,35 +210,41 @@ function DashboardContent() {
         <div className="lg:col-span-2">
           {/* 생년월일 입력 배너 (birthdate 없을 때만 표시) */}
           {!heroData.birthDate && (
-            <div className="mb-6 rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-6">
-              <div className="flex items-start gap-4">
-                <span className="text-4xl">🎂</span>
+            <div className="mb-5 rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-4 sm:p-5">
+              <div className="flex items-start gap-3">
+                <span className="text-3xl sm:text-4xl">🎂</span>
                 <div className="flex-1">
-                  <h3 className="text-xl font-semibold text-amber-300 mb-2">
-                    부족을 확인하고 싶으신가요?
-                  </h3>
-                  <p className="text-sm text-white/70 mb-4">
-                    생년월일을 입력하면 60갑자 기반 12부족과 오늘의 운세를 확인할 수 있습니다.
-                    <br />
-                    <span className="text-xs text-white/40">(선택사항이며, 나중에 입력할 수 있습니다)</span>
+                  <h3 className="text-lg sm:text-xl font-semibold text-amber-300 mb-1.5">부족을 확인하고 싶으신가요?</h3>
+                  <p className="text-xs sm:text-sm text-amber-200/80 mb-3">
+                    생년월일을 입력하면 12부족과 오늘의 운세를 확인할 수 있습니다. (선택사항)
                   </p>
-                  
-                  <form onSubmit={handleBirthdateSubmit} className="flex gap-3">
+                  <form onSubmit={handleBirthdateSubmit} className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 max-w-md">
                     <input
-                      type="date"
-                      value={birthdate}
-                      onChange={(e) => setBirthdate(e.target.value)}
-                      className="flex-1 px-4 py-2 rounded-lg bg-white/10 border border-white/20 text-white focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition"
+                      type="text"
+                      inputMode="numeric"
                       placeholder="YYYY-MM-DD"
+                      value={birthdate}
+                      onChange={(e) => setBirthdate(normalizeDate(e.target.value))}
+                      className="w-full h-10 sm:h-11 px-3 sm:px-4 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/40 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/20 outline-none transition text-sm sm:text-base"
+                      aria-label="생년월일(YYYY-MM-DD)"
                       disabled={isUpdating}
                     />
-                    <button
-                      type="submit"
-                      disabled={isUpdating || !birthdate}
-                      className="px-6 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-                    >
-                      {isUpdating ? '저장 중...' : '확인하기'}
-                    </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setBirthdate('')}
+                        className="px-3 py-2 text-xs sm:text-sm rounded-lg border border-white/20 text-white/70 hover:bg-white/10"
+                      >
+                        지우기
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isUpdating || !/^\d{4}-\d{2}-\d{2}$/.test(birthdate)}
+                        className="px-4 sm:px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-medium"
+                      >
+                        {isUpdating ? '저장 중...' : '확인하기'}
+                      </button>
+                    </div>
                   </form>
                 </div>
               </div>

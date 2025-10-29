@@ -150,7 +150,8 @@ export async function POST(req: Request) {
         inner9: output.premium?.inner9 ?? null,
         world: {
           ...worldInfo,
-          reti: (worldInfo as any)?.reti ?? (worldInfo as any)?.retiTop ?? 1,
+          // 엔진 world에 포함된 reti 우선 사용, 없으면 안전한 기본값
+          reti: (worldInfo as any)?.reti ?? (output as any)?.premium?.world?.reti ?? (worldInfo as any)?.retiTop ?? 1,
           birthdate: profile?.birthdate ?? null,
           tribe: tribeMatch?.tribe?.id ?? (worldInfo as any)?.tribe ?? null,
           stone: stone?.nameEn ?? (worldInfo as any)?.stone ?? null,
