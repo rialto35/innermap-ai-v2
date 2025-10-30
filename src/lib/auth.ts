@@ -189,7 +189,8 @@ export const authOptions: AuthConfig = {
   ],
   session: { 
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 24 * 60 * 60, // 1일 (기본값, remember_me 없을 때)
+    // remember_me가 localStorage에 '1'이면 클라이언트에서 자동 재로그인 처리
   },
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   debug: process.env.NODE_ENV === 'development' && process.env.NEXTAUTH_DEBUG === 'true',

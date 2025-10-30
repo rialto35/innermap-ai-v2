@@ -9,6 +9,7 @@ import { useEffect, useState, useCallback, Suspense, FormEvent } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { clearRememberMe } from '@/lib/sessionManager';
 // import dynamic from 'next/dynamic';
 
 import EnhancedHeroCard from '@/components/hero/EnhancedHeroCard';
@@ -64,6 +65,8 @@ function DashboardContent() {
 
   const handleLogout = async () => {
     try {
+      // 로그아웃 시 remember_me 상태 초기화
+      clearRememberMe();
       await signOut({ redirect: false });
       router.push('/');
     } catch (error) {

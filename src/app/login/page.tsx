@@ -9,9 +9,18 @@ function LoginForm() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [rememberMe, setRememberMe] = useState(false)
   const { status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  // 로컬스토리지에서 remember 상태 불러오기
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedRemember = localStorage.getItem('remember_me') === '1'
+      setRememberMe(savedRemember)
+    }
+  }, [])
 
   // URL 파라미터에서 에러 확인
   useEffect(() => {
@@ -41,6 +50,14 @@ function LoginForm() {
     setLoading(true)
     setError('')
     try {
+      // remember 상태 저장
+      if (typeof window !== 'undefined') {
+        if (rememberMe) {
+          localStorage.setItem('remember_me', '1')
+        } else {
+          localStorage.removeItem('remember_me')
+        }
+      }
       await signIn('google', { callbackUrl: '/mypage' })
     } catch (err) {
       setError('Google 로그인 중 오류가 발생했습니다.')
@@ -54,6 +71,14 @@ function LoginForm() {
     setLoading(true)
     setError('')
     try {
+      // remember 상태 저장
+      if (typeof window !== 'undefined') {
+        if (rememberMe) {
+          localStorage.setItem('remember_me', '1')
+        } else {
+          localStorage.removeItem('remember_me')
+        }
+      }
       await signIn('kakao', { callbackUrl: '/mypage' })
     } catch (err) {
       setError('카카오 로그인 중 오류가 발생했습니다.')
@@ -67,6 +92,14 @@ function LoginForm() {
     setLoading(true)
     setError('')
     try {
+      // remember 상태 저장
+      if (typeof window !== 'undefined') {
+        if (rememberMe) {
+          localStorage.setItem('remember_me', '1')
+        } else {
+          localStorage.removeItem('remember_me')
+        }
+      }
       await signIn('naver', { callbackUrl: '/mypage' })
     } catch (err) {
       setError('네이버 로그인 중 오류가 발생했습니다.')
@@ -131,6 +164,20 @@ function LoginForm() {
             {loading ? '처리 중...' : '로그인'}
           </button>
         </form>
+
+        {/* 로그인 상태 유지 체크박스 */}
+        <div className="mt-4 flex items-center gap-2" suppressHydrationWarning>
+          <input
+            type="checkbox"
+            id="rememberMe"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="w-4 h-4 rounded border-white/20 bg-white/10 text-sky-500 focus:ring-2 focus:ring-sky-500 focus:ring-offset-0 cursor-pointer"
+          />
+          <label htmlFor="rememberMe" className="text-sm text-white/70 cursor-pointer select-none">
+            로그인 상태 유지 (30일)
+          </label>
+        </div>
 
         <div className="my-6 flex items-center gap-3 text-xs text-white/50" suppressHydrationWarning>
           <div className="h-px flex-1 bg-white/10" suppressHydrationWarning />
