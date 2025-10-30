@@ -7,19 +7,57 @@ import { recommendStone } from "@/lib/data/tribesAndStones";
 
 export async function GET() {
   const session = (await getServerSession(authOptions as any)) as any;
-  const email = session?.user?.email || session?.effectiveEmail;
+  const provider = session?.provider || 'google';
+  const providerId = session?.providerId;
+  
+  // /api/imcore/me와 동일한 이메일 형식 생성 (provider 구분)
+  const email = (() => {
+    const raw = session?.user?.email
+    if (provider && provider !== 'google') {
+      if (raw) return `${provider}:${raw}`
+      if (providerId) return `${provider}:${providerId}`
+    }
+    return raw || (provider && providerId ? `${provider}:${providerId}` : undefined)
+  })()
 
   if (!email) {
     return new Response(JSON.stringify({ error: "UNAUTHENTICATED" }), { status: 401 });
   }
 
-  const { data: userRow } = await supabaseAdmin
-    .from('users')
-    .select('id')
-    .eq('email', email)
-    .maybeSingle();
+  console.log('🔍 [/api/results/latest] Looking up user:', { email, provider, providerId });
+
+  // provider + providerId로 우선 조회 (더 정확함)
+  let userRow = null;
+  if (provider && providerId) {
+    const { data: byProvider } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('provider', provider)
+      .eq('provider_id', providerId)
+      .maybeSingle();
+    
+    if (byProvider) {
+      userRow = byProvider;
+      console.log('✅ [/api/results/latest] Found user by provider:', userRow.id);
+    }
+  }
+
+  // provider로 못 찾으면 email로 조회 (fallback)
+  if (!userRow) {
+    const { data: byEmail } = await supabaseAdmin
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .maybeSingle();
+    
+    if (byEmail) {
+      userRow = byEmail;
+      console.log('✅ [/api/results/latest] Found user by email:', userRow.id);
+    }
+  }
 
   if (!userRow?.id) {
+    console.log('❌ [/api/results/latest] No user found');
     return new Response(JSON.stringify({ data: null }), { status: 200 });
   }
 

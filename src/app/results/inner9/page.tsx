@@ -41,6 +41,12 @@ function Inner9Content() {
       const mbti = userData?.mbti?.type || userData?.mbti_type || undefined;
       const reti = (userData?.reti?.top1?.[0] || userData?.reti_top1 || undefined) as string | undefined;
       
+      // 🔥 세션 기반 캐시 키 생성
+      const userKeyLocal = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+      const provider = (session as any)?.provider || 'unknown';
+      const providerId = (session as any)?.providerId || 'unknown';
+      const cacheKey = `inner9_data_cache:${provider}:${providerId}:${userKeyLocal}`;
+      
       if (userData.big5 && userData.big5.O !== null && userData.big5.C !== null && userData.big5.E !== null && userData.big5.A !== null && userData.big5.N !== null) {
         // 사용자의 실제 Big5 점수를 사용
         const res = await fetch('/api/analyze', {
@@ -62,9 +68,7 @@ function Inner9Content() {
         const j = await res.json();
         if (j.ok) {
           setInner9Data(j.data);
-          // 로컬 스토리지에 캐시 저장 (user 스코프)
-          const userKeyLocal = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
-          localStorage.setItem(`inner9_data_cache:${userKeyLocal}`, JSON.stringify(j.data));
+          localStorage.setItem(cacheKey, JSON.stringify(j.data));
         }
       } else {
         // 검사 결과가 없으면 데모 데이터 사용
@@ -76,9 +80,7 @@ function Inner9Content() {
         const j = await res.json();
         if (j.ok) {
           setInner9Data(j.data);
-          // 로컬 스토리지에 캐시 저장 (user 스코프)
-          const userKeyLocal = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
-          localStorage.setItem(`inner9_data_cache:${userKeyLocal}`, JSON.stringify(j.data));
+          localStorage.setItem(cacheKey, JSON.stringify(j.data));
         }
       }
     } catch (error) {
@@ -95,23 +97,28 @@ function Inner9Content() {
     // Inner9 데이터 로드
     if (status === 'authenticated' && !inner9Data) {
       const userKey = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+      const provider = (session as any)?.provider || 'unknown';
+      const providerId = (session as any)?.providerId || 'unknown';
+      
+      // 🔥 세션 기반 캐시 키 생성 (provider + providerId 포함)
+      const cacheKey = `inner9_data_cache:${provider}:${providerId}:${userKey}`;
       
       // 1. 캐시된 데이터 먼저 확인
-      const cached = localStorage.getItem(`inner9_data_cache:${userKey}`);
+      const cached = localStorage.getItem(cacheKey);
       if (cached) {
         try {
           const data = JSON.parse(cached);
           setInner9Data(data);
-          console.log('✅ Loaded cached Inner9 data');
+          console.log(`✅ Loaded cached Inner9 data for ${provider}:${providerId}`);
           return;
         } catch (error) {
           console.error('Error parsing cached Inner9 data:', error);
-          localStorage.removeItem(`inner9_data_cache:${userKey}`);
+          localStorage.removeItem(cacheKey);
         }
       }
       
       // 2. 캐시가 없으면 API에서 가져오기
-      console.log('📡 Fetching Inner9 data from API...');
+      console.log(`📡 Fetching Inner9 data from API for ${provider}:${providerId}...`);
       fetch('/api/results/latest')
         .then(res => res.json())
         .then(result => {
@@ -119,8 +126,8 @@ function Inner9Content() {
           if (result.data?.inner9) {
             // Inner9 데이터가 이미 변환되어 있음 (객체 형태)
             setInner9Data(result.data.inner9);
-            localStorage.setItem(`inner9_data_cache:${userKey}`, JSON.stringify(result.data.inner9));
-            console.log('✅ Inner9 data loaded from API:', result.data.inner9);
+            localStorage.setItem(cacheKey, JSON.stringify(result.data.inner9));
+            console.log(`✅ Inner9 data loaded from API for ${provider}:${providerId}:`, result.data.inner9);
           } else {
             console.warn('⚠️ No Inner9 data in API response');
           }

@@ -67,6 +67,17 @@ function DashboardContent() {
     try {
       // 로그아웃 시 remember_me 상태 초기화
       clearRememberMe();
+      
+      // 🔥 모든 InnerMap 관련 localStorage 캐시 삭제
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('inner9_data_cache:') || 
+            key.startsWith('latest_assessment_id') || 
+            key.includes('innermap')) {
+          localStorage.removeItem(key);
+          console.log(`🗑️ Cleared cache: ${key}`);
+        }
+      });
+      
       await signOut({ redirect: false });
       router.push('/');
     } catch (error) {

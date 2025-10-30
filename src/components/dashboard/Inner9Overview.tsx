@@ -247,12 +247,19 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       <div className="rounded-2xl border border-white/10 bg-white/5 p-12 text-center">
         <div className="mb-6">
           <div className="text-6xl mb-4">🧭</div>
-          <h3 className="text-xl font-semibold text-white mb-2">Inner9 분석</h3>
-          <p className="text-white/60 text-sm">
-            9가지 차원으로 당신의 내면을 탐색합니다
+          <h3 className="text-xl font-semibold text-white mb-2">Inner9 분석 결과가 없습니다</h3>
+          <p className="text-white/60 text-sm mb-4">
+            검사를 완료하면 9가지 차원으로 당신의 내면을 탐색할 수 있습니다
           </p>
+          <a
+            href="/test/quick"
+            className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white rounded-lg hover:opacity-90 transition-opacity"
+          >
+            검사 시작하기
+          </a>
         </div>
-        {onRunDemo && (
+        {/* 데모 버튼 제거 - 실제 검사 완료 후에만 데이터 표시 */}
+        {false && onRunDemo && (
           <button
             onClick={async () => {
               setIsAnalyzing(true);
