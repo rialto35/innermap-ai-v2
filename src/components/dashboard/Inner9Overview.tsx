@@ -6,6 +6,7 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
 import { generateRichNarrative } from '@/lib/analysis/inner9Narrative';
@@ -251,12 +252,12 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
           <p className="text-white/60 text-sm mb-4">
             검사를 완료하면 9가지 차원으로 당신의 내면을 탐색할 수 있습니다
           </p>
-          <a
+          <Link
             href="/test/quick"
             className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white rounded-lg hover:opacity-90 transition-opacity"
           >
             검사 시작하기
-          </a>
+          </Link>
         </div>
         {/* 데모 버튼 제거 - 실제 검사 완료 후에만 데이터 표시 */}
         {false && onRunDemo && (
