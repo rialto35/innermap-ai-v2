@@ -46,3 +46,23 @@ export function toMBTI({ big5, responses }: { big5: Big5Scores; responses: RawRe
 
 // 내부 유틸 (로컬)
 function clamp01(v: number) { return Math.min(1, Math.max(0, v)); }
+
+/**
+ * MBTI 연속 축 및 확신도 계산 (0~100 스케일)
+ * - EI: E
+ * - SN: 100 - O
+ * - TF: 100 - A
+ * - JP: C
+ */
+export function computeMbtiConfidenceFromBig5(big5: Big5Scores) {
+  const axes = {
+    EI: Math.max(0, Math.min(100, big5.e)),
+    SN: Math.max(0, Math.min(100, 100 - big5.o)),
+    TF: Math.max(0, Math.min(100, 100 - big5.a)),
+    JP: Math.max(0, Math.min(100, big5.c)),
+  };
+  const boundary = Object.values(axes).some((v) => v >= 45 && v <= 55);
+  const perAxis = Object.values(axes).map((v) => Math.abs(v - 50) / 50);
+  const confidence = Math.round((perAxis.reduce((a, b) => a + b, 0) / perAxis.length) * 100);
+  return { axes, boundary, confidence };
+}

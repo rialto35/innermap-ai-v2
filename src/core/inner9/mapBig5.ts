@@ -8,6 +8,11 @@ import { Big5, Inner9Config, InnerNine, ComputeResult } from './types';
 const DEFAULT_VERSION = 'inner9@1.1.0';
 
 const clip = (v: number) => Math.max(0, Math.min(100, v));
+const smoothstep = (t: number) => {
+  const x = Math.max(0, Math.min(1, t));
+  return x * x * (3 - 2 * x);
+};
+const nonlinearEnabled = process.env.IM_INNER9_NONLINEAR_ENABLED === 'true';
 
 export function mapBig5ToInner9(big5: Big5, cfg: Inner9Config = {}): ComputeResult {
   const w = {
@@ -43,6 +48,17 @@ export function mapBig5ToInner9(big5: Big5, cfg: Inner9Config = {}): ComputeResu
     balance,
     growth,
   };
+
+  // Optional non-linear shaping (Phase 0, lightweight) behind flag
+  if (nonlinearEnabled) {
+    scores = Object.fromEntries(
+      Object.entries(scores).map(([k, v]) => {
+        const t = (v as number) / 100;
+        const shaped = smoothstep(t) * 100;
+        return [k, shaped];
+      })
+    ) as InnerNine;
+  }
 
   if (cfg.clip0to100 !== false) {
     scores = Object.fromEntries(
