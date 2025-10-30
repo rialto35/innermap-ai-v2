@@ -33,45 +33,6 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
 
-  // 실제 분석 진행도 추적 함수
-  const startAnalysisWithProgress = async () => {
-    setIsAnalyzing(true);
-    setAnalysisProgress(0);
-    
-    try {
-      // 1단계: Big5 데이터 분석
-      setAnalysisProgress(20);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // 2단계: MBTI/RETI 가중치 적용
-      setAnalysisProgress(40);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // 3단계: Inner9 점수 계산
-      setAnalysisProgress(60);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // 4단계: 내러티브 생성
-      setAnalysisProgress(80);
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      // 5단계: AI 분석 생성 (실제 API 호출과 연동)
-      setAnalysisProgress(90);
-      
-      // 실제 API 호출이 여기서 발생하고, generateAnalysisText가 실행됨
-      // 이 시점에서 로딩 상태를 유지해야 함
-      
-      // 6단계: 최종 결과 생성
-      setAnalysisProgress(100);
-      await new Promise(resolve => setTimeout(resolve, 300));
-      
-    } catch (error) {
-      console.error('Analysis progress error:', error);
-    } finally {
-      setIsAnalyzing(false);
-    }
-  };
-
   useEffect(() => {
     // Support multiple shapes: snake_case, camelCase, and raw inner9
     const src = inner9Data?.inner9_scores || inner9Data?.inner9Scores || inner9Data?.inner9;
@@ -155,31 +116,6 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
     }
   }, [inner9Data]);
 
-  // 자동 실행: 데이터가 없고 onRunDemo 제공 시 분석을 자동 시작
-  useEffect(() => {
-    if (!inner9Data && onRunDemo && !isAnalyzing) {
-      (async () => {
-        setIsAnalyzing(true);
-        setAnalysisProgress(20);
-        await new Promise(r => setTimeout(r, 300));
-        setAnalysisProgress(40);
-        await new Promise(r => setTimeout(r, 300));
-        setAnalysisProgress(60);
-        await new Promise(r => setTimeout(r, 300));
-        setAnalysisProgress(80);
-        await new Promise(r => setTimeout(r, 300));
-        setAnalysisProgress(90);
-        try {
-          await onRunDemo();
-          setAnalysisProgress(100);
-          await new Promise(r => setTimeout(r, 200));
-        } finally {
-          setIsAnalyzing(false);
-        }
-      })();
-    }
-  }, [inner9Data, onRunDemo, isAnalyzing]);
-
   // 데이터가 없거나 모든 값이 0인 경우
   const hasValidData = chartData && chartData.some((dim: any) => dim.value > 0);
   
@@ -259,52 +195,6 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
             검사 시작하기
           </Link>
         </div>
-        {/* 데모 버튼 제거 - 실제 검사 완료 후에만 데이터 표시 */}
-        {false && onRunDemo && (
-          <button
-            onClick={async () => {
-              setIsAnalyzing(true);
-              setAnalysisProgress(0);
-              
-              try {
-                // 1단계: Big5 데이터 분석
-                setAnalysisProgress(20);
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                // 2단계: MBTI/RETI 가중치 적용
-                setAnalysisProgress(40);
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                // 3단계: Inner9 점수 계산
-                setAnalysisProgress(60);
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                // 4단계: 내러티브 생성
-                setAnalysisProgress(80);
-                await new Promise(resolve => setTimeout(resolve, 300));
-                
-                // 5단계: AI 분석 생성 (실제 API 호출)
-                setAnalysisProgress(90);
-                
-                // 실제 API 호출 - generateAnalysisText가 실행되는 시점
-                await onRunDemo();
-                
-                // 6단계: 완료
-                setAnalysisProgress(100);
-                await new Promise(resolve => setTimeout(resolve, 200));
-                
-              } catch (error) {
-                console.error('Analysis error:', error);
-              } finally {
-                setIsAnalyzing(false);
-              }
-            }}
-            disabled={isAnalyzing}
-            className="px-6 py-3 bg-gradient-to-r from-violet-500 to-blue-500 text-white font-medium rounded-xl hover:scale-105 transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isAnalyzing ? '분석 중...' : 'Inner9 데모 실행'}
-          </button>
-        )}
       </div>
     );
   }
