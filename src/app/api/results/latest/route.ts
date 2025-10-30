@@ -67,8 +67,32 @@ export async function GET() {
   } as const;
   const stone = recommendStone(stoneInput);
 
+  // Inner9 데이터 변환: { axes: [...], labels: [...] } → { creation: 20, will: 16, ... }
+  let inner9Normalized = result.inner9;
+  if (result.inner9 && Array.isArray(result.inner9.axes) && Array.isArray(result.inner9.labels)) {
+    // 배열 형태를 객체 형태로 변환
+    const labelMap: Record<string, string> = {
+      'Creation': 'creation',
+      'Balance': 'balance',
+      'Intuition': 'insight',
+      'Analysis': 'will',
+      'Harmony': 'harmony',
+      'Drive': 'expression',
+      'Reflection': 'resilience',
+      'Empathy': 'sensitivity',
+      'Discipline': 'growth'
+    };
+    
+    inner9Normalized = {};
+    result.inner9.labels.forEach((label: string, index: number) => {
+      const key = labelMap[label] || label.toLowerCase();
+      inner9Normalized[key] = result.inner9.axes[index];
+    });
+  }
+
   const enriched = {
     ...result,
+    inner9: inner9Normalized, // 변환된 Inner9 데이터 사용
     assessment_id: data.id,
     created_at: data.created_at,
     hero: hero
