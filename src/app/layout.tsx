@@ -4,6 +4,7 @@ import AuthProvider from '@/components/AuthProvider'
 import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import BottomNav from '@/components/mobile/BottomNav'
+import FeatureFlagRibbon from '@/components/admin/FeatureFlagRibbon'
 
 export const metadata: Metadata = {
   title: 'InnerMap AI - 당신의 내면 지도',
@@ -37,6 +38,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main className="flex-1" suppressHydrationWarning>{children}</main>
           <Footer />
           <BottomNav />
+          {/* Dev-only flag ribbon */}
+          {process.env.NODE_ENV !== 'production' && <FeatureFlagRibbon />}
         </AuthProvider>
       </body>
     </html>

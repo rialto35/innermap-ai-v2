@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Big5RadarChart from '@/components/Big5RadarChart';
 import GrowthVectorChart from '@/components/GrowthVectorChart';
 import Inner9Graphs from '@/components/analysis/Inner9Graphs';
@@ -20,6 +20,33 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
   // 상태 관리 - MBTI/RETI 기본 펼침 상태
   const [showMBTIDetails, setShowMBTIDetails] = useState(true);
   const [showRETIDetails, setShowRETIDetails] = useState(true);
+  const [flags, setFlags] = useState<{ confidenceBadge?: boolean } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/flags')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => setFlags(j?.flags ?? null))
+      .catch(() => setFlags(null));
+  }, []);
+
+  const mbtiConfidence = (() => {
+    // 서버에서 전달된 값이 있으면 우선 사용
+    const fromServer = (heroData as any)?.mbtiConfidence;
+    if (fromServer) return fromServer;
+    // 없으면 Big5 기반 간이 계산(0~100 스케일 가정)
+    const b5 = heroData?.big5;
+    if (!b5) return null;
+    const axes = {
+      EI: Math.max(0, Math.min(100, b5.E ?? b5.e ?? 0)),
+      SN: Math.max(0, Math.min(100, 100 - (b5.O ?? b5.o ?? 0))),
+      TF: Math.max(0, Math.min(100, 100 - (b5.A ?? b5.a ?? 0))),
+      JP: Math.max(0, Math.min(100, b5.C ?? b5.c ?? 0)),
+    };
+    const boundary = Object.values(axes).some((v) => v >= 45 && v <= 55);
+    const perAxisConfidence = Object.values(axes).map((v) => Math.abs(v - 50) / 50);
+    const confidence = Math.round((perAxisConfidence.reduce((a, b) => a + b, 0) / perAxisConfidence.length) * 100);
+    return { axes, boundary, confidence };
+  })();
 
   if (!heroData) {
     return (
@@ -46,6 +73,25 @@ export default function DetailedReport({ heroData }: DetailedReportProps) {
 
   return (
     <div className="space-y-6">
+      {/* Confidence badge (flag-guarded, dev/preview only usage) */}
+      {flags?.confidenceBadge && mbtiConfidence && (
+        <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 flex items-center justify-between">
+          <div className="text-sm text-white/80 flex items-center gap-2">
+            <span className="text-violet-300">MBTI 확신도</span>
+            <span className="font-semibold text-white">{mbtiConfidence.confidence}%</span>
+            {mbtiConfidence.boundary && (
+              <span className="ml-2 rounded bg-amber-500/20 px-2 py-0.5 text-amber-300 text-xs border border-amber-500/30">경계 영역</span>
+            )}
+          </div>
+          {mbtiConfidence.boundary ? (
+            <button disabled className="cursor-not-allowed rounded-md bg-white/10 px-3 py-1.5 text-xs text-white/70 border border-white/15">
+              정밀화 3문항 (준비중)
+            </button>
+          ) : (
+            <span className="text-xs text-white/40">안정</span>
+          )}
+        </div>
+      )}
       {/* 1. Big5 레이더 차트 (독립) */}
       {heroData.big5 && (
         <div className="rounded-xl sm:rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">

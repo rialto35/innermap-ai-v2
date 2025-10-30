@@ -19,6 +19,22 @@ import {
   computeMBTIRatios, 
   generateAnalysisText 
 } from '@/lib/psychometrics';
+import { getFlags } from '@/lib/flags';
+
+// MBTI 연속 축 및 확신도 계산 (Phase 0: 서버 응답에만 노출)
+function computeMbtiConfidenceFromBig5(b5: { O: number; C: number; E: number; A: number; N: number }) {
+  // 0~100 스케일 가정
+  const axes = {
+    EI: Math.max(0, Math.min(100, b5.E)),
+    SN: Math.max(0, Math.min(100, 100 - b5.O)),
+    TF: Math.max(0, Math.min(100, 100 - b5.A)),
+    JP: Math.max(0, Math.min(100, b5.C)),
+  };
+  const boundary = Object.values(axes).some((v) => v >= 45 && v <= 55);
+  const perAxisConfidence = Object.values(axes).map((v) => Math.abs(v - 50) / 50);
+  const confidence = Math.round((perAxisConfidence.reduce((a, b) => a + b, 0) / perAxisConfidence.length) * 100);
+  return { axes, boundary, confidence };
+}
 
 export async function POST(req: Request) {
   try {
@@ -68,6 +84,12 @@ export async function POST(req: Request) {
     const big5Percentiles = computeBig5Percentiles({ O: O / 100, C: C / 100, E: E / 100, A: A / 100, N: N / 100 });
     const mbtiRatios = body.mbti ? computeMBTIRatios(body.mbti) : { EI: 50, SN: 50, TF: 50, JP: 50 };
     
+    // Phase 0: MBTI 확신도(연속 축 기반) 계산 — 플래그 기본 OFF, 서버 응답에만 포함
+    const flags = getFlags();
+    const mbtiConfidence = (flags.confidenceBadge || flags.engineV2)
+      ? computeMbtiConfidenceFromBig5({ O, C, E, A, N })
+      : null;
+    
     // Enhanced Inner9 calculation with type weighting
     const config = getInner9Config();
     const analysisResult = await runAnalysis({
@@ -89,6 +111,41 @@ export async function POST(req: Request) {
     
     console.log('🔍 [API /analyze] Original Inner9:', inner9Scores);
     console.log('🔍 [API /analyze] Sanitized Inner9:', sanitizedInner9);
+
+    // Shadow-run logging for ENGINE_V2 (no behavior change)
+    if (flags.engineV2) {
+      try {
+        const baseInner9Raw: any = (out as any)?.inner9 || {};
+        const baseInner9: Record<string, number> = Object.fromEntries(
+          Object.entries(baseInner9Raw).map(([k, v]) => {
+            const num = Number(v);
+            // if baseline looks like 0..1, scale to 0..100 for fair diff
+            const scaled = num <= 1 ? num * 100 : num;
+            return [k, Math.round(scaled * 100) / 100];
+          })
+        );
+
+        const deltas: Record<string, number> = {};
+        Object.keys(sanitizedInner9).forEach((k) => {
+          const a = Number((sanitizedInner9 as any)[k] ?? 0);
+          const b = Number(baseInner9[k] ?? 0);
+          deltas[k] = Math.round((a - b) * 100) / 100;
+        });
+
+        const vals = Object.values(sanitizedInner9) as number[];
+        const avg = vals.length ? vals.reduce((s, x) => s + x, 0) / vals.length : 0;
+        const min = Math.min(...vals);
+        const max = Math.max(...vals);
+
+        console.info('[ENGINE_V2][shadow] mbtiConfidence:', mbtiConfidence);
+        console.info('[ENGINE_V2][shadow] baseInner9(0-100):', baseInner9);
+        console.info('[ENGINE_V2][shadow] v2Inner9(sanitized):', sanitizedInner9);
+        console.info('[ENGINE_V2][shadow] delta(v2 - base):', deltas);
+        console.info('[ENGINE_V2][shadow] summary:', { avg: Math.round(avg * 100) / 100, min, max });
+      } catch (e) {
+        console.warn('[ENGINE_V2][shadow] logging failed:', e);
+      }
+    }
     
     // Validate Inner9 scores
     try {
@@ -269,6 +326,7 @@ export async function POST(req: Request) {
         ...out,
         big5Percentiles,
         mbtiRatios,
+        mbtiConfidence,
         inner9Scores: sanitizedInner9,
         analysisText,
       }
