@@ -23,33 +23,37 @@ export async function GET() {
     return new Response(JSON.stringify({ data: null }), { status: 200 });
   }
 
-  const { data, error } = await supabaseAdmin
+  // 1. 최신 assessment 조회
+  const { data: assessment, error: assessmentError } = await supabaseAdmin
     .from('test_assessments')
-    .select(`
-      id,
-      created_at,
-      raw_answers,
-      test_assessment_results (
-        assessment_id,
-        mbti,
-        big5,
-        inner9,
-        keywords,
-        world,
-        confidence
-      )
-    `)
+    .select('id, created_at, raw_answers')
     .eq('user_id', userRow.id)
     .order('created_at', { ascending: false })
     .limit(1)
     .maybeSingle();
 
-  if (error) {
-    console.error('[RESULTS/LATEST][DB ERROR]', error);
+  if (assessmentError) {
+    console.error('[RESULTS/LATEST][ASSESSMENT ERROR]', assessmentError);
     return new Response(JSON.stringify({ error: "DB_ERROR" }), { status: 500 });
   }
 
-  const result = data?.test_assessment_results?.[0] ?? null;
+  if (!assessment) {
+    return new Response(JSON.stringify({ data: null }), { status: 200 });
+  }
+
+  // 2. assessment_id로 result 조회 (FK 없이 명시적 조회)
+  const { data: result, error: resultError } = await supabaseAdmin
+    .from('test_assessment_results')
+    .select('assessment_id, mbti, big5, inner9, keywords, world, confidence')
+    .eq('assessment_id', assessment.id)
+    .maybeSingle();
+
+  if (resultError) {
+    console.error('[RESULTS/LATEST][RESULT ERROR]', resultError);
+    return new Response(JSON.stringify({ error: "DB_ERROR" }), { status: 500 });
+  }
+
+  const data = assessment;
 
   if (!result || !data) {
     return new Response(JSON.stringify({ data: null }), { status: 200 });

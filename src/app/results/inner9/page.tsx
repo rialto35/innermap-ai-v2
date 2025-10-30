@@ -71,7 +71,7 @@ function Inner9Content() {
         const res = await fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 } }),
+          body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 }, locale: 'ko-KR' }),
         });
         const j = await res.json();
         if (j.ok) {
@@ -92,20 +92,42 @@ function Inner9Content() {
       return;
     }
 
-    // Inner9 캐시된 데이터 확인
+    // Inner9 데이터 로드
     if (status === 'authenticated' && !inner9Data) {
       const userKey = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+      
+      // 1. 캐시된 데이터 먼저 확인
       const cached = localStorage.getItem(`inner9_data_cache:${userKey}`);
       if (cached) {
         try {
           const data = JSON.parse(cached);
           setInner9Data(data);
-          console.log('Loaded cached Inner9 data');
+          console.log('✅ Loaded cached Inner9 data');
+          return;
         } catch (error) {
           console.error('Error parsing cached Inner9 data:', error);
           localStorage.removeItem(`inner9_data_cache:${userKey}`);
         }
       }
+      
+      // 2. 캐시가 없으면 API에서 가져오기
+      console.log('📡 Fetching Inner9 data from API...');
+      fetch('/api/results/latest')
+        .then(res => res.json())
+        .then(result => {
+          console.log('📦 API response:', result);
+          if (result.data?.inner9) {
+            // Inner9 데이터가 이미 변환되어 있음 (객체 형태)
+            setInner9Data(result.data.inner9);
+            localStorage.setItem(`inner9_data_cache:${userKey}`, JSON.stringify(result.data.inner9));
+            console.log('✅ Inner9 data loaded from API:', result.data.inner9);
+          } else {
+            console.warn('⚠️ No Inner9 data in API response');
+          }
+        })
+        .catch(error => {
+          console.error('❌ Error fetching Inner9 data:', error);
+        });
     }
   }, [status, router, inner9Data, session]);
 
