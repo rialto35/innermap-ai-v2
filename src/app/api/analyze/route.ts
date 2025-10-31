@@ -22,6 +22,7 @@ import {
 import { getFlags } from '@/lib/flags';
 import { getBig5Mapping } from '@/core/im-core/big5.config';
 import { fuseMbti } from '@/lib/engine/fusion';
+import mbtiBoundary from '@/data/adaptive/mbti_boundary.json';
 
 // MBTI 연속 축 및 확신도 계산 (Phase 0: 서버 응답에만 노출)
 function computeMbtiConfidenceFromBig5(b5: { O: number; C: number; E: number; A: number; N: number }) {
@@ -144,6 +145,19 @@ export async function POST(req: Request) {
           boundary: !!mbtiConfidence?.boundary,
         });
         return fusion;
+      } catch {
+        return null;
+      }
+    })();
+
+    // Mini-adaptive hint (boundary only, flag-guarded) — no client enforcement
+    const adaptiveHint = (() => {
+      if (!flags.miniAdaptive) return null;
+      if (!mbtiConfidence?.boundary) return null;
+      try {
+        const items = (mbtiBoundary as any)?.items || [];
+        // Provide a minimal subset (2 items) to keep payload light
+        return { type: 'mbti', items: items.slice(0, 2) };
       } catch {
         return null;
       }
@@ -402,6 +416,7 @@ export async function POST(req: Request) {
         },
         engineDebug,
         fusionDebug,
+        adaptiveHint,
         inner9Scores: sanitizedInner9,
         analysisText,
       }
