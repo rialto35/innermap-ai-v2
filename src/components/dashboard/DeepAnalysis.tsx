@@ -7,11 +7,15 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import dynamic from 'next/dynamic';
 
 interface DeepAnalysisProps {
   heroData?: any;
   reportData?: any;
 }
+
+// Lazy-load ECharts wordcloud
+const WordCloud = dynamic(() => import('@/components/charts/WordCloud'), { ssr: false });
 
 export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps) {
   const [report, setReport] = useState<any>(null);
@@ -226,7 +230,7 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
         const others = sections.filter((s: any) => !(s?.id === 13 && Array.isArray(s?.keywords)));
         return (
           <>
-            {wordCloud && <ReportSection key={`step-13`} section={wordCloud} />}
+            {wordCloud && <ReportSection key={`step-13`} section={wordCloud} aux={heroData} />}
             {others.map((section: any) => (
               <ReportSection key={section.id} section={section} />
             ))}
@@ -332,7 +336,7 @@ function ReportHeader({ onRegenerate, generatedAt }: { onRegenerate: () => void;
 }
 
 // Report Section Component
-function ReportSection({ section }: { section: any }) {
+function ReportSection({ section, aux }: { section: any; aux?: any }) {
   // Helper: Section hint text
   const getSectionHint = (title: string, id?: number) => {
     const t = (title || '').toLowerCase();
@@ -352,7 +356,7 @@ function ReportSection({ section }: { section: any }) {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 sm:p-8"
+        className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-4 sm:p-5"
       >
         <div className="flex items-center gap-3 mb-4">
           <span className="inline-block h-2.5 w-2.5 rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" />
@@ -361,31 +365,46 @@ function ReportSection({ section }: { section: any }) {
         </div>
         <p className="text-white/50 text-xs mb-4">{getSectionHint(section.title, section.id)}</p>
         
-        {/* Word Cloud Display */}
-        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
-          {section.keywords.map((keyword: any, index: number) => {
-            const size = keyword.weight >= 8 ? 'text-xl sm:text-2xl' : keyword.weight >= 6 ? 'text-lg sm:text-xl' : 'text-sm sm:text-base';
-            const opacity = keyword.weight >= 8 ? 'opacity-100' : keyword.weight >= 6 ? 'opacity-80' : 'opacity-60';
-            
-            return (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                className={`inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border ${opacity}`}
-                style={{
-                  borderColor: keyword.color || '#8B5CF6',
-                  backgroundColor: `${keyword.color || '#8B5CF6'}20`,
-                }}
-                title={keyword.source}
-              >
-                <span className={size}>{keyword.emoji}</span>
-                <span className={`${size} font-bold text-white`}>{keyword.word}</span>
-              </motion.div>
-            );
-          })}
-        </div>
+        {/* Word Cloud (ECharts) */}
+        {(() => {
+          // 기본 키워드
+          const base = section.keywords
+            .filter((k: any) => typeof k?.word === 'string')
+            .map((k: any) => ({ name: k.word, value: Number(k.weight ?? k.count ?? 1) || 1 }));
+
+          // 보조 키워드: MBTI / Tribe / Stone / Big5
+          const extras: { name: string; value: number }[] = [];
+
+          const mbti = aux?.hero?.mbti || aux?.mbti?.type || aux?.mbti;
+          if (typeof mbti === 'string') extras.push({ name: mbti, value: 50 });
+
+          if (aux?.tribe?.name) extras.push({ name: aux.tribe.name, value: 45 });
+          if (aux?.stone?.name) extras.push({ name: aux.stone.name, value: 42 });
+
+          const b5 = aux?.big5 || aux?.big5Percentiles || aux?.summary?.big5;
+          const b5Map: { key: string; label: string }[] = [
+            { key: 'O', label: '개방성' },
+            { key: 'C', label: '성실성' },
+            { key: 'E', label: '외향성' },
+            { key: 'A', label: '우호성' },
+            { key: 'N', label: '정서안정' },
+          ];
+          if (b5) {
+            b5Map.forEach(({ key, label }) => {
+              const v = Number((b5 as any)[key]);
+              if (!Number.isNaN(v)) extras.push({ name: label, value: Math.max(10, Math.round(v)) });
+            });
+          }
+
+          // 병합: 동일 이름은 최대 가중치
+          const merged = new Map<string, number>();
+          [...base, ...extras].forEach(({ name, value }) => {
+            merged.set(name, Math.max(merged.get(name) ?? 0, value));
+          });
+          const items = Array.from(merged, ([name, value]) => ({ name, value }));
+
+          return <WordCloud data={items} height={360} maskSrc="/masks/heart.png" />;
+        })()}
         
         {/* Source Legend */}
         <div className="mt-6 pt-6 border-t border-white/10">

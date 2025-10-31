@@ -34,8 +34,26 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
   const [analysisProgress, setAnalysisProgress] = useState(0);
 
   useEffect(() => {
-    // Support multiple shapes: snake_case, camelCase, and raw inner9
-    const src = inner9Data?.inner9_scores || inner9Data?.inner9Scores || inner9Data?.inner9;
+    // Support multiple shapes: snake_case, camelCase, raw inner9, or plain object
+    const src =
+      inner9Data?.inner9_scores ||
+      inner9Data?.inner9Scores ||
+      inner9Data?.inner9 ||
+      (
+        inner9Data &&
+        (
+          inner9Data.creation ??
+          inner9Data.balance ??
+          inner9Data.insight ??
+          inner9Data.will ??
+          inner9Data.harmony ??
+          inner9Data.expression ??
+          inner9Data.resilience ??
+          inner9Data.growth
+        )
+          ? inner9Data
+          : null
+      );
     if (src) {
       const normalize = (v: any) => {
         const num = Number(v ?? 0);

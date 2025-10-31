@@ -67,8 +67,13 @@ function Inner9Content() {
         });
         const j = await res.json();
         if (j.ok) {
-          setInner9Data(j.data);
-          localStorage.setItem(cacheKey, JSON.stringify(j.data));
+          const shaped = {
+            inner9: j.data.inner9 ?? j.data.inner9Scores ?? j.data.inner9_scores ?? j.data,
+            mbti: j.data.mbti?.type ?? j.data.mbti,
+            summary: { mbti: j.data.mbti?.type ?? j.data.mbti }
+          };
+          setInner9Data(shaped);
+          localStorage.setItem(cacheKey, JSON.stringify(shaped));
         }
       } else {
         // 검사 결과가 없으면 데모 데이터 사용
@@ -79,8 +84,13 @@ function Inner9Content() {
         });
         const j = await res.json();
         if (j.ok) {
-          setInner9Data(j.data);
-          localStorage.setItem(cacheKey, JSON.stringify(j.data));
+          const shaped = {
+            inner9: j.data.inner9 ?? j.data.inner9Scores ?? j.data.inner9_scores ?? j.data,
+            mbti: j.data.mbti?.type ?? j.data.mbti,
+            summary: { mbti: j.data.mbti?.type ?? j.data.mbti }
+          };
+          setInner9Data(shaped);
+          localStorage.setItem(cacheKey, JSON.stringify(shaped));
         }
       }
     } catch (error) {
@@ -124,9 +134,15 @@ function Inner9Content() {
         .then(result => {
           console.log('📦 API response:', result);
           if (result.data?.inner9) {
-            // Inner9 데이터가 이미 변환되어 있음 (객체 형태)
-            setInner9Data(result.data.inner9);
-            localStorage.setItem(cacheKey, JSON.stringify(result.data.inner9));
+            // 컴포넌트가 기대하는 형태로 래핑 저장
+            const shaped = {
+              inner9: result.data.inner9,
+              mbti: result.data.mbti,
+              summary: { mbti: result.data.mbti },
+              reti: result.data.world?.reti ?? result.data.world?.retiTop ?? result.data.world?.reti_type
+            };
+            setInner9Data(shaped);
+            localStorage.setItem(cacheKey, JSON.stringify(shaped));
             console.log(`✅ Inner9 data loaded from API for ${provider}:${providerId}:`, result.data.inner9);
           } else {
             console.warn('⚠️ No Inner9 data in API response');
