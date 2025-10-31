@@ -47,6 +47,7 @@ import HeroGuardEmptyState from '@/components/hero/HeroGuardEmptyState';
 function DashboardContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const provider = (session as any)?.provider as string | undefined;
   // const { currentTab } = useSearchTab();
   const [heroData, setHeroData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -353,10 +354,10 @@ function DashboardContent() {
                       <span className="w-4 h-4 bg-gray-500 rounded flex items-center justify-center text-white text-xs">?</span>
                     )}
                     <span className="text-white/80">
-                      {session?.provider === 'google' ? 'Google' :
-                       session?.provider === 'naver'  ? 'Naver'  :
-                       session?.provider === 'kakao'  ? 'Kakao'  :
-                       session?.provider === 'dev'    ? 'Dev'    :
+                      {provider === 'google' ? 'Google' :
+                       provider === 'naver'  ? 'Naver'  :
+                       provider === 'kakao'  ? 'Kakao'  :
+                       provider === 'dev'    ? 'Dev'    :
                        (session?.user?.email?.includes('@gmail.com') ? 'Google' :
                         session?.user?.email?.includes('@kakao.com') ? 'Kakao'  :
                         session?.user?.email?.includes('@naver.com') ? 'Naver'  :
