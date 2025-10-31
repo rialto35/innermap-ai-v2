@@ -70,3 +70,26 @@ export function toMBTI({ big5, responses }: { big5: Big5Scores; responses: numbe
 
 // 내부 유틸 (로컬)
 function clamp01(v: number) { return Math.min(1, Math.max(0, v)); }
+
+/**
+ * Phase 0: MBTI 확신도 계산 (연속 4축 기반)
+ * - 각 축을 0~100으로 해석하여 50에서의 거리로 확신도 산출
+ * - 경계(boundary) 구간: 45~55 사이에 하나라도 존재
+ */
+export function computeMbtiConfidenceFromBig5(b5: { o?: number; c?: number; e?: number; a?: number; n?: number; O?: number; C?: number; E?: number; A?: number; N?: number }) {
+  const O = (b5.O ?? b5.o ?? 50);
+  const C = (b5.C ?? b5.c ?? 50);
+  const E = (b5.E ?? b5.e ?? 50);
+  const A = (b5.A ?? b5.a ?? 50);
+  // N은 그대로 사용
+  const axes = {
+    EI: Math.max(0, Math.min(100, E)),
+    SN: Math.max(0, Math.min(100, 100 - O)),
+    TF: Math.max(0, Math.min(100, 100 - A)),
+    JP: Math.max(0, Math.min(100, C)),
+  };
+  const boundary = Object.values(axes).some((v) => v >= 45 && v <= 55);
+  const perAxisConfidence = Object.values(axes).map((v) => Math.abs(v - 50) / 50);
+  const confidence = Math.round((perAxisConfidence.reduce((a, b) => a + b, 0) / perAxisConfidence.length) * 100);
+  return { axes, boundary, confidence };
+}

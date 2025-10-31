@@ -1,0 +1,44 @@
+[
+  {
+    "name": "INTJ_high_O",
+    "mbti": "ENFJ",
+    "reti": 5,
+    "inner9": null,
+    "big5": {
+      "O": 91,
+      "C": 67,
+      "E": 77,
+      "A": 61,
+      "N": 61
+    },
+    "timestamp": "2025-10-31T02:01:27.324Z"
+  },
+  {
+    "name": "ENFP_high_E",
+    "mbti": "ESFJ",
+    "reti": 7,
+    "inner9": null,
+    "big5": {
+      "O": 64,
+      "C": 67,
+      "E": 91,
+      "A": 71,
+      "N": 61
+    },
+    "timestamp": "2025-10-31T02:01:28.637Z"
+  },
+  {
+    "name": "ISTJ_high_C",
+    "mbti": "ESFJ",
+    "reti": 1,
+    "inner9": null,
+    "big5": {
+      "O": 64,
+      "C": 100,
+      "E": 64,
+      "A": 61,
+      "N": 39
+    },
+    "timestamp": "2025-10-31T02:01:29.931Z"
+  }
+]

@@ -49,6 +49,17 @@ export function mapBig5ToInner9(big5: Big5, cfg: Inner9Config = {}): ComputeResu
     growth,
   };
 
+  // Phase 0: 가벼운 상호작용 항 (flag-guarded)
+  if (nonlinearEnabled) {
+    // 조화(harmony): 친화성(A) × 외향성(E)의 상호작용 기여
+    const interHarmony = (big5.A * big5.E) / 100; // 0..100
+    scores.harmony = clip(scores.harmony + 0.3 * interHarmony);
+
+    // 성장(growth): 창조/통찰 평균의 소폭 기여
+    const creativeInsight = (scores.creation + scores.insight) / 2;
+    scores.growth = clip(scores.growth + 0.2 * creativeInsight);
+  }
+
   // Optional non-linear shaping (Phase 0, lightweight) behind flag
   if (nonlinearEnabled) {
     scores = Object.fromEntries(

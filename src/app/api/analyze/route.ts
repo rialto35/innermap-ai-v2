@@ -20,6 +20,7 @@ import {
   generateAnalysisText 
 } from '@/lib/psychometrics';
 import { getFlags } from '@/lib/flags';
+import { getBig5Mapping } from '@/core/im-core/big5.config';
 
 // MBTI 연속 축 및 확신도 계산 (Phase 0: 서버 응답에만 노출)
 function computeMbtiConfidenceFromBig5(b5: { O: number; C: number; E: number; A: number; N: number }) {
@@ -34,6 +35,19 @@ function computeMbtiConfidenceFromBig5(b5: { O: number; C: number; E: number; A:
   const perAxisConfidence = Object.values(axes).map((v) => Math.abs(v - 50) / 50);
   const confidence = Math.round((perAxisConfidence.reduce((a, b) => a + b, 0) / perAxisConfidence.length) * 100);
   return { axes, boundary, confidence };
+}
+
+// MBTI 경계 보호 분류(섀도런용) — EI/SN/TF/JP 축을 기반으로 이진 분류 + 경계 플래그
+function classifyMbtiFromBig5(b5: { O: number; C: number; E: number; A: number; N: number }) {
+  const axes = {
+    EI: Math.max(0, Math.min(100, b5.E)),
+    SN: Math.max(0, Math.min(100, 100 - b5.O)),
+    TF: Math.max(0, Math.min(100, 100 - b5.A)),
+    JP: Math.max(0, Math.min(100, b5.C)),
+  };
+  const boundary = Object.values(axes).some((v) => v >= 47 && v <= 53);
+  const type = `${axes.EI >= 50 ? 'E' : 'I'}${axes.SN >= 50 ? 'S' : 'N'}${axes.TF >= 50 ? 'T' : 'F'}${axes.JP >= 50 ? 'J' : 'P'}`;
+  return { type, axes, boundary };
 }
 
 export async function POST(req: Request) {
@@ -86,8 +100,36 @@ export async function POST(req: Request) {
     
     // Phase 0: MBTI 확신도(연속 축 기반) 계산 — 플래그 기본 OFF, 서버 응답에만 포함
     const flags = getFlags();
+    const mapping = getBig5Mapping();
     const mbtiConfidence = (flags.confidenceBadge || flags.engineV2)
       ? computeMbtiConfidenceFromBig5({ O, C, E, A, N })
+      : null;
+    const mbtiV2 = flags.engineV2 ? classifyMbtiFromBig5({ O, C, E, A, N }) : null;
+    const mbtiStable = (() => {
+      if (!flags.engineV2 || !mbtiV2) return null;
+      // 경계 구간이면 기존 MBTI 유지, 아니면 V2 타입 제안
+      const current = (body.mbti as string) || null;
+      if (mbtiV2.boundary && current) return { type: current, from: 'boundary-protect' };
+      return { type: mbtiV2.type, from: 'v2' };
+    })();
+    const engineDebug = (flags.engineV2 || flags.verboseLog)
+      ? {
+          mappingVersion: mapping.version,
+          reverseCounts: {
+            O: mapping.O.reverse.length,
+            C: mapping.C.reverse.length,
+            E: mapping.E.reverse.length,
+            A: mapping.A.reverse.length,
+            N: mapping.N.reverse.length,
+          },
+          weightCounts: {
+            O: mapping.O.weights.length,
+            C: mapping.C.weights.length,
+            E: mapping.E.weights.length,
+            A: mapping.A.weights.length,
+            N: mapping.N.weights.length,
+          },
+        }
       : null;
     
     // Enhanced Inner9 calculation with type weighting
@@ -142,6 +184,9 @@ export async function POST(req: Request) {
         console.info('[ENGINE_V2][shadow] v2Inner9(sanitized):', sanitizedInner9);
         console.info('[ENGINE_V2][shadow] delta(v2 - base):', deltas);
         console.info('[ENGINE_V2][shadow] summary:', { avg: Math.round(avg * 100) / 100, min, max });
+        if (mbtiV2) {
+          console.info('[ENGINE_V2][shadow] mbtiV2:', mbtiV2);
+        }
       } catch (e) {
         console.warn('[ENGINE_V2][shadow] logging failed:', e);
       }
@@ -318,6 +363,11 @@ export async function POST(req: Request) {
       summary
     );
 
+    // Phase 0: Big5 신뢰도(간단 지표) 산출 — 50에서의 평균 편차 기반
+    const big5Vals = [O, C, E, A, N];
+    const spread = big5Vals.reduce((s, x) => s + Math.abs(x - 50), 0) / (5 * 50);
+    const big5Confidence = Math.max(0, Math.min(100, Math.round((1 - spread) * 100)));
+
     return NextResponse.json({ 
       ok: true, 
       reportId: resultData.id,
@@ -327,6 +377,13 @@ export async function POST(req: Request) {
         big5Percentiles,
         mbtiRatios,
         mbtiConfidence,
+        mbtiV2,
+        mbtiStable,
+        confidence: {
+          big5: big5Confidence,
+          mbti: mbtiConfidence?.confidence ?? null,
+        },
+        engineDebug,
         inner9Scores: sanitizedInner9,
         analysisText,
       }

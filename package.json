@@ -32,7 +32,8 @@
     "test:golden:verify": "npx vitest run tests/unit/golden.spec.ts",
     "test:cross": "npx tsx scripts/verify-crosslang.ts",
     "test:determinism": "npx vitest run tests/unit/contracts.spec.ts",
-    "test:integrity": "npm run test:unit && npm run test:cross && npm run test:determinism"
+    "test:integrity": "npm run test:unit && npm run test:cross && npm run test:determinism",
+    "backfill:ci": "node scripts/backfill-reanalyze.mjs --dry"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.60.0",

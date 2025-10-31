@@ -39,9 +39,14 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
         const cached = await fetch(`/api/analysis/deep-report/cached?assessmentId=${assessmentId}`);
         if (cached.ok) {
           const data = await cached.json();
-          setReport(data.report);
-          setLoading(false);
-          return;
+          // 카드가 비어있으면 재생성으로 보완
+          const hasCards = Array.isArray(data?.report?.practicalCards) && data.report.practicalCards.length > 0;
+          if (hasCards) {
+            setReport(data.report);
+            setLoading(false);
+            return;
+          }
+          // 카드가 없으면 생성 진행
         }
       }
 
@@ -118,7 +123,10 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
                 }
                 
                 console.log('✅ [DeepAnalysis] Report parsed successfully:', parsed.sections.length, 'sections');
-                setReport(parsed);
+                // 병렬 생성된 실용 카드 병합 (SSE payload)
+                const cards = Array.isArray(data.practicalCards) ? data.practicalCards : [];
+                const merged = { ...parsed, practicalCards: cards };
+                setReport(merged);
                 
                 // Save to database
                 await fetch('/api/analysis/deep-report/save', {
@@ -127,10 +135,27 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
                   body: JSON.stringify({
                     assessmentId: heroData?.assessmentId,
                     reportSections: parsed.sections,
-                    practicalCards: parsed.practicalCards || [],
+                    practicalCards: cards,
                     tokenCount: fullText.length,
                   }),
                 });
+
+                // 저장 직후 캐시에서 최신 리포트 재로딩 (카드 누락 방지)
+                try {
+                  const cached = await fetch(`/api/analysis/deep-report/cached?assessmentId=${heroData?.assessmentId}`);
+                  if (cached.ok) {
+                    const j = await cached.json();
+                    if (j?.report) {
+                      const mergedCached = {
+                        ...j.report,
+                        practicalCards: (Array.isArray(j.report.practicalCards) && j.report.practicalCards.length > 0)
+                          ? j.report.practicalCards
+                          : cards,
+                      };
+                      setReport(mergedCached);
+                    }
+                  }
+                } catch {}
               } catch (parseError) {
                 console.error('❌ [DeepAnalysis] Failed to parse report:', parseError);
                 console.error('❌ [DeepAnalysis] Raw text (first 500):', (data.fullText || fullText).substring(0, 500));
@@ -194,10 +219,20 @@ export default function DeepAnalysis({ heroData, reportData }: DeepAnalysisProps
       {/* Report Header */}
       <ReportHeader onRegenerate={generateReport} generatedAt={report.generatedAt} />
       
-      {/* 13-Step Report Sections */}
-      {report.sections && report.sections.map((section: any) => (
-        <ReportSection key={section.id} section={section} />
-      ))}
+      {/* 13-Step Report Sections (Step 13 on top) */}
+      {(() => {
+        const sections = Array.isArray(report.sections) ? report.sections : [];
+        const wordCloud = sections.find((s: any) => s?.id === 13 && Array.isArray(s?.keywords));
+        const others = sections.filter((s: any) => !(s?.id === 13 && Array.isArray(s?.keywords)));
+        return (
+          <>
+            {wordCloud && <ReportSection key={`step-13`} section={wordCloud} />}
+            {others.map((section: any) => (
+              <ReportSection key={section.id} section={section} />
+            ))}
+          </>
+        );
+      })()}
       
       {/* 12 Practical Cards */}
       {report.practicalCards && report.practicalCards.length > 0 && (
@@ -270,19 +305,19 @@ function ErrorState({ error, onRetry }: { error: string; onRetry: () => void }) 
 function ReportHeader({ onRegenerate, generatedAt }: { onRegenerate: () => void; generatedAt?: string }) {
   return (
     <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-500/10 to-blue-500/10 p-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-3 mb-2">
-            <div className="text-3xl">🌈</div>
-            <h3 className="text-2xl font-bold text-white">innerMap 13단계 통합 리포트</h3>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="inline-flex items-center rounded-full bg-white/10 px-2 py-1 text-[10px] font-medium text-white/70 border border-white/15">심층분석</span>
+            <span className="inline-block h-2 w-2 rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" />
           </div>
-          <p className="text-white/60 text-sm">
-            AI 기반 심층 심리 분석을 통한 당신의 내면 탐구
-          </p>
+          <h3 className="text-lg font-semibold text-white leading-tight">innerMap 13단계 통합 리포트</h3>
+          <p className="text-white/60 text-sm mt-1.5">AI 기반 심층 심리 분석을 통한 당신의 내면 탐구</p>
           {generatedAt && (
-            <p className="text-white/40 text-xs mt-2">
-              생성일: {new Date(generatedAt).toLocaleString('ko-KR')}
-            </p>
+            <div className="mt-3 flex items-center gap-2 text-xs text-white/40">
+              <span className="inline-block h-px w-4 bg-white/20" />
+              <span>생성일: {new Date(generatedAt).toLocaleString('ko-KR')}</span>
+            </div>
           )}
         </div>
         <button
@@ -298,6 +333,18 @@ function ReportHeader({ onRegenerate, generatedAt }: { onRegenerate: () => void;
 
 // Report Section Component
 function ReportSection({ section }: { section: any }) {
+  // Helper: Section hint text
+  const getSectionHint = (title: string, id?: number) => {
+    const t = (title || '').toLowerCase();
+    if (id === 13 || t.includes('워드클라우드')) return '감정·성향 키워드를 한눈에 요약한 인사이트입니다. 빈도가 높은 키워드에 먼저 주목해 보세요.';
+    if (t.includes('성격') || t.includes('지형')) return 'Big5/Inner9 기반 성격 지도를 해석하는 가이드입니다. 강점→활용, 약점→리스크 관리 관점으로 보세요.';
+    if (t.includes('감정')) return '정서 패턴과 회복 포인트를 파악하고 일상 루틴으로 연결해 보세요.';
+    if (t.includes('관계')) return '타인과의 상호작용 전략과 주의할 점을 요약합니다. 실제 대화 상황에 바로 적용해 보세요.';
+    if (t.includes('성장') || t.includes('도전') || t.includes('나침반')) return '단기/중기 액션으로 쪼개서 실천하면 효과적입니다. 한 번에 하나씩 실행해 보세요.';
+    if (t.includes('직장') || t.includes('커리어')) return '업무 스타일과 협업 포인트를 정리했습니다. 회의/협업 전에 리마인드용으로 활용하세요.';
+    return '핵심 포인트→적용 방법 순으로 읽으면 이해와 실행이 빨라집니다.';
+  };
+
   // Special rendering for Word Cloud (step 13)
   if (section.id === 13 && section.keywords && Array.isArray(section.keywords)) {
     return (
@@ -307,18 +354,17 @@ function ReportSection({ section }: { section: any }) {
         transition={{ duration: 0.5 }}
         className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 sm:p-8"
       >
-        <div className="flex items-center gap-3 mb-6">
-          <div className="text-3xl sm:text-4xl">{section.icon}</div>
-          <div>
-            <div className="text-xs text-white/40 mb-1">{section.id}단계</div>
-            <h3 className="text-xl sm:text-2xl font-bold text-white">{section.title}</h3>
-          </div>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="inline-block h-2.5 w-2.5 rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" />
+          <div className="text-xs text-white/40">{section.id}단계</div>
+          <h3 className="text-lg font-semibold text-white">{section.title}</h3>
         </div>
+        <p className="text-white/50 text-xs mb-4">{getSectionHint(section.title, section.id)}</p>
         
         {/* Word Cloud Display */}
-        <div className="flex flex-wrap gap-3 justify-center">
+        <div className="flex flex-wrap gap-2 sm:gap-3 justify-center">
           {section.keywords.map((keyword: any, index: number) => {
-            const size = keyword.weight >= 8 ? 'text-3xl' : keyword.weight >= 6 ? 'text-2xl' : 'text-xl';
+            const size = keyword.weight >= 8 ? 'text-xl sm:text-2xl' : keyword.weight >= 6 ? 'text-lg sm:text-xl' : 'text-sm sm:text-base';
             const opacity = keyword.weight >= 8 ? 'opacity-100' : keyword.weight >= 6 ? 'opacity-80' : 'opacity-60';
             
             return (
@@ -327,7 +373,7 @@ function ReportSection({ section }: { section: any }) {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${opacity}`}
+                className={`inline-flex items-center gap-2 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full border ${opacity}`}
                 style={{
                   borderColor: keyword.color || '#8B5CF6',
                   backgroundColor: `${keyword.color || '#8B5CF6'}20`,
@@ -359,17 +405,14 @@ function ReportSection({ section }: { section: any }) {
       transition={{ duration: 0.5 }}
       className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-white/[0.02] p-6 sm:p-8"
     >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="text-3xl sm:text-4xl">{section.icon}</div>
-        <div>
-          <div className="text-xs text-white/40 mb-1">{section.id}단계</div>
-          <h3 className="text-xl sm:text-2xl font-bold text-white">{section.title}</h3>
-        </div>
+      <div className="flex items-center gap-3 mb-3">
+        <span className="inline-block h-2.5 w-2.5 rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" />
+        <div className="text-xs text-white/40">{section.id}단계</div>
+        <h3 className="text-lg font-semibold text-white">{section.title}</h3>
       </div>
-      <div className="prose prose-invert prose-lg max-w-none">
-        <div className="text-white/90 leading-relaxed whitespace-pre-wrap">
-          {section.content}
-        </div>
+      <p className="text-white/50 text-xs mb-3">{getSectionHint(section.title, section.id)}</p>
+      <div className="text-white/90 leading-relaxed whitespace-pre-wrap text-sm">
+        {section.content}
       </div>
     </motion.div>
   );
@@ -380,7 +423,10 @@ function PracticalCards({ cards }: { cards: any[] }) {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-2xl font-bold text-white mb-2">🎴 실용 분석 카드</h3>
+        <h3 className="text-2xl font-bold text-white mb-2">
+          <span className="inline-block h-2 w-2 rounded-full bg-gradient-to-r from-violet-400 to-cyan-400 mr-2 align-middle" />
+          실용 분석 카드
+        </h3>
         <p className="text-white/60 text-sm">
           실생활에 바로 적용 가능한 12가지 분석
         </p>
@@ -407,8 +453,8 @@ function PracticalCard({ card }: { card: any }) {
       onClick={() => setExpanded(!expanded)}
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className="text-3xl">{card.icon}</div>
-        <h4 className="text-lg font-semibold text-white flex-1">{card.title}</h4>
+        <span className="inline-block h-2 w-2 rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" />
+        <h4 className="text-lg font-semibold text-white flex-1 truncate">{card.title}</h4>
         <div className="text-white/40">
           {expanded ? '▼' : '▶'}
         </div>
@@ -442,8 +488,8 @@ function PracticalCard({ card }: { card: any }) {
               <ul className="space-y-1">
                 {card.actionItems.map((action: string, idx: number) => (
                   <li key={idx} className="text-emerald-300 text-sm flex items-start gap-2">
-                    <span className="mt-1">✓</span>
-                    <span>{action}</span>
+                    <span className="mt-2 inline-block h-1.5 w-1.5 rounded-full bg-emerald-300" />
+                    <span className="text-white/90">{action}</span>
                   </li>
                 ))}
               </ul>
