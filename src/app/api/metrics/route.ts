@@ -43,12 +43,41 @@ export async function GET() {
     }
 
     const total = data?.length ?? 0;
-    const boundaryRate = computeBoundaryRate((data as any[])?.map((d) => ({ big5: (d as any).big5 })) ?? []);
+    const rows = (data as any[]) || [];
+    const boundaryRate = computeBoundaryRate(rows.map((d) => ({ big5: (d as any).big5 })) ?? []);
+
+    // MBTI type counts (simple distribution)
+    const typeCounts: Record<string, number> = {};
+    for (const r of rows) {
+      const t = (r as any)?.mbti;
+      if (typeof t === 'string' && /^[EI][SN][TF][JP]$/.test(t)) {
+        typeCounts[t] = (typeCounts[t] ?? 0) + 1;
+      }
+    }
+
+    // Big5 basic stats (mean)
+    const means = { O: 0, C: 0, E: 0, A: 0, N: 0 };
+    let mcount = 0;
+    for (const r of rows) {
+      const b5 = (r as any).big5 || {};
+      if (typeof b5.O === 'number') {
+        means.O += b5.O || 0; means.C += b5.C || 0; means.E += b5.E || 0; means.A += b5.A || 0; means.N += b5.N || 0;
+        mcount += 1;
+      }
+    }
+    if (mcount > 0) {
+      means.O = Math.round((means.O / mcount) * 10) / 10;
+      means.C = Math.round((means.C / mcount) * 10) / 10;
+      means.E = Math.round((means.E / mcount) * 10) / 10;
+      means.A = Math.round((means.A / mcount) * 10) / 10;
+      means.N = Math.round((means.N / mcount) * 10) / 10;
+    }
 
     return NextResponse.json({
       ok: true,
       total,
       boundaryRate, // percent
+      distributions: { mbti: typeCounts, big5Mean: means },
       // Placeholders for future: top1/top2/auc/mae/icc once gold labels & pipelines are ready
       mbti: { top1: null, top2: null, axesAuc: null },
       reti: { top1: null, top2: null },
