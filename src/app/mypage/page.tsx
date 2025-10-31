@@ -353,10 +353,14 @@ function DashboardContent() {
                       <span className="w-4 h-4 bg-gray-500 rounded flex items-center justify-center text-white text-xs">?</span>
                     )}
                     <span className="text-white/80">
-                      {session?.user?.email?.includes('@gmail.com') ? 'Google' : 
-                       session?.user?.email?.includes('@kakao.com') ? 'Kakao' : 
-                       session?.user?.email?.includes('@naver.com') ? 'Naver' : 
-                       'Email'}
+                      {session?.provider === 'google' ? 'Google' :
+                       session?.provider === 'naver'  ? 'Naver'  :
+                       session?.provider === 'kakao'  ? 'Kakao'  :
+                       session?.provider === 'dev'    ? 'Dev'    :
+                       (session?.user?.email?.includes('@gmail.com') ? 'Google' :
+                        session?.user?.email?.includes('@kakao.com') ? 'Kakao'  :
+                        session?.user?.email?.includes('@naver.com') ? 'Naver'  :
+                        'Email')}
                     </span>
                   </div>
                 </div>
