@@ -403,7 +403,7 @@ function ReportSection({ section, aux }: { section: any; aux?: any }) {
           });
           const items = Array.from(merged, ([name, value]) => ({ name, value }));
 
-          return <WordCloud data={items} height={360} maskSrc="/masks/heart.png" />;
+          return <WordCloud data={items} height={360} maskSrc={null} />;
         })()}
         
         {/* Source Legend */}
