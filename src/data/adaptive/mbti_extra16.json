@@ -1,0 +1,27 @@
+{
+  "version": "1.0.0",
+  "notes": "Additional 16 MBTI items (4 per axis). 1-7 Likert.",
+  "items": [
+    { "axis": "EI", "id": "ei_e1", "text": "큰 모임에서 에너지가 충전된다.", "scale": 7, "reverse": false },
+    { "axis": "EI", "id": "ei_e2", "text": "주목받는 역할을 즐긴다.", "scale": 7, "reverse": false },
+    { "axis": "EI", "id": "ei_i1", "text": "혼자 있는 시간이 에너지 회복에 더 도움이 된다.", "scale": 7, "reverse": true },
+    { "axis": "EI", "id": "ei_i2", "text": "깊은 1:1 대화를 선호한다.", "scale": 7, "reverse": true },
+
+    { "axis": "SN", "id": "sn_s1", "text": "구체적인 사실과 절차에 집중한다.", "scale": 7, "reverse": false },
+    { "axis": "SN", "id": "sn_s2", "text": "경험적 근거가 없는 주장은 신뢰하기 어렵다.", "scale": 7, "reverse": false },
+    { "axis": "SN", "id": "sn_n1", "text": "가능성과 패턴을 먼저 본다.", "scale": 7, "reverse": true },
+    { "axis": "SN", "id": "sn_n2", "text": "미래 시나리오 상상에 시간을 쓴다.", "scale": 7, "reverse": true },
+
+    { "axis": "TF", "id": "tf_t1", "text": "의사결정에서 논리 일관성이 우선이다.", "scale": 7, "reverse": false },
+    { "axis": "TF", "id": "tf_t2", "text": "객관적 기준을 선호한다.", "scale": 7, "reverse": false },
+    { "axis": "TF", "id": "tf_f1", "text": "사람들의 감정과 관계를 고려한다.", "scale": 7, "reverse": true },
+    { "axis": "TF", "id": "tf_f2", "text": "조화가 손상되는 결정을 피한다.", "scale": 7, "reverse": true },
+
+    { "axis": "JP", "id": "jp_j1", "text": "마감과 계획표가 있어야 마음이 편하다.", "scale": 7, "reverse": false },
+    { "axis": "JP", "id": "jp_j2", "text": "결정은 미루기보다 빠르게 내린다.", "scale": 7, "reverse": false },
+    { "axis": "JP", "id": "jp_p1", "text": "옵션을 열어두고 유연하게 움직인다.", "scale": 7, "reverse": true },
+    { "axis": "JP", "id": "jp_p2", "text": "즉흥적인 변화를 즐긴다.", "scale": 7, "reverse": true }
+  ]
+}
+
+
