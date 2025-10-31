@@ -21,6 +21,7 @@ import {
 } from '@/lib/psychometrics';
 import { getFlags } from '@/lib/flags';
 import { getBig5Mapping } from '@/core/im-core/big5.config';
+import { fuseMbti } from '@/lib/engine/fusion';
 
 // MBTI 연속 축 및 확신도 계산 (Phase 0: 서버 응답에만 노출)
 function computeMbtiConfidenceFromBig5(b5: { O: number; C: number; E: number; A: number; N: number }) {
@@ -131,6 +132,22 @@ export async function POST(req: Request) {
           },
         }
       : null;
+
+    // Late-fusion (shadow-run, debug only) — no behavior change
+    const fusionDebug = (() => {
+      if (!flags.fusionV1) return null;
+      try {
+        const fusion = fuseMbti({
+          big5: { O, C, E, A, N },
+          mbtiSelf: body.mbti as string,
+          mbtiPred: (mbtiStable?.type ?? mbtiV2?.type ?? body.mbti) as string,
+          boundary: !!mbtiConfidence?.boundary,
+        });
+        return fusion;
+      } catch {
+        return null;
+      }
+    })();
     
     // Enhanced Inner9 calculation with type weighting
     const config = getInner9Config();
@@ -384,6 +401,7 @@ export async function POST(req: Request) {
           mbti: mbtiConfidence?.confidence ?? null,
         },
         engineDebug,
+        fusionDebug,
         inner9Scores: sanitizedInner9,
         analysisText,
       }
