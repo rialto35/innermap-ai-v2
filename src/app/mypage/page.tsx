@@ -54,6 +54,7 @@ function DashboardContent() {
   const [birthdate, setBirthdate] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   const [isEditingBirthdate, setIsEditingBirthdate] = useState(false);
+  const [flags, setFlags] = useState<{ confidenceBadge?: boolean } | null>(null);
 
   // YYYY-MM-DD 입력 보정: 백스페이스/모바일 입력 대응
   const normalizeDate = (value: string) => {
@@ -85,6 +86,13 @@ function DashboardContent() {
       console.error('Logout error:', error);
     }
   };
+
+  useEffect(() => {
+    fetch('/api/flags')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => setFlags(j?.flags ?? null))
+      .catch(() => setFlags(null));
+  }, []);
 
   // 생년월일 저장 핸들러
   const handleBirthdateSubmit = async (e: FormEvent) => {
@@ -211,6 +219,23 @@ function DashboardContent() {
 
   const userName = heroData.user?.name || session?.user?.name || '여행자';
 
+  const mbtiConfidence = (() => {
+    const fromServer = (heroData as any)?.mbti?.confidence;
+    if (typeof fromServer === 'number') return { confidence: Math.round(fromServer as number), boundary: false };
+    const b5 = heroData?.big5;
+    if (!b5) return null;
+    const axes = {
+      EI: Math.max(0, Math.min(100, b5.E ?? b5.e ?? 0)),
+      SN: Math.max(0, Math.min(100, 100 - (b5.O ?? b5.o ?? 0))),
+      TF: Math.max(0, Math.min(100, 100 - (b5.A ?? b5.a ?? 0))),
+      JP: Math.max(0, Math.min(100, b5.C ?? b5.c ?? 0)),
+    };
+    const boundary = Object.values(axes).some((v) => v >= 45 && v <= 55);
+    const perAxisConfidence = Object.values(axes).map((v) => Math.abs(v - 50) / 50);
+    const confidence = Math.round((perAxisConfidence.reduce((a, b) => a + b, 0) / perAxisConfidence.length) * 100);
+    return { confidence, boundary };
+  })();
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
       {/* Header */}
@@ -218,6 +243,26 @@ function DashboardContent() {
         <h1 className="text-3xl font-bold text-white mb-2">{userName}님의 여정</h1>
         <p className="text-white/60">당신의 내면 세계를 탐험하세요</p>
       </div>
+
+      {/* Confidence badge (flag-guarded) */}
+      {flags?.confidenceBadge && mbtiConfidence && (
+        <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-3 flex items-center justify-between">
+          <div className="text-sm text-white/80 flex items-center gap-2">
+            <span className="text-violet-300">MBTI 확신도</span>
+            <span className="font-semibold text-white">{mbtiConfidence.confidence}%</span>
+            {mbtiConfidence.boundary && (
+              <span className="ml-2 rounded bg-amber-500/20 px-2 py-0.5 text-amber-300 text-xs border border-amber-500/30">경계 영역</span>
+            )}
+          </div>
+          {mbtiConfidence.boundary ? (
+            <button disabled className="cursor-not-allowed rounded-md bg-white/10 px-3 py-1.5 text-xs text-white/70 border border-white/15">
+              정밀화 3문항 (준비중)
+            </button>
+          ) : (
+            <span className="text-xs text-white/40">안정</span>
+          )}
+        </div>
+      )}
 
       {/* Main Content: Hero Card + Sidebar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
