@@ -4,6 +4,7 @@
  */
 
 import { Big5, Inner9Config, InnerNine, ComputeResult } from './types';
+import { calibrateInner9 } from './calibration';
 
 const DEFAULT_VERSION = 'inner9@1.1.0';
 
@@ -75,6 +76,11 @@ export function mapBig5ToInner9(big5: Big5, cfg: Inner9Config = {}): ComputeResu
     scores = Object.fromEntries(
       Object.entries(scores).map(([k, v]) => [k, clip(v as number)])
     ) as InnerNine;
+  }
+
+  // Optional calibration (flag-guarded) — default identity/no-op
+  if (process.env.IM_INNER9_CALIB_ENABLED === 'true') {
+    scores = calibrateInner9(scores, { method: 'identity' });
   }
 
   return { scores, modelVersion: DEFAULT_VERSION };

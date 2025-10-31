@@ -1,0 +1,12 @@
+{
+  "version": "1.0.0",
+  "notes": "Boundary-only micro items for EI/SN/TF/JP (1 per axis). 1-7 Likert.",
+  "items": [
+    { "axis": "EI", "id": "ei_b1", "text": "낯선 사람과 대화할 때 에너지가 생긴다.", "scale": 7, "reverse": false },
+    { "axis": "SN", "id": "sn_b1", "text": "미래의 가능성보다 현재의 사실을 더 중시한다.", "scale": 7, "reverse": false },
+    { "axis": "TF", "id": "tf_b1", "text": "결정에서 논리보다 타인의 감정을 더 고려한다.", "scale": 7, "reverse": true },
+    { "axis": "JP", "id": "jp_b1", "text": "미리 계획을 세우고 일정대로 움직이는 편이다.", "scale": 7, "reverse": false }
+  ]
+}
+
+

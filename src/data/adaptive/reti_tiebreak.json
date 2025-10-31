@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "notes": "Tiebreak items for likely-confused RETI pairs (3/8, 4/5, 6/1, 7/9). 1-5 Likert.",
+  "pairs": [
+    {
+      "pair": ["3", "8"],
+      "items": [
+        { "id": "tb_38_1", "text": "성과를 내기 위해 규칙을 우회하는 편이다.", "scale": 5, "reverse": false },
+        { "id": "tb_38_2", "text": "대립을 피하지 않고 내 입장을 강하게 드러낸다.", "scale": 5, "reverse": false }
+      ]
+    },
+    {
+      "pair": ["4", "5"],
+      "items": [
+        { "id": "tb_45_1", "text": "감정의 깊이를 표현하는 것이 중요하다.", "scale": 5, "reverse": false },
+        { "id": "tb_45_2", "text": "감정보다 지적 탐구가 더 우선이다.", "scale": 5, "reverse": false }
+      ]
+    },
+    {
+      "pair": ["6", "1"],
+      "items": [
+        { "id": "tb_61_1", "text": "안전을 위해 타인의 지침을 따르는 편이다.", "scale": 5, "reverse": false },
+        { "id": "tb_61_2", "text": "원칙을 지키는 것이 최우선 가치다.", "scale": 5, "reverse": false }
+      ]
+    },
+    {
+      "pair": ["7", "9"],
+      "items": [
+        { "id": "tb_79_1", "text": "새로운 자극을 꾸준히 찾아 나선다.", "scale": 5, "reverse": false },
+        { "id": "tb_79_2", "text": "평온을 위해 변화를 줄이는 편이다.", "scale": 5, "reverse": false }
+      ]
+    }
+  ]
+}
+
+

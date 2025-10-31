@@ -10,6 +10,9 @@ export type FeatureFlags = {
   inner9Nonlinear: boolean;
   confidenceBadge: boolean;
   verboseLog: boolean;
+  fusionV1: boolean;
+  miniAdaptive: boolean;
+  inner9Calib: boolean;
 };
 
 const asBool = (v: string | undefined, def = false) => {
@@ -26,6 +29,9 @@ export function getFlags(): FeatureFlags {
     inner9Nonlinear: asBool(process.env.IM_INNER9_NONLINEAR_ENABLED, false),
     confidenceBadge: asBool(process.env.IM_CONFIDENCE_BADGE_ENABLED, false),
     verboseLog: asBool(process.env.IM_ANALYSIS_VERBOSE_LOG, false),
+    fusionV1: asBool(process.env.IM_FUSION_V1_ENABLED, false),
+    miniAdaptive: asBool(process.env.IM_MINI_ADAPTIVE_ENABLED, false),
+    inner9Calib: asBool(process.env.IM_INNER9_CALIB_ENABLED, false),
   };
 }
 
