@@ -28,8 +28,11 @@ export default function WordCloud({ data, height = 420, maskSrc = null, title }:
       chart = echarts.init(containerRef.current, undefined, { renderer: 'canvas' });
 
       const cw = containerRef.current?.clientWidth || 800;
-      const sizeMin = Math.max(12, Math.round(cw / 60));
-      const sizeMax = Math.min(68, Math.round(cw / 9));
+      // 비율 유지 + 과도한 확대/축소 방지 (dev/prod 시각 일치)
+      const base = 1280; // 기준 폭
+      const scale = Math.max(0.85, Math.min(1.25, cw / base));
+      const sizeMin = Math.round(18 * scale);
+      const sizeMax = Math.round(90 * scale);
 
       const option: any = {
         title: title ? { text: title, left: 'center', textStyle: { color: '#fff', fontSize: 14 } } : undefined,
