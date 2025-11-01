@@ -11,3 +11,4 @@ waitlist,PRIMARY KEY,id,waitlist_pkey
 waitlist,UNIQUE,email,waitlist_email_key
 
 
+

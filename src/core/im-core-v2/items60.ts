@@ -1,54 +1,67 @@
-import questionsData from "@/data/questions.unified.json";
-import type { Axis, Big5Key, EnneagramKey, ItemMeta } from "./types";
+import type { ItemMeta } from "./types";
 
-type UnifiedQuestion = {
-  id: string;
-  text: string;
-  reverse?: boolean;
-  weight?: number;
-  domain?: string;
-};
-
-const axisMap: Record<string, Axis> = { E: "EI", I: "EI", S: "SN", N: "SN", T: "TF", F: "TF", J: "JP", P: "JP" };
-const axisSignMap: Record<string, 1 | -1> = { E: 1, I: -1, N: 1, S: -1, T: 1, F: -1, J: 1, P: -1 };
-const big5Map: Record<string, Big5Key> = { openness: "O", conscientiousness: "C", extraversion: "E", agreeableness: "A", neuroticism: "N" };
-
-const sections = (questionsData as any)?.sections ?? [];
-const flattened: UnifiedQuestion[] = sections.flatMap((s: any) => s?.questions ?? []);
-
-export const items60: ItemMeta[] = flattened.map((q, idx) => {
-  const meta: ItemMeta = {
-    id: idx + 1,
-    question: q.text,
-    rev: Boolean(q.reverse),
-    weight: typeof q.weight === "number" ? q.weight : 1,
-  };
-
-  const domain = q.domain as string | undefined;
-  if (domain) {
-    if (domain.startsWith("big5.")) {
-      const key = domain.split(".")[1];
-      const mapped = big5Map[key];
-      if (mapped) meta.big5 = { [mapped]: meta.weight ?? 1 };
-    } else if (domain.startsWith("mbti.")) {
-      const letter = domain.split(".")[1]?.toUpperCase();
-      if (letter) {
-        const axis = axisMap[letter];
-        if (axis) {
-          meta.axis = axis;
-          meta.axisSign = axisSignMap[letter] ?? 1;
-        }
-      }
-    } else if (domain.startsWith("reti.")) {
-      const num = Number(domain.split(".")[1]);
-      if (Number.isFinite(num) && num >= 1 && num <= 9) {
-        meta.ennea = { [num as EnneagramKey]: meta.weight ?? 1 };
-      }
-    }
-  }
-
-  return meta;
-});
+export const items60: ItemMeta[] = [
+  { id:1, axis:"EI", question:"새로운 사람에게 먼저 말을 거는 편이다." },
+  { id:2, axis:"SN", question:"단순한 생각보다 복잡한 아이디어를 더 흥미롭게 느낀다." },
+  { id:3, axis:"TF", question:"논리보다 감정이 더 설득력 있다고 느낀다." },
+  { id:4, axis:"JP", question:"공간이 정돈되어야 집중이 잘 된다." },
+  { id:5, axis:"TF", question:"긴장된 상황에서도 감정을 잘 조절한다." },
+  { id:6, axis:"EI", rev:true, question:"처음 만난 사람에게 먼저 말을 거는 것은 어렵다." },
+  { id:7, axis:"JP", question:"할 일을 미리 계획해두는 편이다." },
+  { id:8, axis:"TF", question:"사람들의 감정이 데이터보다 더 중요하다." },
+  { id:9, axis:"JP", question:"일정을 정리하고 관리하는 것을 좋아한다." },
+  { id:10, axis:"TF", question:"사소한 실수에도 스스로를 자책하는 편이다." },
+  { id:11, axis:"EI", question:"낯선 사람과 쉽게 대화할 수 있다." },
+  { id:12, axis:"SN", rev:true, question:"창작물의 다양한 해석에는 큰 흥미가 없다." },
+  { id:13, axis:"TF", question:"결정할 때 사람의 감정보다 사실을 우선한다." },
+  { id:14, axis:"JP", rev:true, question:"하루를 계획 없이 보내는 경우가 많다." },
+  { id:15, axis:"TF", rev:true, question:"다른 사람에게 어떻게 보일지 걱정한다." },
+  { id:16, axis:"EI", question:"함께 일할 때 에너지가 높아진다." },
+  { id:17, axis:"SN", question:"새롭고 실험적인 방법을 시도하는 것을 즐긴다." },
+  { id:18, axis:"TF", question:"직설적이기보다는 배려 있는 표현을 택한다." },
+  { id:19, axis:"SN", question:"새로운 지식과 경험을 탐구하는 편이다." },
+  { id:20, axis:"TF", question:"실패할까 봐 종종 불안해한다." },
+  { id:21, axis:"EI", rev:true, question:"혼자 있는 시간을 더 선호한다." },
+  { id:22, axis:"SN", rev:true, question:"상상보다는 현실적인 일을 선호한다." },
+  { id:23, axis:"TF", question:"감정보다는 효율을 중시한다." },
+  { id:24, axis:"JP", question:"쉬기 전에 해야 할 일을 먼저 끝내려 한다." },
+  { id:25, axis:"TF", question:"논쟁 시 내 주장을 명확히 밝히는 편이다." },
+  { id:26, axis:"EI", rev:true, question:"사교 모임에서 먼저 말을 거는 편은 아니다." },
+  { id:27, axis:"TF", question:"감정의 기복이 큰 편이다." },
+  { id:28, axis:"TF", question:"논쟁 중에도 차분함을 유지한다." },
+  { id:29, axis:"JP", rev:true, question:"해야 할 일을 종종 미룬다." },
+  { id:30, axis:"SN", question:"윤리적이거나 철학적인 주제에 흥미가 있다." },
+  { id:31, axis:"EI", question:"혼자보다는 함께 있을 때 더 활기차다." },
+  { id:32, axis:"SN", rev:true, question:"이론적인 대화는 지루하게 느껴진다." },
+  { id:33, axis:"TF", question:"감정보다 사실에 근거해 행동한다." },
+  { id:34, axis:"JP", rev:true, question:"일정을 꾸준히 지키는 것이 어렵다." },
+  { id:35, axis:"JP", question:"결정을 내리면 쉽게 바꾸지 않는다." },
+  { id:36, axis:"EI", question:"활발하고 외향적이라는 말을 자주 듣는다." },
+  { id:37, axis:"SN", question:"창의적 표현 활동을 좋아한다." },
+  { id:38, axis:"TF", question:"결정을 내릴 때 논리를 우선한다." },
+  { id:39, axis:"JP", question:"매일의 일을 미리 계획해두는 편이다." },
+  { id:40, axis:"TF", question:"불안감이 드문 편이다." },
+  { id:41, axis:"EI", rev:true, question:"전화를 거는 일이 부담스럽다." },
+  { id:42, axis:"SN", question:"새로운 아이디어를 탐구하는 것이 즐겁다." },
+  { id:43, axis:"EI", question:"처음 본 사람과도 금방 친해진다." },
+  { id:44, axis:"JP", question:"계획이 어긋나면 즉시 수정하려 한다." },
+  { id:45, axis:"TF", question:"과거의 실수를 오래 곱씹는 편이다." },
+  { id:46, axis:"SN", rev:true, question:"미래의 가능성보다는 현재의 실용성을 중시한다." },
+  { id:47, axis:"TF", question:"감정을 쉽게 드러내는 편이다." },
+  { id:48, axis:"TF", question:"타인의 감정을 고려해 결정을 내린다." },
+  { id:49, axis:"JP", rev:true, question:"즉흥적으로 일하는 것을 선호한다." },
+  { id:50, axis:"TF", question:"칭찬받을 때 부담을 느낀다." },
+  { id:51, axis:"EI", rev:true, question:"대부분 혼자 일할 수 있는 환경을 선호한다." },
+  { id:52, axis:"SN", rev:true, question:"철학적 질문에 관심이 없다." },
+  { id:53, axis:"EI", question:"사람 많은 곳에서 에너지를 얻는다." },
+  { id:54, axis:"TF", question:"충동적으로 행동할 때가 있다." },
+  { id:55, axis:"TF", question:"스트레스를 자주 느낀다." },
+  { id:56, axis:"JP", question:"체계적인 절차를 따르는 편이다." },
+  { id:57, axis:"SN", question:"정해진 틀보다 창의적 접근을 선호한다." },
+  { id:58, axis:"TF", question:"논리보다 직관에 의존해 결정을 내릴 때가 있다." },
+  { id:59, axis:"JP", rev:true, question:"해야 할 일을 종종 미뤄두곤 한다." },
+  { id:60, axis:"TF", question:"작은 일에도 감정이 크게 흔들릴 때가 있다." },
+];
 
 export const TOTAL_ITEMS = items60.length;
 

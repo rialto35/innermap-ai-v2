@@ -49,14 +49,14 @@ export default function QuestionsPage() {
   const handleNext = () => {
     if (currentPage < totalPages - 1) {
       setCurrentPage((prev) => prev + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "auto" }), 0);
     }
   };
 
   const handlePrev = () => {
     if (currentPage > 0) {
       setCurrentPage((prev) => prev - 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      setTimeout(() => window.scrollTo({ top: 0, behavior: "auto" }), 0);
     }
   };
 
@@ -92,8 +92,8 @@ export default function QuestionsPage() {
 
       console.log("✅ Analysis complete:", data);
 
-      // 결과 페이지로 이동
-      router.push(`/test/results/${data.assessmentId}`);
+      // 마이페이지로 이동
+      router.push('/mypage');
     } catch (error: any) {
       console.error("❌ Analysis error:", error);
       alert(error.message || "분석 중 오류가 발생했습니다. 다시 시도해주세요.");
