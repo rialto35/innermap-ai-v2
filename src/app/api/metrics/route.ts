@@ -73,11 +73,22 @@ export async function GET() {
       means.N = Math.round((means.N / mcount) * 10) / 10;
     }
 
+    // Adaptive adoption (recent): count assessments with raw_answers.adaptive
+    const { data: assess, error: assessErr } = await supabaseAdmin
+      .from('test_assessments')
+      .select('id, raw_answers')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    const arows = (assess as any[]) || [];
+    const adaptiveCount = arows.filter(r => !!(r?.raw_answers?.adaptive)).length;
+    const adaptiveRate = total > 0 ? Math.round((adaptiveCount / total) * 1000) / 10 : 0;
+
     return NextResponse.json({
       ok: true,
       total,
       boundaryRate, // percent
       distributions: { mbti: typeCounts, big5Mean: means },
+      adaptive: { count: adaptiveCount, rate: adaptiveRate },
       // Placeholders for future: top1/top2/auc/mae/icc once gold labels & pipelines are ready
       mbti: { top1: null, top2: null, axesAuc: null },
       reti: { top1: null, top2: null },

@@ -14,6 +14,8 @@ function ResultSummaryContent() {
 
   const [summary, setSummary] = useState<SummaryFields | null>(null);
   const [adaptiveHint, setAdaptiveHint] = useState<any | null>(null);
+  const [adaptiveValues, setAdaptiveValues] = useState<Record<string, number>>({});
+  const [adaptiveSubmitting, setAdaptiveSubmitting] = useState(false);
   const [meta, setMeta] = useState<{ createdAt?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -127,7 +129,11 @@ function ResultSummaryContent() {
                       <span>전혀 아님</span>
                       <div className="flex gap-1">
                         {[1,2,3,4,5,6,7].map(n => (
-                          <button key={n} className="px-2 py-1 rounded bg-white/10 hover:bg-white/15 text-white/80 border border-white/10">
+                          <button
+                            key={n}
+                            onClick={() => setAdaptiveValues(prev => ({ ...prev, [item.id]: n }))}
+                            className={`px-2 py-1 rounded border ${adaptiveValues[item.id]===n ? 'bg-violet-500/40 border-violet-400 text-white' : 'bg-white/10 hover:bg-white/15 text-white/80 border-white/10'}`}
+                          >
                             {n}
                           </button>
                         ))}
@@ -136,6 +142,29 @@ function ResultSummaryContent() {
                     </div>
                   </div>
                 ))}
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  disabled={adaptiveSubmitting || Object.keys(adaptiveValues).length===0}
+                  onClick={async () => {
+                    try {
+                      setAdaptiveSubmitting(true);
+                      const start = performance.now();
+                      const resp = await fetch('/api/adaptive/submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ assessmentId: id, items: Object.entries(adaptiveValues).map(([k,v]) => ({ id: k, value: v })), durationMs: Math.round(performance.now()-start) })
+                      });
+                      if (!resp.ok) throw new Error('submit failed');
+                      alert('감사합니다! 정밀 문항이 반영되었습니다.');
+                    } catch {
+                      alert('제출에 실패했습니다. 다시 시도해주세요.');
+                    } finally { setAdaptiveSubmitting(false); }
+                  }}
+                  className="px-4 py-2 rounded bg-violet-500 hover:bg-violet-600 text-white disabled:opacity-50"
+                >
+                  {adaptiveSubmitting ? '제출 중...' : '제출하기'}
+                </button>
               </div>
             </motion.div>
           )}
