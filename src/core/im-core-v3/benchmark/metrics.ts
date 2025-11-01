@@ -54,11 +54,11 @@ export function computeNLL(y_true: number[], y_pred: number[][]): number {
 }
 
 // ========================================
-// AUROC (간소화 버전)
+// AUROC (이진 분류)
 // ========================================
-export function computeAUROC(y_true: number[], y_pred: number[]): number {
-  // 이진 분류 가정: y_true ∈ {0,1}, y_pred ∈ [0,1]
-  const pairs = y_true.map((yt, i) => ({ yt, yp: y_pred[i] }));
+export function binaryAUROC(y_true: number[], y_score: number[]): number {
+  // y_true ∈ {0,1}, y_score ∈ [0,1]
+  const pairs = y_true.map((yt, i) => ({ yt, yp: y_score[i] }));
   pairs.sort((a, b) => b.yp - a.yp);
 
   let tp = 0, fp = 0;
@@ -78,6 +78,36 @@ export function computeAUROC(y_true: number[], y_pred: number[]): number {
   }
 
   return auc / (P * N);
+}
+
+// ========================================
+// Multiclass AUROC (macro-average)
+// ========================================
+export function multiclassAUROC(trueLabels: number[], probs: number[][]): number {
+  const K = probs[0]?.length ?? 0;
+  if (K === 0) return 0.5;
+  
+  const aurocs: number[] = [];
+  
+  for (let k = 0; k < K; k++) {
+    const yTrue = trueLabels.map(y => (y === k ? 1 : 0));
+    const yScore = probs.map(p => p[k] ?? 0);
+    
+    const P = yTrue.filter(y => y === 1).length;
+    const N = yTrue.length - P;
+    
+    if (P > 0 && N > 0) {
+      aurocs.push(binaryAUROC(yTrue, yScore));
+    }
+  }
+  
+  // macro-average
+  return aurocs.length > 0 ? aurocs.reduce((a, b) => a + b, 0) / aurocs.length : 0.5;
+}
+
+// Deprecated: 이전 버전 호환용
+export function computeAUROC(y_true: number[], y_pred: number[]): number {
+  return binaryAUROC(y_true, y_pred);
 }
 
 // ========================================
@@ -108,27 +138,23 @@ export function aggregateMBTIMetrics(results: TestRow[][]): AxisMetrics {
   // AUROC, Brier, ECE는 모든 run 통합 계산
   const allRows = results.flat();
   
-  // MBTI 16-class를 one-vs-rest로 변환하여 AUROC 계산
+  // MBTI 16-class multiclass AUROC (macro-average)
   const mbtiTypes = ['INTJ', 'INTP', 'ENTJ', 'ENTP', 'INFJ', 'INFP', 'ENFJ', 'ENFP',
                      'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ', 'ISTP', 'ISFP', 'ESTP', 'ESFP'];
   
-  let aurocSum = 0;
-  let aurocCount = 0;
+  const mbtiTypeToIdx = Object.fromEntries(mbtiTypes.map((t, i) => [t, i]));
   
-  for (const targetType of mbtiTypes) {
-    const y_true = allRows.map(r => r.mbti_true === targetType ? 1 : 0);
-    const y_pred = allRows.map(r => r.mbti_probs[targetType] ?? 0);
-    
-    const P = y_true.filter(y => y === 1).length;
-    const N = y_true.length - P;
-    
-    if (P > 0 && N > 0) {
-      aurocSum += computeAUROC(y_true, y_pred);
-      aurocCount++;
-    }
-  }
+  const yTrueIdx = allRows.map(r => mbtiTypeToIdx[r.mbti_true] ?? 0);
+  const yProbsMatrix = allRows.map(r => mbtiTypes.map(t => r.mbti_probs[t] ?? 0));
   
-  const auroc = aurocCount > 0 ? aurocSum / aurocCount : 0.5;
+  const auroc = multiclassAUROC(yTrueIdx, yProbsMatrix);
+  
+  // 확률 분포 로깅 (디버깅용)
+  const probsTrue = allRows.map((r, i) => yProbsMatrix[i][yTrueIdx[i]]);
+  const minProb = Math.min(...probsTrue);
+  const maxProb = Math.max(...probsTrue);
+  const avgProb = probsTrue.reduce((a, b) => a + b, 0) / probsTrue.length;
+  console.log(`  [MBTI AUROC Debug] min/avg/max(prob_true): ${minProb.toFixed(3)}/${avgProb.toFixed(3)}/${maxProb.toFixed(3)}`);
   
   // Brier: 예측 확률 vs 실제 (1 if correct, 0 if wrong)
   const y_true_correct = allRows.map(r => r.mbti_pred === r.mbti_true ? 1 : 0);

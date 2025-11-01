@@ -23,41 +23,46 @@ function randn(): number {
 }
 
 // ========================================
-// μ (MBTI 기대치)
+// μ (MBTI 기대치) - 축별 단조성 강화
 // ========================================
 const MU: Record<string, Partial<Big5>> = {
-  E: { E: 70 },
-  I: { E: 30 },
-  N: { O: 70 },
-  S: { O: 40 },
-  F: { A: 65 },
-  T: { A: 45 },
-  J: { C: 70 },
+  E: { E: 72 },
+  I: { E: 28 },
+  N: { O: 68 },
+  S: { O: 42 },
+  F: { A: 62 },
+  T: { A: 48 },
+  J: { C: 68 },
   P: { C: 45 },
 };
 
 // ========================================
-// δ (Enneagram 편향)
+// δ (Enneagram 편향) - 절반으로 축소
 // ========================================
 const DELTA: Record<Ennea, Partial<Big5>> = {
-  1: { C: +12, A: +2 },
-  2: { A: +12, E: +4 },
-  3: { E: +8, C: +4 },
-  4: { N: +12, O: +6 },
-  5: { O: +10, E: -8 },
-  6: { N: +8, C: +4 },
-  7: { E: +12, N: -4 },
-  8: { E: +10, A: -8 },
-  9: { A: +8, N: -8 },
+  1: { C: +6, A: +1 },
+  2: { A: +6 },
+  3: { E: +4, C: +2 },
+  4: { N: +6, O: +3 },
+  5: { O: +5, E: -4 },
+  6: { N: +5, C: +2 },
+  7: { E: +6, N: -2 },
+  8: { E: +5, A: -4 },
+  9: { A: +4, N: -4 },
 };
 
 // ========================================
-// σ (노이즈 표준편차) - Round 2: 10 → 8
+// σ (노이즈 표준편차) - Round 3: 8 → 6
 // ========================================
-const SIGMA: Big5 = { O: 8, C: 8, E: 8, A: 8, N: 8 };
+const SIGMA: Big5 = { O: 6, C: 6, E: 6, A: 6, N: 6 };
 
 function clamp(x: number): number {
   return Math.max(0, Math.min(100, x));
+}
+
+// 축별 scale 보정 (중앙 → 끝으로 당기기)
+function pullToEnds(x: number, center = 50, k = 0.15): number {
+  return center + (x - center) * (1 + k);
 }
 
 // ========================================
@@ -74,6 +79,12 @@ export function generateBig5(mbti: MBTI, ennea: Ennea): Big5 {
     if (m?.E !== undefined) E = (E + m.E) / 2;
     if (m?.A !== undefined) A = (A + m.A) / 2;
   }
+
+  // 1.5) pullToEnds 적용 (O, C, E, A만)
+  O = pullToEnds(O);
+  C = pullToEnds(C);
+  E = pullToEnds(E);
+  A = pullToEnds(A);
 
   // 2) δ 적용 (Enneagram 편향)
   const d = DELTA[ennea];

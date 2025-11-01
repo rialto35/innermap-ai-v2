@@ -107,19 +107,19 @@
     "T_vs_F": {
       "intercept": 0.0,
       "coeff": {
-        "empathy": 1.8,
-        "cooperation": 1.0,
-        "modesty": 0.3,
-        "assertiveness": -0.5
+        "empathy": 2.2,
+        "cooperation": 1.2,
+        "modesty": 0.4,
+        "assertiveness": -0.6
       }
     },
     "J_vs_P": {
       "intercept": 0.0,
       "coeff": {
-        "order": -2.0,
-        "self_control": -1.8,
-        "grit": -0.5,
-        "innovation": 0.8
+        "order": -2.4,
+        "self_control": -2.2,
+        "grit": -0.6,
+        "innovation": 1.0
       }
     }
   },

@@ -89,8 +89,8 @@ export function runCompleteBenchmark(options?: BenchmarkOptions): BenchmarkRepor
       const facetNoise: Record<string, number> = {};
       items60V3.forEach((item) => {
         if (!facetNoise[item.facet]) {
-          // Facet별 작은 노이즈 (-5 ~ +5)
-          facetNoise[item.facet] = (Math.random() - 0.5) * 10;
+          // Facet별 작은 노이즈 (-2 ~ +2) - Round 3: 축소
+          facetNoise[item.facet] = (Math.random() - 0.5) * 4;
         }
       });
       
@@ -101,13 +101,19 @@ export function runCompleteBenchmark(options?: BenchmarkOptions): BenchmarkRepor
         // Facet별 변동 적용
         const facetValue = Math.max(0, Math.min(100, domainValue + facetNoise[item.facet]));
         
-        // Likert 변환 (0-100 → 1-5)
-        let likert = Math.round((facetValue / 100) * 4 + 1);
+        // 단조 로지스틱 변환 (0-100 → 0-1)
+        const slope = 0.09;
+        const bias = 50;
+        const z = slope * (facetValue - bias);
+        let p = 1 / (1 + Math.exp(-z)); // 0~1
         
-        // reverse 처리
+        // reverse 처리 (역채점 확정)
         if (item.reverse) {
-          likert = 6 - likert;
+          p = 1 - p;
         }
+        
+        // Likert 5점 척도로 변환 (1~5)
+        const likert = Math.round(1 + p * 4);
         
         responses[item.id] = Math.max(1, Math.min(5, likert)) as 1 | 2 | 3 | 4 | 5;
       });
