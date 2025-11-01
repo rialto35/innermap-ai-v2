@@ -20,6 +20,9 @@ import {
 } from '@/lib/psychometrics';
 import { getFlags } from '@/lib/flags';
 import { getBig5Mapping } from '@/core/im-core/big5.config';
+import { computeInner9 as computeInner9V2 } from '@/core/im-core-v2/inner9';
+import { promises as fs } from 'fs';
+import path from 'path';
 import { fuseMbti } from '@/lib/engine/fusion';
 import mbtiBoundary from '@/data/adaptive/mbti_boundary.json';
 
@@ -216,6 +219,31 @@ export async function POST(req: Request) {
         console.info('[ENGINE_V2][shadow] summary:', { avg: Math.round(avg * 100) / 100, min, max });
         if (mbtiV2) {
           console.info('[ENGINE_V2][shadow] mbtiV2:', mbtiV2);
+        }
+
+        // v2.2: compute Inner9 nonlinear interaction (shadow) from Big5
+        try {
+          if (process.env.IM_INNER9_NONLINEAR_ENABLED === 'true' || flags.inner9Nonlinear) {
+            const shadowInner9 = computeInner9V2({ O, C, E, A, N });
+            const growthDelta = Math.round(((shadowInner9.growth - (sanitizedInner9 as any)?.growth) + Number.EPSILON) * 10) / 10;
+            console.info('[ENGINE_V2][shadow] inner9.v2_2:', shadowInner9, 'growthΔ', growthDelta);
+
+            // Persist shadow log under /logs/engine_v2/
+            const dir = path.join(process.cwd(), 'logs', 'engine_v2');
+            await fs.mkdir(dir, { recursive: true });
+            const file = path.join(dir, `${new Date().toISOString().slice(0,10)}.log`);
+            const entry = {
+              ts: new Date().toISOString(),
+              engine_version: 'v2.2',
+              user: session?.user?.email ?? null,
+              big5: { O, C, E, A, N },
+              mbti: { legacy: body.mbti, v2: mbtiV2?.type ?? null, confidence: mbtiConfidence?.confidence ?? null },
+              inner9: { legacy: sanitizedInner9, v2_2: shadowInner9, growthDelta },
+            };
+            await fs.appendFile(file, JSON.stringify(entry) + '\n', 'utf8');
+          }
+        } catch (logErr) {
+          console.warn('[ENGINE_V2][shadow] persist failed', logErr);
         }
       } catch (e) {
         console.warn('[ENGINE_V2][shadow] logging failed:', e);

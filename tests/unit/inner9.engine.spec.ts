@@ -1,8 +1,17 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { mapBig5ToInner9 } from '@/core/inner9/mapBig5';
 import { applyMbtiModifier, applyRetiModifier } from '@/core/inner9/modifiers';
 
 describe('Inner9 엔진 테스트', () => {
+  // 균형 민감도 테스트를 위해 분모를 2로 고정 (제품 기본값 3과 분리)
+  const prevDiv = process.env.IM_INNER9_BALANCE_DIV;
+  beforeAll(() => {
+    process.env.IM_INNER9_BALANCE_DIV = '2';
+  });
+  afterAll(() => {
+    if (prevDiv == null) delete process.env.IM_INNER9_BALANCE_DIV; else process.env.IM_INNER9_BALANCE_DIV = prevDiv;
+  });
+
   describe('Big5 → Inner9 기본 매핑', () => {
     it('Big5 only → Inner9 맵핑', () => {
       const big5 = { O: 80, C: 60, E: 70, A: 50, N: 30 };

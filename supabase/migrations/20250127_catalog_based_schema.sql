@@ -204,3 +204,4 @@ BEGIN
   RAISE NOTICE '- 호환성 뷰 생성';
 END $$;
 
+

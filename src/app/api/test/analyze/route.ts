@@ -14,6 +14,7 @@ import { recommendStone } from "@/lib/data/tribesAndStones";
 import { getFlags } from "@/lib/flags";
 import { inCohort } from "@/lib/rollout";
 import { fuseMbti } from "@/lib/engine/fusion";
+import { runIMCore60 } from "@/core/im-core-v2";
 
 // 익명 검사 플래그 (기본값: false)
 const ANON_ENABLED = process.env.IM_ANON_TEST_ENABLED === "true";
@@ -36,13 +37,15 @@ export async function POST(req: Request) {
     
     const { answers, profile, engineVersion = "imcore-1.0.0" } = await req.json();
 
-    // 입력 검증
-    if (!Array.isArray(answers) || answers.length !== 55) {
+    // 입력 검증: 55문항(기존) 또는 60문항(v2.2) 지원
+    if (!Array.isArray(answers) || (answers.length !== 55 && answers.length !== 60)) {
       return NextResponse.json(
-        { error: "INVALID_ANSWERS", message: "55개 문항 답변이 필요합니다." },
+        { error: "INVALID_ANSWERS", message: "55개 또는 60개 문항 답변이 필요합니다." },
         { status: 400 }
       );
     }
+    
+    const isV2 = answers.length === 60;
 
     // 사용자 ID (UUID로 통일) - /api/imcore/me와 동일한 이메일 형식 사용
     let userId = null;
@@ -122,14 +125,43 @@ export async function POST(req: Request) {
 
     console.log("✅ [API /test/analyze] Assessment created:", assess.id);
 
-    // 2) IM-CORE 엔진 실행
-    const output = await runIMCore({ answers, profile, engineVersion });
-
-    console.log("✅ [API /test/analyze] Engine output:", {
-      mbti: output.summary.mbti,
-      big5: output.summary.big5,
-      keywordsCount: output.summary.keywords.length,
-    });
+    // 2) IM-CORE 엔진 실행 (v2.2 또는 기존 엔진)
+    let output: any;
+    let v2Result: any = null;
+    
+    if (isV2) {
+      // v2.2 엔진 실행 (60문항)
+      v2Result = runIMCore60(answers);
+      console.log("✅ [API /test/analyze] V2.2 Engine output:", {
+        mbti: v2Result.mbti.type,
+        big5: v2Result.big5,
+        confidence: v2Result.confidence,
+      });
+      
+      // 기존 output 형식으로 변환
+      output = {
+        summary: {
+          mbti: v2Result.mbti.type,
+          big5: v2Result.big5,
+          keywords: [], // v2.2는 키워드 미지원
+          confidence: v2Result.confidence,
+        },
+        premium: {
+          inner9: v2Result.inner9,
+          world: {
+            reti: v2Result.enneagram.type,
+          },
+        },
+      };
+    } else {
+      // 기존 엔진 실행 (55문항)
+      output = await runIMCore({ answers, profile, engineVersion });
+      console.log("✅ [API /test/analyze] Engine output:", {
+        mbti: output.summary.mbti,
+        big5: output.summary.big5,
+        keywordsCount: output.summary.keywords.length,
+      });
+    }
 
     // Phase 2: Late-fusion real application (cohort-gated, flag-guarded)
     let mbtiForSave = output.summary.mbti;
@@ -233,6 +265,13 @@ export async function POST(req: Request) {
       ok: true,
       assessmentId: assess.id,
       summary: output.summary,
+      ...(v2Result && {
+        v2: {
+          mbti: v2Result.mbti,
+          enneagram: v2Result.enneagram,
+          confidence: v2Result.confidence,
+        },
+      }),
     });
   } catch (e: any) {
     console.error("❌ [API /test/analyze] Error:", e);
@@ -249,10 +288,10 @@ export async function POST(req: Request) {
 export async function GET() {
   return NextResponse.json({
     message: "Test Analysis API",
-    version: "1.0.0",
-    engine: "IM-CORE",
+    version: "2.2.0",
+    engine: "IM-CORE v1 / v2.2",
     endpoints: {
-      POST: "/api/test/analyze - 55문항 분석 실행",
+      POST: "/api/test/analyze - 55문항(v1) 또는 60문항(v2.2) 분석 실행",
     },
   });
 }

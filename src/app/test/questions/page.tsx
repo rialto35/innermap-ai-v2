@@ -1,496 +1,265 @@
 "use client";
 
-import { useRef, useEffect, useMemo, useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { motion, AnimatePresence } from "framer-motion";
-import PageContainer from "@/components/layout/PageContainer";
-import { useAnalyzeStore } from "@/lib/analyze/state";
-import { loadQuestions, validateCompleteness, getBig5Preview } from "@/lib/analyze/transform";
-import { inCohortBrowser } from "@/lib/rolloutClient";
-import mbtiExtra16 from "@/data/adaptive/mbti_extra16.json";
-import { AutoSaveManager, loadFromLocal } from "@/lib/analyze/autosave";
+import { items60 } from "@/core/im-core-v2/items60";
 
-const STEP_SIZE = Number(process.env.NEXT_PUBLIC_STEP_SIZE || 6);
+const LIKERT_OPTIONS = [
+  { value: 0, label: "전혀 아니다", emoji: "😟" },
+  { value: 1, label: "아니다", emoji: "🙁" },
+  { value: 2, label: "보통이다", emoji: "😐" },
+  { value: 3, label: "그렇다", emoji: "🙂" },
+  { value: 4, label: "매우 그렇다", emoji: "😊" },
+];
 
-export default function TestQuestionsPage() {
+export default function QuestionsPage() {
   const router = useRouter();
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [currentPage, setCurrentPage] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    answers,
-    setAnswer,
-    setDraftId,
-    markSaved,
-    reset,
-    getAnsweredCount,
-  } = useAnalyzeStore();
-
-  const [questions] = useState(() => loadQuestions());
-  const [step, setStep] = useState(0);
-  const [autoSaveManager] = useState(
-    () =>
-      new AutoSaveManager(
-        (draftId) => {
-          setDraftId(draftId);
-          markSaved();
-        },
-        (error) => console.error("Auto-save error:", error)
-      )
+  const questionsPerPage = 10;
+  const totalPages = Math.ceil(items60.length / questionsPerPage);
+  const currentQuestions = items60.slice(
+    currentPage * questionsPerPage,
+    (currentPage + 1) * questionsPerPage
   );
 
-  const nodesRef = useRef<Record<string, HTMLDivElement | null>>({});
-  // Phase1 conditional tail section state
-  const [phase1Open, setPhase1Open] = useState(false);
-  const [tailValues, setTailValues] = useState<Record<string, number>>({});
-  const [submittingTail, setSubmittingTail] = useState(false);
-  const [pendingAssessmentId, setPendingAssessmentId] = useState<string | null>(null);
+  const answeredCount = Object.keys(answers).length;
+  const progress = Math.round((answeredCount / items60.length) * 100);
+  const isPageComplete = currentQuestions.every((q) => answers[q.id] !== undefined);
+  const isAllComplete = answeredCount === items60.length;
 
-  const clamp = (v?: number) => Math.max(0, Math.min(100, typeof v === 'number' ? v : 0));
-  const isBoundary = (b5: { O: number; C: number; E: number; A: number; N: number }) => {
-    const EI = clamp(b5.E);
-    const SN = clamp(100 - b5.O);
-    const TF = clamp(100 - b5.A);
-    const JP = clamp(b5.C);
-    return [EI, SN, TF, JP].some((v) => v >= 45 && v <= 55);
-  };
-  const totalSteps = Math.ceil(questions.length / STEP_SIZE);
-  const answeredCount = getAnsweredCount();
-
-  // Current batch
-  const batch = useMemo(() => {
-    const start = step * STEP_SIZE;
-    return questions.slice(start, start + STEP_SIZE);
-  }, [questions, step]);
-
-  // Estimated time left (1분 per step)
-  const estimatedMinutes = Math.max(1, totalSteps - step);
-
-  // Auth guard (익명 검사 플래그 확인)
   useEffect(() => {
-    const ANON_ENABLED = process.env.NEXT_PUBLIC_IM_ANON_TEST_ENABLED === "true";
-    
-    if (status === "unauthenticated" && !ANON_ENABLED) {
-      console.log("🚫 [Client Guard] Anonymous test blocked (flag OFF)");
-      router.push("/login");
+    // 로그인 체크 (익명 검사가 비활성화된 경우)
+    if (status === "unauthenticated") {
+      const anonEnabled = process.env.NEXT_PUBLIC_ANON_TEST_ENABLED === "true";
+      if (!anonEnabled) {
+        router.push("/login?callbackUrl=/test/questions");
+      }
     }
   }, [status, router]);
 
-  // Load from localStorage on mount
-  useEffect(() => {
-    const savedAnswers = loadFromLocal();
-    if (savedAnswers && Object.keys(savedAnswers).length > 0) {
-      const confirmed = confirm(
-        "이전에 진행하던 검사가 있습니다. 이어서 진행하시겠습니까?"
-      );
-      if (confirmed) {
-        Object.entries(savedAnswers).forEach(([id, value]) => {
-          setAnswer(id, value);
-        });
-      } else {
-        reset();
-      }
-    }
-  }, []);
-
-  // Auto-save on answer change
-  useEffect(() => {
-    if (answeredCount > 0) {
-      autoSaveManager.save(answers, answeredCount);
-    }
-  }, [answers, autoSaveManager, answeredCount]);
-
-  // Auto-focus on batch entry
-  useEffect(() => {
-    const target = batch.find((q) => answers[q.id] == null);
-    if (target) {
-      setTimeout(() => {
-        nodesRef.current[target.id]?.scrollIntoView({
-          block: "center",
-          behavior: "smooth",
-        });
-      }, 100);
-    }
-  }, [batch]);
-
-  // Handle answer with auto-focus
-  const handleAnswer = (id: string, value: number) => {
-    setAnswer(id, value);
-
-    // Auto-focus to next unanswered question
-    setTimeout(() => {
-      const nextTarget = batch.find((q) => {
-        if (q.id === id) return false; // Skip current
-        return answers[q.id] == null;
-      });
-      if (nextTarget) {
-        nodesRef.current[nextTarget.id]?.scrollIntoView({
-          block: "center",
-          behavior: "smooth",
-        });
-      }
-    }, 200);
+  const handleAnswer = (questionId: number, value: number) => {
+    setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
-  // Validate current batch
-  const validateBatch = () => {
-    return batch.filter((q) => answers[q.id] == null);
-  };
-
-  // Handle next step
   const handleNext = () => {
-    const missing = validateBatch();
-    if (missing.length > 0) {
-      alert(`이 페이지의 모든 문항에 답변해주세요. (미답변: ${missing.length}개)`);
-      // Focus on first missing
-      nodesRef.current[missing[0].id]?.scrollIntoView({
-        block: "center",
-        behavior: "smooth",
-      });
-      return;
-    }
-
-    if (step < totalSteps - 1) {
-      setStep((s) => s + 1);
+    if (currentPage < totalPages - 1) {
+      setCurrentPage((prev) => prev + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      handleComplete();
     }
   };
 
-  // Handle previous step
   const handlePrev = () => {
-    if (step > 0) {
-      setStep((s) => s - 1);
+    if (currentPage > 0) {
+      setCurrentPage((prev) => prev - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
-  // Handle complete
-  const handleComplete = async () => {
-    const validation = validateCompleteness(answers);
-
-    if (!validation.isValid) {
-      alert(
-        `모든 문항에 답변해주세요.\n\n미답변 문항: ${validation.missing.length}개\n\n이전 페이지로 돌아가서 확인해주세요.`
-      );
+  const handleSubmit = async () => {
+    if (!isAllComplete) {
+      alert("모든 문항에 답변해주세요.");
       return;
     }
+
+    setIsSubmitting(true);
 
     try {
-      // boundary + cohort + flag check (client env)
-      const cohortPct = Number(process.env.NEXT_PUBLIC_ADAPTIVE_COHORT_PCT || '5');
-      const email = (typeof window !== 'undefined' ? window?.localStorage?.getItem('session_email') : '') || '';
-      const inCohort = email ? inCohortBrowser(email, isNaN(cohortPct) ? 5 : cohortPct) : false;
-      const b5prev = getBig5Preview(answers);
-      const boundary = isBoundary({ O: b5prev.openness, C: b5prev.conscientiousness, E: b5prev.extraversion, A: b5prev.agreeableness, N: b5prev.neuroticism });
-      const phase1Enabled = process.env.NEXT_PUBLIC_PHASE1_CONDITIONAL === 'true';
+      // answers를 배열로 변환 (1-based index → 0-based)
+      const answersArray = items60.map((item) => answers[item.id]);
 
-      // answers 객체를 배열로 변환
-      const answersArray: number[] = [];
-      for (let i = 0; i < 55; i++) {
-        const questionId = `q_${String(i + 1).padStart(3, '0')}`;
-        const value = answers[questionId];
-        if (value == null) {
-          alert(`문항 ${i + 1}의 답변이 누락되었습니다.`);
-          return;
-        }
-        answersArray.push(value);
-      }
-
-      console.log("📊 [TestQuestions] Calling API with answers:", answersArray.length);
-
-      const res = await fetch("/api/test/analyze", {
+      const response = await fetch("/api/test/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           answers: answersArray,
-          profile: null,
-          engineVersion: "imcore-1.0.0",
+          profile: {
+            email: session?.user?.email,
+          },
+          engineVersion: "imcore-v2.2",
         }),
       });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        alert(`분석 실패: ${data?.message || data?.error || "알 수 없는 오류"}`);
-        return;
+      if (!response.ok) {
+        throw new Error(data.message || "분석 중 오류가 발생했습니다.");
       }
 
-      console.log("✅ [TestQuestions] Analysis complete:", data.assessmentId);
-      sessionStorage.setItem('latest_assessment_id', data.assessmentId);
-      localStorage.removeItem("test_answers");
+      console.log("✅ Analysis complete:", data);
 
-      // Phase1 conditional tail items
-      if (phase1Enabled && inCohort && boundary) {
-        setPendingAssessmentId(data.assessmentId);
-        setPhase1Open(true);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        return; // stop here; user will submit tails then navigate
-      }
-
-      router.push(`/result/summary?id=${data.assessmentId}`);
-    } catch (error) {
-      console.error("❌ [TestQuestions] Error:", error);
-      alert("분석 중 오류가 발생했습니다. 다시 시도해주세요.");
+      // 결과 페이지로 이동
+      router.push(`/test/results/${data.assessmentId}`);
+    } catch (error: any) {
+      console.error("❌ Analysis error:", error);
+      alert(error.message || "분석 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (status === "loading") {
     return (
-      <PageContainer>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white/20 mx-auto mb-4"></div>
-            <p className="text-white/60">로딩 중...</p>
-          </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-blue-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">로딩 중...</p>
         </div>
-      </PageContainer>
+      </div>
     );
   }
 
-  const progress = Math.round(((step + 1) / totalSteps) * 100);
-  const batchAnswered = batch.filter((q) => answers[q.id] != null).length;
-
   return (
-    <PageContainer>
-      <div className="min-h-screen px-4 py-8">
-        <div className="max-w-3xl mx-auto">
-          {/* Progress Header */}
-          <div className="mb-8 space-y-4">
-            <div className="flex items-center justify-between text-sm text-white/70">
-              <span>
-                {step + 1} / {totalSteps} 단계
-              </span>
-              <span>약 {estimatedMinutes}분 남음</span>
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 py-8 px-4">
+      <div className="max-w-3xl mx-auto">
+        {/* 헤더 */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            성격 유형 검사 (v2.2)
+          </h1>
+          <p className="text-gray-600 mb-4">
+            60개 문항에 솔직하게 답변해주세요. 약 5-7분 소요됩니다.
+          </p>
+          
+          {/* 진행률 바 */}
+          <div className="mb-4">
+            <div className="flex justify-between text-sm text-gray-600 mb-2">
+              <span>진행률: {progress}%</span>
+              <span>{answeredCount} / {items60.length}</span>
             </div>
-            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 0.3 }}
-                className="h-full bg-gradient-to-r from-violet-500 to-cyan-500"
-              />
-            </div>
-            <div className="text-center text-sm text-white/60">
-              전체 {answeredCount} / {questions.length} 답변 완료
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div
+                className="bg-gradient-to-r from-purple-500 to-blue-500 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              ></div>
             </div>
           </div>
 
-          {/* Questions Batch */}
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={step}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
-              className="space-y-6 mb-8"
-            >
-              {batch.map((question, idx) => {
-                const isAnswered = answers[question.id] != null;
-                const currentValue = answers[question.id];
+          {/* 페이지 네비게이션 */}
+          <div className="flex justify-between items-center text-sm text-gray-600">
+            <span>
+              페이지 {currentPage + 1} / {totalPages}
+            </span>
+            <div className="flex gap-1">
+              {Array.from({ length: totalPages }).map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentPage(idx)}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    idx === currentPage
+                      ? "bg-purple-600 w-6"
+                      : "bg-gray-300 hover:bg-gray-400"
+                  }`}
+                  aria-label={`페이지 ${idx + 1}로 이동`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
 
-                return (
-                  <div
-                    key={question.id}
-                    ref={(el) => {
-                      nodesRef.current[question.id] = el;
-                    }}
-                    className={`rounded-2xl border p-6 transition-all ${
-                      isAnswered
-                        ? "border-violet-500/30 bg-violet-500/5"
-                        : "border-white/10 bg-white/5"
-                    }`}
-                  >
-                    {/* Question Number & Text */}
-                    <div className="mb-4">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span
-                          className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold ${
-                            isAnswered
-                              ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white"
-                              : "bg-white/10 text-white/50"
-                          }`}
-                        >
-                          {step * STEP_SIZE + idx + 1}
-                        </span>
-                        {!isAnswered && (
-                          <span className="text-xs text-yellow-400">• 미답변</span>
-                        )}
-                      </div>
-                      <p className="text-lg text-white leading-relaxed">
-                        {question.text}
-                      </p>
-                    </div>
-
-                    {/* Slider */}
-                    <div className="space-y-4">
-                      <input
-                        type="range"
-                        min={1}
-                        max={question.scale}
-                        value={currentValue || Math.ceil(question.scale / 2)}
-                        onChange={(e) =>
-                          handleAnswer(question.id, parseInt(e.target.value))
-                        }
-                        className="w-full h-3 bg-white/10 rounded-lg appearance-none cursor-pointer slider
-                          [&::-webkit-slider-thumb]:appearance-none
-                          [&::-webkit-slider-thumb]:w-6
-                          [&::-webkit-slider-thumb]:h-6
-                          [&::-webkit-slider-thumb]:rounded-full
-                          [&::-webkit-slider-thumb]:bg-gradient-to-r
-                          [&::-webkit-slider-thumb]:from-violet-500
-                          [&::-webkit-slider-thumb]:to-cyan-500
-                          [&::-webkit-slider-thumb]:cursor-pointer
-                          [&::-webkit-slider-thumb]:shadow-lg
-                          [&::-webkit-slider-thumb]:shadow-violet-500/50"
-                        style={{
-                          background: currentValue
-                            ? `linear-gradient(to right, 
-                                rgb(139, 92, 246) 0%, 
-                                rgb(34, 211, 238) ${
-                                  ((currentValue - 1) / (question.scale - 1)) * 100
-                                }%, 
-                                rgba(255, 255, 255, 0.1) ${
-                                  ((currentValue - 1) / (question.scale - 1)) * 100
-                                }%, 
-                                rgba(255, 255, 255, 0.1) 100%)`
-                            : undefined,
-                        }}
-                      />
-
-                      {/* Scale buttons */}
-                      <div className="flex justify-between">
-                        {Array.from({ length: question.scale }, (_, i) => i + 1).map(
-                          (num) => (
-                            <button
-                              key={num}
-                              onClick={() => handleAnswer(question.id, num)}
-                              className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all ${
-                                currentValue === num
-                                  ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white scale-110 shadow-lg shadow-violet-500/50"
-                                  : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-                              }`}
-                            >
-                              {num}
-                            </button>
-                          )
-                        )}
-                      </div>
-
-                      {/* Labels */}
-                      <div className="flex justify-between text-xs text-white/50">
-                        <span>전혀 아니다</span>
-                        <span>보통이다</span>
-                        <span>매우 그렇다</span>
-                      </div>
-
-                      {/* Current value */}
-                      {currentValue && (
-                        <div className="text-center">
-                          <span className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-violet-500/20 to-cyan-500/20 border border-violet-500/30 text-white text-sm">
-                            선택: <strong>{currentValue}</strong>
-                          </span>
-                        </div>
-                      )}
-                    </div>
+        {/* 문항 카드 */}
+        <div className="space-y-6 mb-6">
+          {currentQuestions.map((item) => {
+            const answered = answers[item.id] !== undefined;
+            return (
+              <div
+                key={item.id}
+                className={`bg-white rounded-2xl shadow-lg p-6 transition-all ${
+                  answered ? "ring-2 ring-purple-500" : ""
+                }`}
+              >
+                <div className="flex items-start gap-4 mb-4">
+                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
+                    {item.id}
                   </div>
-                );
-              })}
-            </motion.div>
-          </AnimatePresence>
+                  <div className="flex-1">
+                    <p className="text-lg text-gray-900 font-medium">
+                      {item.question}
+                    </p>
+                  </div>
+                </div>
 
-          {/* Navigation */}
+                {/* Likert 선택지 */}
+                <div className="grid grid-cols-5 gap-2">
+                  {LIKERT_OPTIONS.map((option) => {
+                    const isSelected = answers[item.id] === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        onClick={() => handleAnswer(item.id, option.value)}
+                        className={`flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all ${
+                          isSelected
+                            ? "border-purple-500 bg-purple-50 scale-105"
+                            : "border-gray-200 hover:border-purple-300 hover:bg-purple-50"
+                        }`}
+                      >
+                        <span className="text-2xl mb-1">{option.emoji}</span>
+                        <span className="text-xs text-gray-700 font-medium text-center">
+                          {option.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* 하단 네비게이션 */}
+        <div className="bg-white rounded-2xl shadow-lg p-6">
           <div className="flex justify-between items-center">
             <button
               onClick={handlePrev}
-              disabled={step === 0}
-              className="px-6 py-3 rounded-xl border border-white/10 text-white/70 hover:text-white hover:border-white/20 transition disabled:opacity-40 disabled:cursor-not-allowed"
+              disabled={currentPage === 0}
+              className="px-6 py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gray-200 hover:bg-gray-300 text-gray-700"
             >
               ← 이전
             </button>
 
-            <div className="text-sm text-white/60">
-              이 페이지: {batchAnswered} / {batch.length} 답변
-            </div>
-
-            <button
-              onClick={handleNext}
-              className={`px-6 py-3 rounded-xl font-semibold shadow-lg transition ${
-                batchAnswered === batch.length
-                  ? "bg-gradient-to-r from-violet-500 to-cyan-500 text-white shadow-violet-500/20 hover:scale-[1.02]"
-                  : "bg-white/10 text-white/50 cursor-not-allowed"
-              }`}
-            >
-              {step === totalSteps - 1 ? "검사 완료 →" : "다음 →"}
-            </button>
+            {currentPage === totalPages - 1 ? (
+              <button
+                onClick={handleSubmit}
+                disabled={!isAllComplete || isSubmitting}
+                className="px-8 py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                    분석 중...
+                  </span>
+                ) : (
+                  "분석 완료"
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={handleNext}
+                disabled={!isPageComplete}
+                className="px-6 py-3 rounded-xl font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+              >
+                다음 →
+              </button>
+            )}
           </div>
 
-          {/* Hint */}
-          <div className="mt-6 text-center text-xs text-white/40">
-            💡 슬라이더를 움직이거나 숫자 버튼을 클릭하여 답변하세요
-          </div>
+          {!isPageComplete && currentPage < totalPages - 1 && (
+            <p className="text-center text-sm text-gray-500 mt-4">
+              현재 페이지의 모든 문항에 답변해야 다음으로 이동할 수 있습니다.
+            </p>
+          )}
 
-      {/* Phase1 conditional tail items (4) */}
-      {phase1Open && (
-        <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
-          <h3 className="text-white font-semibold mb-4">정밀 확인 (4문항)</h3>
-          <div className="space-y-4">
-            {(mbtiExtra16 as any).items
-              .filter((x: any) => ['ei_e1','sn_s1','tf_t1','jp_j1'].includes(x.id))
-              .map((item: any) => (
-              <div key={item.id} className="rounded-xl bg-white/5 border border-white/10 p-4">
-                <div className="text-white/90 mb-2">{item.text}</div>
-                <div className="flex items-center justify-between text-xs text-white/50">
-                  <span>전혀 아님</span>
-                  <div className="flex gap-1">
-                    {[1,2,3,4,5,6,7].map(n => (
-                      <button
-                        key={n}
-                        onClick={() => setTailValues(prev => ({ ...prev, [item.id]: n }))}
-                        className={`px-2 py-1 rounded border ${tailValues[item.id]===n ? 'bg-violet-500/40 border-violet-400 text-white' : 'bg-white/10 hover:bg-white/15 text-white/80 border-white/10'}`}
-                      >
-                        {n}
-                      </button>
-                    ))}
-                  </div>
-                  <span>매우 그럼</span>
-                </div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4 flex justify-end gap-2">
-            <button
-              onClick={() => {
-                // Skip and go to summary
-                if (pendingAssessmentId) router.push(`/result/summary?id=${pendingAssessmentId}`);
-              }}
-              className="px-4 py-2 rounded border border-white/15 text-white/70 hover:text-white hover:border-white/30"
-            >건너뛰기</button>
-            <button
-              disabled={submittingTail || Object.keys(tailValues).length < 4}
-              onClick={async () => {
-                if (!pendingAssessmentId) return;
-                try {
-                  setSubmittingTail(true);
-                  await fetch('/api/phase1/submit', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ assessmentId: pendingAssessmentId, items: Object.entries(tailValues).map(([id, value]) => ({ id, value })) })
-                  });
-                } finally {
-                  setSubmittingTail(false);
-                  router.push(`/result/summary?id=${pendingAssessmentId}`);
-                }
-              }}
-              className="px-4 py-2 rounded bg-violet-500 hover:bg-violet-600 text-white disabled:opacity-50"
-            >{submittingTail ? '제출 중...' : '제출 후 결과 보기'}</button>
-          </div>
-        </div>
-      )}
+          {currentPage === totalPages - 1 && !isAllComplete && (
+            <p className="text-center text-sm text-orange-600 mt-4">
+              아직 답변하지 않은 문항이 {items60.length - answeredCount}개 있습니다.
+            </p>
+          )}
         </div>
       </div>
-    </PageContainer>
+    </div>
   );
 }

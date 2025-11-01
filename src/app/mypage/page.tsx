@@ -258,9 +258,12 @@ function DashboardContent() {
             )}
           </div>
           {mbtiConfidence.boundary ? (
-            <button disabled className="cursor-not-allowed rounded-md bg-white/10 px-3 py-1.5 text-xs text-white/70 border border-white/15">
-              정밀화 3문항 (준비중)
-            </button>
+            <Link
+              href="/test/refine"
+              className="rounded-md bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 px-3 py-1.5 text-xs text-white font-medium border border-amber-400/30 transition-all"
+            >
+              정밀화 3문항 더 풀기
+            </Link>
           ) : (
             <span className="text-xs text-white/40">안정</span>
           )}
@@ -371,6 +374,38 @@ function DashboardContent() {
 
         {/* Right: Sidebar (1 column) */}
         <div className="lg:col-span-1 space-y-4">
+          {/* MBTI 경계 구간 정밀화 CTA (Phase 0: 안내만, no-op) */}
+          {(() => {
+            try {
+              const b5 = (heroData as any)?.big5;
+              if (!b5) return null;
+              const clamp = (v: any) => Math.max(0, Math.min(100, Number(v) || 0));
+              const EI = clamp(b5.E);
+              const SN = clamp(100 - b5.O);
+              const TF = clamp(100 - b5.A);
+              const JP = clamp(b5.C);
+              const inBoundary = [EI, SN, TF, JP].some((v) => v >= 45 && v <= 55);
+              if (!inBoundary) return null;
+              return (
+                <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-5">
+                  <h3 className="text-lg font-semibold text-amber-300 mb-2">정밀화 제안</h3>
+                  <p className="text-sm text-white/70 mb-3">
+                    MBTI 축 중 일부가 경계 구간(45–55%)에 있습니다. 3문항 정밀 검사를 통해 확신도를 높일 수 있어요.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => alert('정밀화 3문항은 Phase 0에서 안내만 제공합니다.')}
+                    className="w-full rounded-lg border border-amber-500/30 px-3 py-2 text-sm text-amber-200 hover:bg-amber-500/10"
+                  >
+                    정밀화 3문항 더 풀기
+                  </button>
+                </div>
+              );
+            } catch {
+              return null;
+            }
+          })()}
+
           {/* 계정 관리 */}
           <div className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5">
             <h3 className="text-lg font-semibold text-violet-300 mb-4">계정 관리</h3>

@@ -10,3 +10,4 @@ plan_subscriptions,PRIMARY KEY,id,plan_subscriptions_pkey
 waitlist,PRIMARY KEY,id,waitlist_pkey
 waitlist,UNIQUE,email,waitlist_email_key
 
+

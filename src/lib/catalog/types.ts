@@ -84,3 +84,4 @@ export interface CatalogIndex<T extends CatalogItem> {
   byCanonicalName: Map<string, T>;
 }
 
+

@@ -63,3 +63,4 @@ waitlist,3,name,text,YES,
 waitlist,4,status,text,NO,'pending'
 waitlist,5,created_at,timestamptz,NO,now()
 
+
