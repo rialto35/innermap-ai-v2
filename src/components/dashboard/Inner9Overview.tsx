@@ -76,9 +76,13 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       ];
       setChartData(dimensions);
       
+      // Build normalized map (0~100) for narrative consistency
+      const normalizedMap = Object.fromEntries(
+        dimensions.map((d) => [d.key, d.value])
+      );
       // Generate basic narrative (synchronous, rule-based)
       const mbti = inner9Data?.mbti || inner9Data?.summary?.mbti;
-      const richNarrative = generateRichNarrative(src, mbti);
+      const richNarrative = generateRichNarrative(normalizedMap, mbti);
       setNarrative(richNarrative);
       
       // Fetch AI-enhanced story from server (async)
@@ -87,7 +91,7 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            inner9Scores: src,
+            inner9Scores: normalizedMap,
             personalityType: richNarrative.personalityType,
             topDimension: richNarrative._meta.topDimension,
             lowDimension: richNarrative._meta.lowDimension,
@@ -112,7 +116,7 @@ export default function Inner9Overview({ inner9Data, onRunDemo }: Inner9Overview
       fetch('/api/analyze/enhance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ scores: src })
+        body: JSON.stringify({ scores: normalizedMap })
       })
       .then(res => res.json())
       .then(data => {

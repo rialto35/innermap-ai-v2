@@ -132,6 +132,17 @@ export async function GET() {
     });
   }
 
+  // Normalize possible 0..1 scale to 0..100 for consistent UI rendering
+  if (inner9Normalized && typeof inner9Normalized === 'object') {
+    Object.keys(inner9Normalized as any).forEach((k) => {
+      const v = Number((inner9Normalized as any)[k]);
+      if (Number.isFinite(v)) {
+        const scaled = v <= 1 ? v * 100 : v;
+        (inner9Normalized as any)[k] = Math.max(0, Math.min(100, Math.round(scaled)));
+      }
+    });
+  }
+
   const enriched = {
     ...result,
     inner9: inner9Normalized, // 변환된 Inner9 데이터 사용
