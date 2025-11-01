@@ -110,20 +110,24 @@ export default function ResultSummary({ result }: ResultSummaryProps) {
           const chartData = order
             .map((k) => ({ key: k, label: INNER9_DESCRIPTIONS[k].label, value: Math.floor(Number(map[k])) }))
             .filter((d) => Number.isFinite(d.value));
-        <div data-testid="inner9-chart">
-          <Inner9Chart 
-            data={chartData}
-            color="#8B5CF6" 
-          />
-        </div>
-        <div className="grid grid-cols-3 gap-2 mt-4 text-sm">
-          {chartData.map((axis, index) => (
-            <div key={index} className="text-center">
-              <div className="text-white/70 font-medium">{axis.label}</div>
-              <div className="text-white font-bold">{axis.value}</div>
-            </div>
-          ))}
-        </div>
+          return (
+            <>
+              <div data-testid="inner9-chart">
+                <Inner9Chart 
+                  data={chartData}
+                  color="#8B5CF6" 
+                />
+              </div>
+              <div className="grid grid-cols-3 gap-2 mt-4 text-sm">
+                {chartData.map((axis, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-white/70 font-medium">{axis.label}</div>
+                    <div className="text-white font-bold">{axis.value}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          );
         })()}
       </div>
 
