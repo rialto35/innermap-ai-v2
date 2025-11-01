@@ -6,8 +6,11 @@ import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import SummaryCard from "@/components/SummaryCard";
 import type { SummaryFields } from "@/types/assessment";
+import { useSession } from 'next-auth/react';
+import { inCohortBrowser } from '@/lib/rolloutClient';
 
 function ResultSummaryContent() {
+  const { data: session } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
@@ -16,6 +19,7 @@ function ResultSummaryContent() {
   const [adaptiveHint, setAdaptiveHint] = useState<any | null>(null);
   const [adaptiveValues, setAdaptiveValues] = useState<Record<string, number>>({});
   const [adaptiveSubmitting, setAdaptiveSubmitting] = useState(false);
+  const [cohortEligible, setCohortEligible] = useState(false);
   const [meta, setMeta] = useState<{ createdAt?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,6 +50,13 @@ function ResultSummaryContent() {
 
     fetchResult();
   }, [id]);
+
+  useEffect(() => {
+    const email = session?.user?.email || '';
+    // 1% cohort by email (fallback: disable if no email)
+    const eligible = email ? inCohortBrowser(email, 1) : false;
+    setCohortEligible(eligible);
+  }, [session]);
 
   if (loading) {
     return (
@@ -110,7 +121,7 @@ function ResultSummaryContent() {
           </motion.div>
 
           {/* 경계 케이스: 미니 어댑티브 2문항 (플래그 가드, 서버 힌트 기반) */}
-          {adaptiveHint?.type === 'mbti' && Array.isArray(adaptiveHint.items) && adaptiveHint.items.length > 0 && (
+          {cohortEligible && adaptiveHint?.type === 'mbti' && Array.isArray(adaptiveHint.items) && adaptiveHint.items.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
