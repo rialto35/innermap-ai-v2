@@ -53,8 +53,9 @@ function ResultSummaryContent() {
 
   useEffect(() => {
     const email = session?.user?.email || '';
-    // 1% cohort by email (fallback: disable if no email)
-    const eligible = email ? inCohortBrowser(email, 1) : false;
+    // cohort percent via env (default 5%)
+    const pct = Number(process.env.NEXT_PUBLIC_ADAPTIVE_COHORT_PCT || '5');
+    const eligible = email ? inCohortBrowser(email, isNaN(pct) ? 5 : pct) : false;
     setCohortEligible(eligible);
   }, [session]);
 
