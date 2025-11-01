@@ -22,6 +22,7 @@ export default function UnifiedProgress({
   answered,
   estimatedTimeLeft
 }: UnifiedProgressProps) {
+  void _current;
   const progress = Math.round((answered / total) * 100);
   
   return (

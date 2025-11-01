@@ -39,7 +39,7 @@ export async function POST(req: Request) {
     if (upErr) return NextResponse.json({ ok: false, error: 'UPDATE_FAILED' }, { status: 500 });
 
     return NextResponse.json({ ok: true });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ ok: false, error: 'SERVER_ERROR' }, { status: 500 });
   }
 }

@@ -20,7 +20,7 @@ function ResultSummaryContent() {
   const [adaptiveValues, setAdaptiveValues] = useState<Record<string, number>>({});
   const [adaptiveSubmitting, setAdaptiveSubmitting] = useState(false);
   const [cohortEligible, setCohortEligible] = useState(false);
-  const [meta, setMeta] = useState<{ createdAt?: string } | null>(null);
+  // const [meta, setMeta] = useState<{ createdAt?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +39,7 @@ function ResultSummaryContent() {
         }
         const data = await res.json();
         setSummary(data.summary);
-        setMeta({ createdAt: data.createdAt });
+        // setMeta({ createdAt: data.createdAt });
         setAdaptiveHint(data.adaptiveHint ?? null);
       } catch (err: any) {
         setError(err.message);

@@ -35,6 +35,7 @@ export default function HoroscopeDetailPage() {
   const [horoscope, setHoroscope] = useState<HoroscopeData | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchHoroscope()
   }, [params.id])

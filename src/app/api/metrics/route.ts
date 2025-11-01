@@ -74,7 +74,7 @@ export async function GET() {
     }
 
     // Adaptive adoption (recent): count assessments with raw_answers.adaptive
-    const { data: assess, error: assessErr } = await supabaseAdmin
+    const { data: assess } = await supabaseAdmin
       .from('test_assessments')
       .select('id, raw_answers')
       .order('created_at', { ascending: false })
@@ -165,7 +165,7 @@ export async function GET() {
       big5: { mae: null, r: null },
       inner9: { icc: null },
     });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ ok: false, error: 'SERVER_ERROR' }, { status: 500 });
   }
 }

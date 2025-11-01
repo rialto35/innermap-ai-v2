@@ -194,27 +194,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-/**
- * Trigger edge function for report generation
- * (Optional - can also rely on cron/polling)
- */
-async function triggerReportGeneration(reportId: string): Promise<void> {
-  // TODO: Implement edge function trigger
-  // For now, just log
-  console.log(`[triggerReportGeneration] Would trigger for report ${reportId}`);
-  
-  // Example with Supabase Edge Functions:
-  // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  // const functionUrl = `${supabaseUrl}/functions/v1/generate-report`;
-  // await fetch(functionUrl, {
-  //   method: 'POST',
-  //   headers: {
-  //     'Authorization': `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
-  //     'Content-Type': 'application/json'
-  //   },
-  //   body: JSON.stringify({ reportId })
-  // });
-}
+// (optional helper removed: triggerReportGeneration)
 
 export async function GET() {
   return NextResponse.json({
