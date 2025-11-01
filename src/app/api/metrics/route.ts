@@ -34,7 +34,7 @@ export async function GET() {
     // Fetch recent results (limited) to keep it light
     const { data, error } = await supabaseAdmin
       .from('test_assessment_results')
-      .select('mbti, big5, created_at')
+      .select('assessment_id, mbti, big5, created_at')
       .order('created_at', { ascending: false })
       .limit(200);
 
@@ -90,14 +90,77 @@ export async function GET() {
       ? Math.round((adaptiveRows.reduce((s, r) => s + ((r?.raw_answers?.adaptive?.items?.length) || 0), 0) / adaptiveCount) * 10) / 10
       : 0;
 
+    // Advanced metrics (requires self-reported MBTI in raw_answers)
+    const assessMap: Record<string, any> = {};
+    for (const a of arows) assessMap[(a as any).id] = a;
+
+    const pairs = rows
+      .map((r: any) => ({ r, a: assessMap[r.assessment_id as string] }))
+      .filter((x) => !!x.a);
+
+    const selfMbti = (a: any): string | null => {
+      const raw = a?.raw_answers || {};
+      const fromProfile = raw?.profile?.mbti;
+      const flat = raw?.mbti || raw?.mbtiSelf || raw?.self_mbti;
+      const t = (fromProfile || flat || '').toUpperCase();
+      return /^[EI][SN][TF][JP]$/.test(t) ? t : null;
+    };
+
+    const labelPairs = pairs
+      .map(({ r, a }) => ({ pred: (r.mbti as string) || null, self: selfMbti(a), big5: (r.big5 as any) || {} }))
+      .filter((p) => p.pred && p.self);
+
+    const mbtiTop1 = labelPairs.length
+      ? Math.round((labelPairs.filter((p) => p.pred === p.self).length / labelPairs.length) * 1000) / 10
+      : null;
+
+    // axes AUC using self labels vs continuous axes from Big5
+    const auc = (scores: number[], labels: number[]): number | null => {
+      if (scores.length < 5) return null;
+      const pts = scores.map((s, i) => ({ s, y: labels[i] }));
+      pts.sort((a, b) => b.s - a.s);
+      let tp = 0, fp = 0, tpPrev = 0, fpPrev = 0, aucSum = 0;
+      const P = labels.reduce((s, y) => s + (y === 1 ? 1 : 0), 0);
+      const N = labels.length - P;
+      if (P === 0 || N === 0) return null;
+      let lastS: number | null = null;
+      for (const { s, y } of pts) {
+        if (lastS !== null && s !== lastS) {
+          aucSum += (fp - fpPrev) * (tp + tpPrev) / 2;
+          fpPrev = fp; tpPrev = tp;
+        }
+        if (y === 1) tp++; else fp++;
+        lastS = s;
+      }
+      aucSum += (fp - fpPrev) * (tp + tpPrev) / 2;
+      const area = aucSum / (P * N);
+      return Math.round(area * 1000) / 1000; // 0.000 precision
+    };
+
+    const axes = { EI: null as number | null, SN: null as number | null, TF: null as number | null, JP: null as number | null };
+    if (labelPairs.length >= 5) {
+      const EIs = labelPairs.map((p) => clamp(p.big5.E));
+      const SNs = labelPairs.map((p) => clamp(100 - (p.big5.O ?? 0)));
+      const TFs = labelPairs.map((p) => clamp(100 - (p.big5.A ?? 0)));
+      const JPs = labelPairs.map((p) => clamp(p.big5.C));
+      const labEI = labelPairs.map((p) => (p.self![0] === 'E' ? 1 : 0));
+      const labSN = labelPairs.map((p) => (p.self![1] === 'S' ? 1 : 0));
+      const labTF = labelPairs.map((p) => (p.self![2] === 'T' ? 1 : 0));
+      const labJP = labelPairs.map((p) => (p.self![3] === 'J' ? 1 : 0));
+      axes.EI = auc(EIs, labEI);
+      axes.SN = auc(SNs, labSN);
+      axes.TF = auc(TFs, labTF);
+      axes.JP = auc(JPs, labJP);
+    }
+
     return NextResponse.json({
       ok: true,
       total,
       boundaryRate, // percent
       distributions: { mbti: typeCounts, big5Mean: means },
       adaptive: { count: adaptiveCount, rate: adaptiveRate, avgDurationMs, avgItems },
-      // Placeholders for future: top1/top2/auc/mae/icc once gold labels & pipelines are ready
-      mbti: { top1: null, top2: null, axesAuc: null },
+      // Advanced metrics: computed when self-reported MBTI is available in raw_answers; otherwise null
+      mbti: { top1: mbtiTop1, top2: null, axesAuc: axes },
       reti: { top1: null, top2: null },
       big5: { mae: null, r: null },
       inner9: { icc: null },
