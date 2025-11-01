@@ -75,7 +75,7 @@ export function isotonicFit(probs: number[], labels: number[]) {
   const ys = idx.map(x => x[1]);
   
   // 블록 초기화
-  let blocks: { sumW: number; sumY: number; start: number; end: number }[] = [];
+  const blocks: { sumW: number; sumY: number; start: number; end: number }[] = [];
   
   for (let i = 0; i < xs.length; i++) {
     blocks.push({ sumW: 1, sumY: ys[i], start: i, end: i });
