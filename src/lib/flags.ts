@@ -13,6 +13,7 @@ export type FeatureFlags = {
   fusionV1: boolean;
   miniAdaptive: boolean;
   inner9Calib: boolean;
+  phase1Conditional: boolean;
 };
 
 const asBool = (v: string | undefined, def = false) => {
@@ -32,6 +33,7 @@ export function getFlags(): FeatureFlags {
     fusionV1: asBool(process.env.IM_FUSION_V1_ENABLED, false),
     miniAdaptive: asBool(process.env.IM_MINI_ADAPTIVE_ENABLED, false),
     inner9Calib: asBool(process.env.IM_INNER9_CALIB_ENABLED, false),
+    phase1Conditional: asBool(process.env.IM_PHASE1_CONDITIONAL_ENABLED, false),
   };
 }
 

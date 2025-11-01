@@ -6,7 +6,9 @@ import { useSession } from "next-auth/react";
 import { motion, AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import { useAnalyzeStore } from "@/lib/analyze/state";
-import { loadQuestions, validateCompleteness } from "@/lib/analyze/transform";
+import { loadQuestions, validateCompleteness, getBig5Preview } from "@/lib/analyze/transform";
+import { inCohortBrowser } from "@/lib/rolloutClient";
+import mbtiExtra16 from "@/data/adaptive/mbti_extra16.json";
 import { AutoSaveManager, loadFromLocal } from "@/lib/analyze/autosave";
 
 const STEP_SIZE = Number(process.env.NEXT_PUBLIC_STEP_SIZE || 6);
@@ -38,6 +40,20 @@ export default function TestQuestionsPage() {
   );
 
   const nodesRef = useRef<Record<string, HTMLDivElement | null>>({});
+  // Phase1 conditional tail section state
+  const [phase1Open, setPhase1Open] = useState(false);
+  const [tailValues, setTailValues] = useState<Record<string, number>>({});
+  const [submittingTail, setSubmittingTail] = useState(false);
+  const [pendingAssessmentId, setPendingAssessmentId] = useState<string | null>(null);
+
+  const clamp = (v?: number) => Math.max(0, Math.min(100, typeof v === 'number' ? v : 0));
+  const isBoundary = (b5: { O: number; C: number; E: number; A: number; N: number }) => {
+    const EI = clamp(b5.E);
+    const SN = clamp(100 - b5.O);
+    const TF = clamp(100 - b5.A);
+    const JP = clamp(b5.C);
+    return [EI, SN, TF, JP].some((v) => v >= 45 && v <= 55);
+  };
   const totalSteps = Math.ceil(questions.length / STEP_SIZE);
   const answeredCount = getAnsweredCount();
 
@@ -162,6 +178,14 @@ export default function TestQuestionsPage() {
     }
 
     try {
+      // boundary + cohort + flag check (client env)
+      const cohortPct = Number(process.env.NEXT_PUBLIC_ADAPTIVE_COHORT_PCT || '5');
+      const email = (typeof window !== 'undefined' ? window?.localStorage?.getItem('session_email') : '') || '';
+      const inCohort = email ? inCohortBrowser(email, isNaN(cohortPct) ? 5 : cohortPct) : false;
+      const b5prev = getBig5Preview(answers);
+      const boundary = isBoundary({ O: b5prev.openness, C: b5prev.conscientiousness, E: b5prev.extraversion, A: b5prev.agreeableness, N: b5prev.neuroticism });
+      const phase1Enabled = process.env.NEXT_PUBLIC_PHASE1_CONDITIONAL === 'true';
+
       // answers 객체를 배열로 변환
       const answersArray: number[] = [];
       for (let i = 0; i < 55; i++) {
@@ -194,11 +218,17 @@ export default function TestQuestionsPage() {
       }
 
       console.log("✅ [TestQuestions] Analysis complete:", data.assessmentId);
-
       sessionStorage.setItem('latest_assessment_id', data.assessmentId);
       localStorage.removeItem("test_answers");
 
-      // 결과 페이지로 바로 이동
+      // Phase1 conditional tail items
+      if (phase1Enabled && inCohort && boundary) {
+        setPendingAssessmentId(data.assessmentId);
+        setPhase1Open(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return; // stop here; user will submit tails then navigate
+      }
+
       router.push(`/result/summary?id=${data.assessmentId}`);
     } catch (error) {
       console.error("❌ [TestQuestions] Error:", error);
@@ -401,6 +431,64 @@ export default function TestQuestionsPage() {
           <div className="mt-6 text-center text-xs text-white/40">
             💡 슬라이더를 움직이거나 숫자 버튼을 클릭하여 답변하세요
           </div>
+
+      {/* Phase1 conditional tail items (4) */}
+      {phase1Open && (
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6">
+          <h3 className="text-white font-semibold mb-4">정밀 확인 (4문항)</h3>
+          <div className="space-y-4">
+            {(mbtiExtra16 as any).items
+              .filter((x: any) => ['ei_e1','sn_s1','tf_t1','jp_j1'].includes(x.id))
+              .map((item: any) => (
+              <div key={item.id} className="rounded-xl bg-white/5 border border-white/10 p-4">
+                <div className="text-white/90 mb-2">{item.text}</div>
+                <div className="flex items-center justify-between text-xs text-white/50">
+                  <span>전혀 아님</span>
+                  <div className="flex gap-1">
+                    {[1,2,3,4,5,6,7].map(n => (
+                      <button
+                        key={n}
+                        onClick={() => setTailValues(prev => ({ ...prev, [item.id]: n }))}
+                        className={`px-2 py-1 rounded border ${tailValues[item.id]===n ? 'bg-violet-500/40 border-violet-400 text-white' : 'bg-white/10 hover:bg-white/15 text-white/80 border-white/10'}`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  <span>매우 그럼</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              onClick={() => {
+                // Skip and go to summary
+                if (pendingAssessmentId) router.push(`/result/summary?id=${pendingAssessmentId}`);
+              }}
+              className="px-4 py-2 rounded border border-white/15 text-white/70 hover:text-white hover:border-white/30"
+            >건너뛰기</button>
+            <button
+              disabled={submittingTail || Object.keys(tailValues).length < 4}
+              onClick={async () => {
+                if (!pendingAssessmentId) return;
+                try {
+                  setSubmittingTail(true);
+                  await fetch('/api/phase1/submit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ assessmentId: pendingAssessmentId, items: Object.entries(tailValues).map(([id, value]) => ({ id, value })) })
+                  });
+                } finally {
+                  setSubmittingTail(false);
+                  router.push(`/result/summary?id=${pendingAssessmentId}`);
+                }
+              }}
+              className="px-4 py-2 rounded bg-violet-500 hover:bg-violet-600 text-white disabled:opacity-50"
+            >{submittingTail ? '제출 중...' : '제출 후 결과 보기'}</button>
+          </div>
+        </div>
+      )}
         </div>
       </div>
     </PageContainer>
