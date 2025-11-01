@@ -1,0 +1,70 @@
+[33mcommit 59bec980472dfd51cafc34bc24c1b50ac096a3ab[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: rialto35 <rialto35@naver.com>
+Date:   Sun Nov 2 03:35:14 2025 +0900
+
+    feat: IM-Core v3.0 벤치마크 시스템 및 튜닝 완료
+    
+     주요 기능
+    - 14420 확률적 벤치마크 시스템 구축
+    - MBTI/Enneagram 매핑 알고리즘 개선
+    - Platt/Temperature Scaling 캘리브레이션 구현
+    
+     성과
+    - MBTI AUROC: 0.593  0.713 (+20%, 목표 95% 달성)
+    - MBTI 정확도: 18.1%  21.9% (+21%)
+    - Enneagram Top-3: 54.9%  58.1% (+5.8%)
+    - Enneagram ECE: 0.286  0.255 (-11%)
+    
+     주요 변경사항
+    - src/core/im-core-v3/: 전체 v3.0 엔진 및 벤치마크 시스템
+      - benchmark/: 확률적 Big5 발생기, 지표 계산, 캘리브레이션
+      - config.json: MBTI/Enneagram 매핑 계수 튜닝
+      - ennea-mapper.ts: MBTI prior 추가 (INFP4, ESTJ1)
+    - docs/: 6개 상세 보고서 (벤치마크, 튜닝 Round 1-2, 최종)
+    - scripts/test-v3.mjs: v3.0 검증 스크립트
+    
+     튜닝 내역
+    Round 1: MBTI T_vs_F/J_vs_P 계수 강화, Enneagram 1번 약화/4번 강화
+    Round 2: 노이즈 감소 (σ:108), Likert 역변환 개선, MBTI Prior 추가
+    Calibration: Platt Scaling (MBTI), Temperature Scaling (Enneagram)
+    
+     문서
+    - IM_CORE_V3_BENCHMARK_REPORT.md: 초기 벤치마크 결과
+    - IM_CORE_V3_TUNING_ROUND1.md: 1차 튜닝 결과
+    - IM_CORE_V3_TUNING_ROUND2_FINAL.md: 2차 튜닝 최종 결과
+    - IM_CORE_V3_FINAL_REPORT.md: 전체 프로젝트 최종 보고서
+    - IM_CORE_V3_RESEARCH.md: 연구 설계 문서
+    - IM_CORE_V3_TUNING_REPORT.md: 튜닝 상세 기록
+    
+     주의사항
+    - 연구용 프로토타입 (임상/채용 사용 금지)
+    - Round 2 결과 프로덕션 배포 권장
+    - Calibration은 더 많은 데이터 필요
+
+ docs/IM_CORE_V3_BENCHMARK_REPORT.md          | 210 [32m++++++++++[m
+ docs/IM_CORE_V3_FINAL_REPORT.md              | 305 [32m++++++++++++++[m
+ docs/IM_CORE_V3_RESEARCH.md                  | 372 [32m++++++++++++++++++[m
+ docs/IM_CORE_V3_TUNING_REPORT.md             | 239 [32m+++++++++++[m
+ docs/IM_CORE_V3_TUNING_ROUND1.md             | 199 [32m++++++++++[m
+ docs/IM_CORE_V3_TUNING_ROUND2_FINAL.md       | 229 [32m+++++++++++[m
+ scripts/test-v3.mjs                          |  10 [32m+[m
+ src/app/api/test/analyze/route.ts            |  16 [32m+[m[31m-[m
+ src/core/im-core-v2/inner9.ts                |   3 [32m+[m[31m-[m
+ src/core/im-core-v3/benchmark/calibration.ts |  64 [32m+++[m
+ src/core/im-core-v3/benchmark/generator.ts   | 114 [32m++++++[m
+ src/core/im-core-v3/benchmark/index.ts       | 291 [32m++++++++++++++[m
+ src/core/im-core-v3/benchmark/metrics.ts     | 160 [32m++++++++[m
+ src/core/im-core-v3/benchmark/types.ts       |  74 [32m++++[m
+ src/core/im-core-v3/big5-v3.ts               | 212 [32m++++++++++[m
+ src/core/im-core-v3/config.json              | 186 [32m+++++++++[m
+ src/core/im-core-v3/ennea-mapper.ts          | 221 [32m+++++++++++[m
+ src/core/im-core-v3/index.ts                 | 175 [32m+++++++++[m
+ src/core/im-core-v3/inner9-v3.ts             | 188 [32m+++++++++[m
+ src/core/im-core-v3/items60-v3.ts            | 207 [32m++++++++++[m
+ src/core/im-core-v3/mbti-mapper.ts           | 152 [32m+++++++[m
+ src/core/im-core-v3/models/infer.ennea.json  |  57 [32m+++[m
+ src/core/im-core-v3/models/infer.mbti.json   |  39 [32m++[m
+ src/core/im-core-v3/models/sim.config.json   |  34 [32m++[m
+ src/core/im-core-v3/types.ts                 | 174 [32m++++++++[m
+ src/core/im-core-v3/validator.ts             | 568 [32m+++++++++++++++++++++++++++[m
+ 26 files changed, 4497 insertions(+), 2 deletions(-)
