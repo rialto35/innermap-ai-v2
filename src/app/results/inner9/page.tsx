@@ -38,7 +38,7 @@ function Inner9Content() {
       }
 
       // 실제 사용자의 검사 결과를 가져와서 Inner9 분석 실행
-      const userRes = await fetch('/api/imcore/me');
+      const userRes = await fetch('/api/imcore/me', { cache: 'no-store' });
       const userData = await userRes.json();
       const mbti = userData?.mbti?.type || userData?.mbti_type || undefined;
       const reti = (userData?.reti?.top1?.[0] || userData?.reti_top1 || undefined) as string | undefined;
@@ -66,11 +66,12 @@ function Inner9Content() {
             reti,
             locale: 'ko-KR'
           }),
+          cache: 'no-store',
         });
         const j = await res.json();
         if (j.ok) {
           const shaped = {
-            inner9: j.data.inner9 ?? j.data.inner9Scores ?? j.data.inner9_scores ?? j.data,
+            inner9: j.data.inner9Scores ?? j.data.inner9_scores ?? j.data.inner9 ?? j.data,
             mbti: j.data.mbti?.type ?? j.data.mbti,
             summary: { mbti: j.data.mbti?.type ?? j.data.mbti }
           };
@@ -83,11 +84,12 @@ function Inner9Content() {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ big5: { O: 82, C: 61, E: 45, A: 77, N: 38 }, locale: 'ko-KR' }),
+          cache: 'no-store',
         });
         const j = await res.json();
         if (j.ok) {
           const shaped = {
-            inner9: j.data.inner9 ?? j.data.inner9Scores ?? j.data.inner9_scores ?? j.data,
+            inner9: j.data.inner9Scores ?? j.data.inner9_scores ?? j.data.inner9 ?? j.data,
             mbti: j.data.mbti?.type ?? j.data.mbti,
             summary: { mbti: j.data.mbti?.type ?? j.data.mbti }
           };
@@ -131,21 +133,41 @@ function Inner9Content() {
       
       // 2. 캐시가 없으면 API에서 가져오기
       console.log(`📡 Fetching Inner9 data from API for ${provider}:${providerId}...`);
-      fetch('/api/results/latest')
+      fetch('/api/results/latest', { cache: 'no-store' })
         .then(res => res.json())
         .then(result => {
           console.log('📦 API response:', result);
           if (result.data?.inner9) {
+            // legacy → new 키 보정 (과거 저장본 호환)
+            const legacyToNew: Record<string, string> = {
+              intuition: 'insight',
+              analysis: 'will',
+              drive: 'expression',
+              reflection: 'resilience',
+              empathy: 'sensitivity',
+              discipline: 'growth',
+            };
+            const normalizeInner9Map = (m: any) => {
+              if (!m || typeof m !== 'object') return m;
+              const out: any = { ...m };
+              Object.entries(legacyToNew).forEach(([legacy, modern]) => {
+                if (out[legacy] != null && (out[modern] == null || out[modern] === 0)) {
+                  out[modern] = out[legacy];
+                }
+                delete out[legacy];
+              });
+              return out;
+            };
             // 컴포넌트가 기대하는 형태로 래핑 저장
             const shaped = {
-              inner9: result.data.inner9,
+              inner9: normalizeInner9Map(result.data.inner9),
               mbti: result.data.mbti,
               summary: { mbti: result.data.mbti },
               reti: result.data.world?.reti ?? result.data.world?.retiTop ?? result.data.world?.reti_type
             };
             setInner9Data(shaped);
             localStorage.setItem(cacheKey, JSON.stringify(shaped));
-            console.log(`✅ Inner9 data loaded from API for ${provider}:${providerId}:`, result.data.inner9);
+            console.log(`✅ Inner9 data loaded from API for ${provider}:${providerId}:`, shaped.inner9);
           } else {
             console.warn('⚠️ No Inner9 data in API response');
           }
@@ -165,7 +187,12 @@ function Inner9Content() {
       const providerId = (session as any)?.providerId || 'unknown';
       const cacheKey = `inner9_data_cache:${provider}:${providerId}:${userKeyLocal}`;
 
-      localStorage.removeItem(cacheKey);
+      // Inner9 관련 모든 캐시 키 제거 (세션/단일 키 혼용 보호)
+      Object.keys(localStorage).forEach((k) => {
+        if (k === 'inner9_data_cache' || k.startsWith('inner9_data_cache:')) {
+          localStorage.removeItem(k);
+        }
+      });
       setInner9Data(null);
       await runInner9Demo();
       setRegenMsg('최신 분석으로 갱신되었습니다.');

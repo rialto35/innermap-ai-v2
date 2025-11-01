@@ -40,28 +40,45 @@ export function toInner9(data: {
 
   // Simplified mapping for Inner9 axes based on Big5, MBTI, and RETI
   // In a real system, this would be a more complex weighted matrix multiplication
-  const div = Number(process.env.IM_INNER9_BALANCE_DIV || '3');
-  const baseBalance = 100 - Math.abs((big5.o + big5.e) - (big5.c + big5.a)) / (isNaN(div) ? 3 : div);
-  const arr = [big5.o, big5.c, big5.e, big5.a];
-  const mean = arr.reduce((s, x) => s + x, 0) / arr.length;
-  const variance = arr.reduce((s, x) => s + Math.pow(x - mean, 2), 0) / Math.max(1, arr.length - 1);
-  const penalty = 8 * (variance / 2500);
-  const balanced = clamp(safe('balance', baseBalance - penalty) + (safeMbti.includes('J') ? 5 : 0) * weights.mbti);
+  // New balance formula: combine energy level and evenness (less skew)
+  const wE = Number(process.env.IM_INNER9_BALANCE_ENERGY_WEIGHT || '0.6');
+  const wV = Number(process.env.IM_INNER9_BALANCE_EVEN_WEIGHT || '0.4');
+  const denom = Number(process.env.IM_INNER9_BALANCE_EVEN_DENOM || '150');
+  const jBonus = Number(process.env.IM_INNER9_BALANCE_MBTI_J_BONUS || '3');
+
+  const energy = (
+    (big5.o) +
+    (big5.c) +
+    (big5.e) +
+    (big5.a) +
+    (100 - (big5 as any).n)
+  ) / 5; // 0~100
+
+  const evenDiff =
+    Math.abs(big5.o - big5.c) +
+    Math.abs(big5.e - big5.a) +
+    Math.abs((100 - (big5 as any).n) - 50);
+
+  const evenScore = 1 - Math.min(1, evenDiff / (isNaN(denom) ? 150 : denom)); // 0~1
+  let balanceRaw = (wE * (energy / 100)) + (wV * evenScore); // 0~1
+  if (safeMbti.includes('J')) balanceRaw += (jBonus / 100);
+  const balanced = clamp(balanceRaw * 100);
 
   if (process.env.IM_ANALYSIS_VERBOSE_LOG === 'true') {
-    console.info('[inner9] balance debug', { div: isNaN(div) ? 3 : div, baseBalance, variance, penalty, balanced });
+    console.info('[inner9] balance debug', { wE, wV, denom: isNaN(denom) ? 150 : denom, jBonus, energy, evenDiff, evenScore, balanceRaw, balanced });
   }
 
+  // Inner9 axes aligned with UI expectations (creation, will, sensitivity, harmony, expression, insight, resilience, balance, growth)
   const inner9Scores: { [key: string]: number } = {
     creation: safe('creation', big5.o * weights.big5 + (safeMbti.includes('N') ? 10 : 0) * weights.mbti),
-    balance: balanced,
-    intuition: safe('intuition', big5.o * weights.big5 + (safeMbti.includes('N') ? 15 : 0) * weights.mbti),
-    analysis: safe('analysis', big5.c * weights.big5 + (safeMbti.includes('T') ? 10 : 0) * weights.mbti),
+    will: safe('will', big5.c * weights.big5 + (safeMbti.includes('J') ? 10 : 0) * weights.mbti + (safeReti < 5 ? 5 : 0) * weights.reti),
+    sensitivity: safe('sensitivity', (100 - big5.n) * 0.4 * weights.big5 + big5.a * 0.6 * weights.big5 + (safeMbti.includes('F') ? 10 : 0) * weights.mbti),
     harmony: safe('harmony', big5.a * weights.big5 + (safeMbti.includes('F') ? 15 : 0) * weights.mbti),
-    drive: safe('drive', big5.e * weights.big5 + (safeReti > 5 ? 10 : 0) * weights.reti),
-    reflection: safe('reflection', (100 - big5.n) * weights.big5 + (safeMbti.includes('I') ? 5 : 0) * weights.mbti),
-    empathy: safe('empathy', big5.a * weights.big5 + (safeMbti.includes('F') ? 10 : 0) * weights.mbti),
-    discipline: safe('discipline', big5.c * weights.big5 + (safeReti < 5 ? 10 : 0) * weights.reti),
+    expression: safe('expression', big5.e * weights.big5 + (safeMbti.includes('E') ? 10 : 0) * weights.mbti + (safeReti > 5 ? 5 : 0) * weights.reti),
+    insight: safe('insight', big5.o * 0.6 * weights.big5 + big5.c * 0.4 * weights.big5 + (safeMbti.includes('N') ? 15 : 0) * weights.mbti + (safeMbti.includes('T') ? 5 : 0) * weights.mbti),
+    resilience: safe('resilience', (100 - big5.n) * weights.big5 + (safeMbti.includes('P') ? 5 : 0) * weights.mbti),
+    balance: balanced,
+    growth: safe('growth', big5.o * 0.5 * weights.big5 + (100 - big5.n) * 0.3 * weights.big5 + (safeMbti.includes('P') ? 10 : 0) * weights.mbti + (safeReti > 5 ? 5 : 0) * weights.reti),
   };
 
   return Object.entries(inner9Scores).map(([key, value]) => ({

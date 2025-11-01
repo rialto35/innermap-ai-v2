@@ -46,8 +46,8 @@ export function summarize(scores: Record<string, number>) {
 
   return {
     headline: `평균 ${avg}점, 강점은 ${top3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}, 성장영역은 ${low3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}입니다.`,
-    strengths: top3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
-    growth: low3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
+    strengths: top3.map(([k, v]) => ({ key: k, score: Math.floor(v), label: label(v) })),
+    growth: low3.map(([k, v]) => ({ key: k, score: Math.floor(v), label: label(v) })),
     average: avg
   };
 }
@@ -115,8 +115,8 @@ export function generateRichNarrative(scores: Record<string, number>, mbti?: str
   
   return {
     headline: `평균 ${avg}점, 강점은 ${top3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}, 성장영역은 ${low3.map(([k]) => INNER9_DESCRIPTIONS[k as keyof typeof INNER9_DESCRIPTIONS].label).join("·")}입니다.`,
-    strengths: top3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
-    growth: low3.map(([k, v]) => ({ key: k, score: Math.round(v), label: label(v) })),
+    strengths: top3.map(([k, v]) => ({ key: k, score: Math.floor(v), label: label(v) })),
+    growth: low3.map(([k, v]) => ({ key: k, score: Math.floor(v), label: label(v) })),
     average: avg,
     personalityType,
     storyElements,

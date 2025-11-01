@@ -1,8 +1,9 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
 
 type Big5 = { O:number; C:number; E:number; A:number; N:number };
-type Inner9 = { key:string; score:number }[]; // 예: [{key:"창조",score:88}, ...]
+type Inner9 = { key:string; score:number }[]; // 예: [{key:"창조",score:88}, ...] (레거시)
 type Result = {
   big5: Big5;
   mbti?: string | null;
@@ -40,9 +41,18 @@ export function generateInsight(r: Result) {
 }
 
 export default function Inner9Report({ result }: { result: Result }) {
-  const t3 = top3(result.inner9);
-  const mean = avg(result.inner9);
-  const insight = generateInsight(result);
+  // 호환: 객체형(inner9 map) 또는 레거시 배열 모두 지원
+  const order = ['creation','will','sensitivity','harmony','expression','insight','resilience','balance','growth'] as const;
+  const normalized: { key:string; score:number }[] = Array.isArray(result.inner9)
+    ? result.inner9
+    : order
+        .map((k) => ({ key: INNER9_DESCRIPTIONS[k].label, score: Math.floor(Number((result as any)?.inner9?.[k])) }))
+        .filter((d) => Number.isFinite(d.score));
+
+  const safeResult: Result = { ...result, inner9: normalized } as any;
+  const t3 = top3(safeResult.inner9);
+  const mean = avg(safeResult.inner9);
+  const insight = generateInsight(safeResult);
 
   return (
     <div className="space-y-6">
@@ -63,7 +73,7 @@ export default function Inner9Report({ result }: { result: Result }) {
         <CardHeader><CardTitle>세부 차원 점수</CardTitle></CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {result.inner9.map((d)=>(
+            {safeResult.inner9.map((d)=>(
               <div key={d.key} className="rounded-xl border p-3">
                 <div className="text-sm opacity-70">{d.key}</div>
                 <div className="text-2xl font-semibold">{d.score}</div>

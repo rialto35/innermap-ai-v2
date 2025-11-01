@@ -112,22 +112,10 @@ export async function GET() {
   // Inner9 데이터 변환: { axes: [...], labels: [...] } → { creation: 20, will: 16, ... }
   let inner9Normalized = result.inner9;
   if (result.inner9 && Array.isArray(result.inner9.axes) && Array.isArray(result.inner9.labels)) {
-    // 배열 형태를 객체 형태로 변환
-    const labelMap: Record<string, string> = {
-      'Creation': 'creation',
-      'Balance': 'balance',
-      'Intuition': 'insight',
-      'Analysis': 'will',
-      'Harmony': 'harmony',
-      'Drive': 'expression',
-      'Reflection': 'resilience',
-      'Empathy': 'sensitivity',
-      'Discipline': 'growth'
-    };
-    
+    // 배열 형태를 객체 형태로 변환 (inner9.ts가 이제 올바른 키를 생성하므로 단순 lowercase 매핑)
     inner9Normalized = {};
     result.inner9.labels.forEach((label: string, index: number) => {
-      const key = labelMap[label] || label.toLowerCase();
+      const key = label.toLowerCase();
       inner9Normalized[key] = result.inner9.axes[index];
     });
   }

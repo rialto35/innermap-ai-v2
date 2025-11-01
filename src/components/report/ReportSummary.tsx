@@ -5,6 +5,7 @@
 
 import { ReportV1 } from '@/types/report';
 import InnerCompass9 from '@/components/charts/InnerCompass9';
+import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
 
 interface ReportSummaryProps {
   report: ReportV1;
@@ -93,24 +94,31 @@ export default function ReportSummary({ report }: ReportSummaryProps) {
           <span>🧭</span>
           <span>Inner9 내면 지도</span>
         </h3>
-        <div data-testid="inner9-chart">
-          <InnerCompass9 
-            data={scores.inner9.map(axis => ({ 
-              key: axis.label.toLowerCase(), 
-              label: axis.label, 
-              value: axis.value 
-            }))} 
-            color="#8B5CF6" 
-          />
-        </div>
-        <div className="grid grid-cols-3 gap-2 mt-4 text-sm">
-          {scores.inner9.map((axis, index) => (
-            <div key={index} className="text-center">
-              <div className="text-white/70 font-medium">{axis.label}</div>
-              <div className="text-white font-bold">{axis.value}</div>
-            </div>
-          ))}
-        </div>
+        {(() => {
+          const order = ['creation','will','sensitivity','harmony','expression','insight','resilience','balance','growth'] as const;
+          const inner9 = (scores as any)?.inner9;
+          const map: Record<string, number> = Array.isArray(inner9)
+            ? Object.fromEntries(inner9.map((axis: any) => [String(axis.label).toLowerCase(), Number(axis.value)]))
+            : (inner9 as Record<string, number>) || {};
+          const chartData = order
+            .map((k) => ({ key: k, label: INNER9_DESCRIPTIONS[k].label, value: Math.floor(Number(map[k])) }))
+            .filter((d) => Number.isFinite(d.value));
+          return (
+            <>
+              <div data-testid="inner9-chart">
+                <InnerCompass9 data={chartData} color="#8B5CF6" />
+              </div>
+              <div className="grid grid-cols-3 gap-2 mt-4 text-sm">
+                {chartData.map((axis, index) => (
+                  <div key={index} className="text-center">
+                    <div className="text-white/70 font-medium">{axis.label}</div>
+                    <div className="text-white font-bold">{axis.value}</div>
+                  </div>
+                ))}
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       {/* 메타 정보 */}

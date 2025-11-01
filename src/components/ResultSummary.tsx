@@ -7,6 +7,7 @@
 
 import { FullResult } from '@/lib/engine/orchestrator';
 import Inner9Chart from './charts/InnerCompass9';
+import { INNER9_DESCRIPTIONS } from '@/constants/inner9';
 
 interface ResultSummaryProps {
   result: FullResult;
@@ -101,20 +102,29 @@ export default function ResultSummary({ result }: ResultSummaryProps) {
           <span>🧭</span>
           <span>Inner9 내면 지도</span>
         </h3>
+        {(() => {
+          const order = ['creation','will','sensitivity','harmony','expression','insight','resilience','balance','growth'] as const;
+          const map: Record<string, number> = Array.isArray(inner9)
+            ? Object.fromEntries(inner9.map((axis: any) => [String(axis.label).toLowerCase(), Number(axis.value)]))
+            : (inner9 as unknown as Record<string, number>) || {};
+          const chartData = order
+            .map((k) => ({ key: k, label: INNER9_DESCRIPTIONS[k].label, value: Math.floor(Number(map[k])) }))
+            .filter((d) => Number.isFinite(d.value));
         <div data-testid="inner9-chart">
           <Inner9Chart 
-            data={inner9.map(axis => ({ key: axis.label.toLowerCase(), label: axis.label, value: axis.value }))} 
+            data={chartData}
             color="#8B5CF6" 
           />
         </div>
         <div className="grid grid-cols-3 gap-2 mt-4 text-sm">
-          {inner9.map((axis, index) => (
+          {chartData.map((axis, index) => (
             <div key={index} className="text-center">
               <div className="text-white/70 font-medium">{axis.label}</div>
               <div className="text-white font-bold">{axis.value}</div>
             </div>
           ))}
         </div>
+        })()}
       </div>
 
       {/* 동시 생성 보장 메시지 */}
