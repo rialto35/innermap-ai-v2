@@ -35,7 +35,9 @@ export function mapBig5ToInner9(big5: Big5, cfg: Inner9Config = {}): ComputeResu
   // 파생 속성 (v1 단순식) — 추후 실험으로 조정
   const insight = big5.O * 0.6 + big5.C * 0.4; // 통찰: 창조성+규율
   const resilience = 100 - big5.N; // 회복: 정서 안정
-  const balance = 100 - Math.abs(big5.O + big5.E - (big5.C + big5.A)) / 2; // 이성·감정 조화
+  // 이성·감정 조화: 감도는 환경변수로 제어 (기본 3로 완화)
+  const div = Number(process.env.IM_INNER9_BALANCE_DIV || '3');
+  const balance = 100 - Math.abs(big5.O + big5.E - (big5.C + big5.A)) / (isNaN(div) ? 3 : div);
   const growth = (creation + will + insight + resilience) / 4; // 성장: 핵심 축 평균
 
   let scores: InnerNine = {
@@ -65,6 +67,7 @@ export function mapBig5ToInner9(big5: Big5, cfg: Inner9Config = {}): ComputeResu
   if (nonlinearEnabled) {
     scores = Object.fromEntries(
       Object.entries(scores).map(([k, v]) => {
+        if (k === 'balance') return [k, v]; // balance는 스무싱 제외(상단 포화 방지)
         const t = (v as number) / 100;
         const shaped = smoothstep(t) * 100;
         return [k, shaped];
