@@ -24,12 +24,26 @@ export async function POST(req: NextRequest) {
     //   );
     // }
     
+    const body = await req.json().catch(() => ({}));
+    
+    // 옵션 파싱
+    const repeats = body.repeats ?? 30; // 기본 30회
+    const mbtiCalibration = body.calibrations?.mbti ?? "isotonic"; // 기본 isotonic
+    const enneaCalibration = body.calibrations?.ennea ?? { type: "temp-sweep", grid: [1.3, 1.4, 1.5, 1.6] };
+    
     console.log("[IMv3:QA] 144×R 벤치마크 시작...");
+    console.log(`  반복: ${repeats}, MBTI: ${mbtiCalibration}, Ennea: ${JSON.stringify(enneaCalibration)}`);
     
     const t0 = Date.now();
     
-    // 벤치마크 실행 (R=20 기본)
-    const report = runCompleteBenchmark();
+    // 벤치마크 실행
+    const report = runCompleteBenchmark({
+      repeats,
+      calibrations: {
+        mbti: mbtiCalibration,
+        ennea: enneaCalibration,
+      },
+    });
     
     const took = Date.now() - t0;
     

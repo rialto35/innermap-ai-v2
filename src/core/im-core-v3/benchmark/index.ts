@@ -3,17 +3,47 @@
 import { runAllValidations } from "../validator";
 import { generate144Combinations, generateBig5, setSeed } from "./generator";
 import { aggregateMBTIMetrics, aggregateEnneaMetrics } from "./metrics";
-import { plattScaling, temperatureScaling, applyPlatt, applySoftmaxTemp } from "./calibration";
+import { 
+  plattScaling, 
+  temperatureScaling, 
+  applyPlatt, 
+  applySoftmaxTemp,
+  isotonicFit,
+  sweepTemperature,
+  computeECE_multi
+} from "./calibration";
 import type { BenchmarkReport, TestRow } from "./types";
 import { runIMCoreV3 } from "../index";
 import { items60V3 } from "../items60-v3";
 import type { Big5Domain } from "../types";
 
 // ========================================
+// 벤치마크 옵션
+// ========================================
+export type BenchmarkOptions = {
+  repeats?: number;
+  calibrations?: {
+    mbti?: "none" | "platt" | "isotonic";
+    ennea?: { type: "none" | "temp" | "temp-sweep"; grid?: number[] };
+  };
+};
+
+// ========================================
 // 메인 벤치마크 실행
 // ========================================
-export function runCompleteBenchmark(): BenchmarkReport {
+export function runCompleteBenchmark(options?: BenchmarkOptions): BenchmarkReport {
+  const opts = {
+    repeats: options?.repeats ?? 20,
+    calibrations: {
+      mbti: options?.calibrations?.mbti ?? "platt",
+      ennea: options?.calibrations?.ennea ?? { type: "temp" as const },
+    },
+  };
+  
   console.log("\n🚀 IM-Core v3.0 완전 벤치마크 시작\n");
+  console.log(`  반복 횟수: ${opts.repeats}`);
+  console.log(`  MBTI 보정: ${opts.calibrations.mbti}`);
+  console.log(`  Enneagram 보정: ${JSON.stringify(opts.calibrations.ennea)}\n`);
 
   // ========================================
   // Phase 1: 결정론적 극단 케이스 (4개)
@@ -37,9 +67,9 @@ export function runCompleteBenchmark(): BenchmarkReport {
   // ========================================
   // Phase 2: 확률적 전수 테스트 (144×R)
   // ========================================
-  console.log("📍 Phase 2: 확률적 전수 테스트 (144×20)\n");
+  console.log(`📍 Phase 2: 확률적 전수 테스트 (144×${opts.repeats})\n`);
 
-  const R = 20;
+  const R = opts.repeats;
   const combos = generate144Combinations();
   const phase2Results: TestRow[][] = [];
 
@@ -144,43 +174,87 @@ export function runCompleteBenchmark(): BenchmarkReport {
   console.log(`  학습셋: ${trainSize}회 (${trainSize * 144}개 샘플)`);
   console.log(`  검증셋: ${phase2Results.length - trainSize}회 (${(phase2Results.length - trainSize) * 144}개 샘플)`);
 
-  // Platt Scaling 학습 (MBTI)
-  console.log("\n  🔧 Platt Scaling 학습 중 (MBTI)...");
-  const mbtiLabels = trainResults.flatMap(run => 
-    run.map(r => (r.mbti_pred === r.mbti_true ? 1 : 0))
-  );
-  const mbtiProbs = trainResults.flatMap(run => 
-    run.map(r => r.mbti_probs[r.mbti_true] ?? 0.5)
-  );
-  const plattParams = plattScaling(mbtiProbs, mbtiLabels);
-  console.log(`  ✅ Platt 파라미터: a=${plattParams.a.toFixed(3)}, b=${plattParams.b.toFixed(3)}`);
+  // MBTI 보정 학습
+  let mbtiCalibrator: any = null;
+  if (opts.calibrations.mbti === "platt") {
+    console.log("\n  🔧 Platt Scaling 학습 중 (MBTI)...");
+    const mbtiLabels = trainResults.flatMap(run => 
+      run.map(r => (r.mbti_pred === r.mbti_true ? 1 : 0))
+    );
+    const mbtiProbs = trainResults.flatMap(run => 
+      run.map(r => r.mbti_probs[r.mbti_true] ?? 0.5)
+    );
+    const plattParams = plattScaling(mbtiProbs, mbtiLabels);
+    console.log(`  ✅ Platt 파라미터: a=${plattParams.a.toFixed(3)}, b=${plattParams.b.toFixed(3)}`);
+    mbtiCalibrator = { type: "platt", params: plattParams };
+  } else if (opts.calibrations.mbti === "isotonic") {
+    console.log("\n  🔧 Isotonic Regression 학습 중 (MBTI)...");
+    const mbtiLabels = trainResults.flatMap(run => 
+      run.map(r => (r.mbti_pred === r.mbti_true ? 1 : 0))
+    );
+    const mbtiProbs = trainResults.flatMap(run => 
+      run.map(r => r.mbti_probs[r.mbti_true] ?? 0.5)
+    );
+    const isotonicModel = isotonicFit(mbtiProbs, mbtiLabels);
+    console.log(`  ✅ Isotonic 모델 학습 완료 (${mbtiProbs.length}개 샘플)`);
+    mbtiCalibrator = { type: "isotonic", model: isotonicModel };
+  } else {
+    console.log("\n  ⏭️  MBTI 보정 스킵 (none)");
+  }
 
-  // Temperature Scaling 학습 (Enneagram)
-  console.log("\n  🔧 Temperature Scaling 학습 중 (Enneagram)...");
+  // Enneagram 보정 학습
+  let enneaCalibrator: any = null;
   const enneaLabels = trainResults.flatMap(run => 
     run.map(r => r.ennea_true - 1)
   );
   const enneaLogits = trainResults.flatMap(run => 
     run.map(r => r.ennea_probs.map(p => Math.log(Math.max(1e-9, p))))
   );
-  const tempParam = temperatureScaling(enneaLogits, enneaLabels);
-  console.log(`  ✅ Temperature 파라미터: τ=${tempParam.toFixed(3)}`);
+  
+  if (opts.calibrations.ennea.type === "temp") {
+    console.log("\n  🔧 Temperature Scaling 학습 중 (Enneagram)...");
+    const tempParam = temperatureScaling(enneaLogits, enneaLabels);
+    console.log(`  ✅ Temperature 파라미터: τ=${tempParam.toFixed(3)}`);
+    enneaCalibrator = { type: "temp", tau: tempParam };
+  } else if (opts.calibrations.ennea.type === "temp-sweep") {
+    console.log("\n  🔧 Temperature Sweep 중 (Enneagram)...");
+    const grid = opts.calibrations.ennea.grid ?? [1.3, 1.4, 1.5, 1.6];
+    const sweepResult = sweepTemperature(enneaLogits, enneaLabels, grid);
+    console.log(`  ✅ 최적 τ=${sweepResult.bestT.toFixed(3)}, ECE=${sweepResult.bestECE.toFixed(3)}`);
+    console.log(`  📊 스윕 결과: ${sweepResult.results.map(r => `τ=${r.tau.toFixed(1)}→ECE=${r.ece.toFixed(3)}`).join(", ")}`);
+    enneaCalibrator = { type: "temp-sweep", tau: sweepResult.bestT, sweep: sweepResult };
+  } else {
+    console.log("\n  ⏭️  Enneagram 보정 스킵 (none)");
+  }
 
   // Calibration 적용 (검증셋)
   console.log("\n  🎯 Calibration 적용 중...");
   const calibratedResults = testResults.map(run => 
     run.map(row => {
-      // MBTI Platt Scaling
-      const mbtiProbCal = Object.fromEntries(
-        Object.entries(row.mbti_probs).map(([type, prob]) => [
-          type,
-          applyPlatt(prob, plattParams.a, plattParams.b)
-        ])
-      );
+      // MBTI 보정 적용
+      let mbtiProbCal = row.mbti_probs;
+      if (mbtiCalibrator?.type === "platt") {
+        mbtiProbCal = Object.fromEntries(
+          Object.entries(row.mbti_probs).map(([type, prob]) => [
+            type,
+            applyPlatt(prob, mbtiCalibrator.params.a, mbtiCalibrator.params.b)
+          ])
+        );
+      } else if (mbtiCalibrator?.type === "isotonic") {
+        mbtiProbCal = Object.fromEntries(
+          Object.entries(row.mbti_probs).map(([type, prob]) => [
+            type,
+            mbtiCalibrator.model.predict(prob)
+          ])
+        );
+      }
 
-      // Enneagram Temperature Scaling
-      const enneaLogits = row.ennea_probs.map(p => Math.log(Math.max(1e-9, p)));
-      const enneaProbsCal = applySoftmaxTemp(enneaLogits, tempParam);
+      // Enneagram 보정 적용
+      let enneaProbsCal = row.ennea_probs;
+      if (enneaCalibrator?.type === "temp" || enneaCalibrator?.type === "temp-sweep") {
+        const enneaLogits = row.ennea_probs.map(p => Math.log(Math.max(1e-9, p)));
+        enneaProbsCal = applySoftmaxTemp(enneaLogits, enneaCalibrator.tau);
+      }
 
       return {
         ...row,
