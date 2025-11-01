@@ -105,14 +105,38 @@ export function aggregateMBTIMetrics(results: TestRow[][]): AxisMetrics {
   const avgAccuracy = accuracies.reduce((a, b) => a + b, 0) / accuracies.length;
   const ci = computeCI(accuracies);
 
-  // AUROC, Brier, ECE는 첫 번째 run 기준 (간소화)
-  const firstRun = results[0];
-  const y_true_binary = firstRun.map((r) => (r.mbti_pred === r.mbti_true ? 1 : 0));
-  const y_pred_probs = firstRun.map((r) => r.mbti_probs[r.mbti_true] ?? 0.5);
-
-  const auroc = computeAUROC(y_true_binary, y_pred_probs);
-  const brier = computeBrier(y_true_binary, y_pred_probs);
-  const ece = computeECE(y_true_binary, y_pred_probs);
+  // AUROC, Brier, ECE는 모든 run 통합 계산
+  const allRows = results.flat();
+  
+  // MBTI 16-class를 one-vs-rest로 변환하여 AUROC 계산
+  const mbtiTypes = ['INTJ', 'INTP', 'ENTJ', 'ENTP', 'INFJ', 'INFP', 'ENFJ', 'ENFP',
+                     'ISTJ', 'ISFJ', 'ESTJ', 'ESFJ', 'ISTP', 'ISFP', 'ESTP', 'ESFP'];
+  
+  let aurocSum = 0;
+  let aurocCount = 0;
+  
+  for (const targetType of mbtiTypes) {
+    const y_true = allRows.map(r => r.mbti_true === targetType ? 1 : 0);
+    const y_pred = allRows.map(r => r.mbti_probs[targetType] ?? 0);
+    
+    const P = y_true.filter(y => y === 1).length;
+    const N = y_true.length - P;
+    
+    if (P > 0 && N > 0) {
+      aurocSum += computeAUROC(y_true, y_pred);
+      aurocCount++;
+    }
+  }
+  
+  const auroc = aurocCount > 0 ? aurocSum / aurocCount : 0.5;
+  
+  // Brier: 예측 확률 vs 실제 (1 if correct, 0 if wrong)
+  const y_true_correct = allRows.map(r => r.mbti_pred === r.mbti_true ? 1 : 0);
+  const y_pred_confidence = allRows.map(r => r.mbti_probs[r.mbti_pred] ?? 0.5);
+  const brier = computeBrier(y_true_correct, y_pred_confidence);
+  
+  // ECE: 예측 신뢰도 vs 정확도
+  const ece = computeECE(y_true_correct, y_pred_confidence);
 
   return { accuracy: avgAccuracy, auroc, brier, ece, ci };
 }
