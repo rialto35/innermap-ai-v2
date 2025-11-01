@@ -12,6 +12,9 @@ import { recommendStone } from '@/lib/data/tribesAndStones';
 import { getFlags } from '@/lib/flags';
 import mbtiBoundary from '@/data/adaptive/mbti_boundary.json';
 
+// local helper
+const clamp = (v?: number) => Math.max(0, Math.min(100, typeof v === 'number' ? v : 0));
+
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
