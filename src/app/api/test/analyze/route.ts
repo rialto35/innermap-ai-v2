@@ -11,6 +11,9 @@ import { runIMCore } from "@/lib/imcore/analyze";
 import { findOrCreateUser } from "@/lib/db/users";
 import { getTribeFromBirthDate } from "@/lib/innermapLogic";
 import { recommendStone } from "@/lib/data/tribesAndStones";
+import { getFlags } from "@/lib/flags";
+import { inCohort } from "@/lib/rollout";
+import { fuseMbti } from "@/lib/engine/fusion";
 
 // 익명 검사 플래그 (기본값: false)
 const ANON_ENABLED = process.env.IM_ANON_TEST_ENABLED === "true";
@@ -128,6 +131,45 @@ export async function POST(req: Request) {
       keywordsCount: output.summary.keywords.length,
     });
 
+    // Phase 2: Late-fusion real application (cohort-gated, flag-guarded)
+    let mbtiForSave = output.summary.mbti;
+    try {
+      const flags = getFlags();
+      if (flags.fusionV1) {
+        // identify user for cohort hashing (prefer email; fallback provider:providerId)
+        const s: any = session || {};
+        const provider: string | undefined = s?.provider;
+        const providerId: string | undefined = s?.providerId;
+        const email: string | undefined = s?.user?.email || undefined;
+        const identifier = email || (provider && providerId ? `${provider}:${providerId}` : undefined);
+        const pct = Number(process.env.IM_FUSION_COHORT_PCT || '1');
+        const inBucket = identifier ? inCohort(identifier, isNaN(pct) ? 1 : pct) : false;
+
+        const b5 = output.summary.big5;
+        const clamp = (v?: number) => Math.max(0, Math.min(100, typeof v === 'number' ? v : 0));
+        const EI = clamp(b5.E), SN = clamp(100 - b5.O), TF = clamp(100 - b5.A), JP = clamp(b5.C);
+        const boundary = [EI, SN, TF, JP].some((v) => v >= 45 && v <= 55);
+
+        if (inBucket) {
+          const fusion = fuseMbti({
+            big5: { O: b5.O, C: b5.C, E: b5.E, A: b5.A, N: b5.N },
+            mbtiPred: output.summary.mbti,
+            mbtiSelf: undefined,
+            boundary,
+          });
+          // Boundary 보호: 경계면 기존 유지, 아니면 fusion 타입 적용
+          if (!boundary && fusion?.type) {
+            mbtiForSave = fusion.type;
+            console.info('[fusionV1][apply]', { assessmentId: assess.id, prev: output.summary.mbti, next: mbtiForSave, confidence: fusion.confidence });
+          } else {
+            console.info('[fusionV1][skip]', { assessmentId: assess.id, reason: boundary ? 'boundary' : 'no-fusion' });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[fusionV1] apply failed', e);
+    }
+
     const tribeMatch = profile?.birthdate ? getTribeFromBirthDate(profile.birthdate) : null;
     const worldInfo = output.premium?.world;
     const stoneInput = {
@@ -144,7 +186,7 @@ export async function POST(req: Request) {
       .from("test_assessment_results")
       .insert({
         assessment_id: assess.id,
-        mbti: output.summary.mbti,
+        mbti: mbtiForSave,
         big5: output.summary.big5,
         keywords: output.summary.keywords,
         inner9: output.premium?.inner9 ?? null,
