@@ -78,9 +78,11 @@ export function mapBig5ToInner9(big5: Big5, cfg: Inner9Config = {}): ComputeResu
     ) as InnerNine;
   }
 
-  // Optional calibration (flag-guarded) — default identity/no-op
+  // Optional calibration (flag-guarded)
   if (process.env.IM_INNER9_CALIB_ENABLED === 'true') {
-    scores = calibrateInner9(scores, { method: 'identity' });
+    const method = (process.env.IM_INNER9_CALIB_METHOD as any) || 'isotonic';
+    const strength = Number(process.env.IM_INNER9_CALIB_STRENGTH || '1');
+    scores = calibrateInner9(scores, { method, strength: isNaN(strength) ? 1 : strength });
   }
 
   return { scores, modelVersion: DEFAULT_VERSION };
