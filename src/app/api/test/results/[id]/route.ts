@@ -9,6 +9,8 @@ import { toSummary, toPremium } from "@/lib/resultProjector";
 import { matchHero } from '@/lib/data/heroes144';
 import { getTribeFromBirthDate } from '@/lib/innermapLogic';
 import { recommendStone } from '@/lib/data/tribesAndStones';
+import { getFlags } from '@/lib/flags';
+import mbtiBoundary from '@/data/adaptive/mbti_boundary.json';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -96,12 +98,30 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const summary = toSummary(assessmentResult as any);
     const premium = toPremium(assessmentResult as any);
 
+    // Mini-adaptive hint (boundary only, flag-guarded)
+    const flags = getFlags();
+    const adaptiveHint = (() => {
+      if (!flags.miniAdaptive) return null;
+      const b5 = result.big5 || {} as any;
+      const EI = clamp(b5.E);
+      const SN = clamp(100 - (b5.O ?? 0));
+      const TF = clamp(100 - (b5.A ?? 0));
+      const JP = clamp(b5.C);
+      const boundary = [EI, SN, TF, JP].some((v) => v >= 45 && v <= 55);
+      if (!boundary) return null;
+      try {
+        const items = (mbtiBoundary as any)?.items || [];
+        return { type: 'mbti', items: items.slice(0, 2) };
+      } catch { return null; }
+    })();
+
     return NextResponse.json({
       ok: true,
       assessmentId: row.id,
       summary,
       premium,
       createdAt: row.created_at,
+      adaptiveHint,
     }, {
       headers: {
         'content-type': 'application/json',

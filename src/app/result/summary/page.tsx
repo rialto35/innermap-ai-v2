@@ -13,6 +13,7 @@ function ResultSummaryContent() {
   const id = searchParams.get("id");
 
   const [summary, setSummary] = useState<SummaryFields | null>(null);
+  const [adaptiveHint, setAdaptiveHint] = useState<any | null>(null);
   const [meta, setMeta] = useState<{ createdAt?: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,6 +34,7 @@ function ResultSummaryContent() {
         const data = await res.json();
         setSummary(data.summary);
         setMeta({ createdAt: data.createdAt });
+        setAdaptiveHint(data.adaptiveHint ?? null);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -104,6 +106,39 @@ function ResultSummaryContent() {
               onViewDetail={() => router.push(`/result/detail?id=${id}`)}
             />
           </motion.div>
+
+          {/* 경계 케이스: 미니 어댑티브 2문항 (플래그 가드, 서버 힌트 기반) */}
+          {adaptiveHint?.type === 'mbti' && Array.isArray(adaptiveHint.items) && adaptiveHint.items.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 }}
+              className="rounded-2xl border border-violet-500/20 bg-violet-500/5 p-5"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-white font-semibold">정밀 확인 2문항 (경계 케이스)</h3>
+                <span className="text-xs text-white/50">실험적 기능</span>
+              </div>
+              <div className="space-y-4">
+                {adaptiveHint.items.slice(0, 2).map((item: any) => (
+                  <div key={item.id} className="rounded-xl bg-white/5 border border-white/10 p-4">
+                    <div className="text-white/90 mb-2">{item.text}</div>
+                    <div className="flex items-center justify-between text-xs text-white/50">
+                      <span>전혀 아님</span>
+                      <div className="flex gap-1">
+                        {[1,2,3,4,5,6,7].map(n => (
+                          <button key={n} className="px-2 py-1 rounded bg-white/10 hover:bg-white/15 text-white/80 border border-white/10">
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+                      <span>매우 그럼</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
 
           {/* 티저 섹션 */}
           <motion.div
