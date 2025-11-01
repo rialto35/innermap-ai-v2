@@ -144,7 +144,7 @@ export async function POST(req: Request) {
           mbti: v2Result.mbti.type,
           big5: v2Result.big5,
           keywords: [], // v2.2는 키워드 미지원
-          confidence: v2Result.confidence,
+          confidence: v2Result.confidence?.mbti?.overall ?? 0, // 기존 컬럼용: 단일 숫자
         },
         premium: {
           inner9: v2Result.inner9,
@@ -152,6 +152,7 @@ export async function POST(req: Request) {
             reti: v2Result.enneagram.type,
           },
         },
+        confidenceDetail: v2Result.confidence, // 새 컬럼용: 상세 정보
       };
     } else {
       // 기존 엔진 실행 (55문항)
@@ -231,6 +232,7 @@ export async function POST(req: Request) {
           stone: stone?.nameEn ?? (worldInfo as any)?.stone ?? null,
         },
         confidence: output.summary.confidence ?? null,
+        confidence_detail: (output as any).confidenceDetail ?? null,
       });
 
     if (errRes) {
