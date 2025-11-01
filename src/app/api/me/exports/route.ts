@@ -9,7 +9,7 @@ import type { ExportRequest, ErrorResponse } from '@innermap/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const _body: ExportRequest = await request.json();
+    await request.json();
     
     // TODO M3: Implement data export
     // 1. Validate auth & plan

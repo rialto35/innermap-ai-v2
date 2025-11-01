@@ -12,6 +12,7 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { clearRememberMe } from '@/lib/sessionManager';
+import { routeDeep } from '@/lib/routes';
 // import dynamic from 'next/dynamic';
 
 import EnhancedHeroCard from '@/components/hero/EnhancedHeroCard';
@@ -472,7 +473,7 @@ function DashboardContent() {
                 <div className="text-sm font-medium text-white/90 mb-1">매일 10분 아이디어 노트 작성</div>
                 <p className="text-xs text-white/60 mb-2">자유로운 발상을 기록하며 사고 확장 하기</p>
                 <Link
-                  href="/analyze"
+                  href={routeDeep}
                   className="inline-flex items-center gap-1 text-xs text-emerald-300 hover:text-emerald-200"
                 >
                   설명하기 →
@@ -487,7 +488,7 @@ function DashboardContent() {
                 <div className="text-sm font-medium text-white/90 mb-1">감정 코칭 세션 예약</div>
                 <p className="text-xs text-white/60 mb-2">프로 코치와 1:1 세션으로 감정 밸런스 잡기</p>
                 <Link
-                  href="/analyze"
+                  href={routeDeep}
                   className="inline-flex items-center gap-1 text-xs text-amber-300 hover:text-amber-200"
                 >
                   설명하기 →

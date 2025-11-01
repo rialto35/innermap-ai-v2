@@ -27,6 +27,7 @@ function Inner9Content() {
   const router = useRouter();
   const [inner9Data, setInner9Data] = useState<any>(null);
   const [regenerating, setRegenerating] = useState(false);
+  const [regenMsg, setRegenMsg] = useState<string | null>(null);
 
   const runInner9Demo = useCallback(async () => {
     try {
@@ -167,6 +168,7 @@ function Inner9Content() {
       localStorage.removeItem(cacheKey);
       setInner9Data(null);
       await runInner9Demo();
+      setRegenMsg('최신 분석으로 갱신되었습니다.');
     } catch (e) {
       console.error('Inner9 regenerate failed:', e);
       alert('재생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
@@ -209,6 +211,14 @@ function Inner9Content() {
           {regenerating ? '재생성 중...' : '🔄 재생성'}
         </button>
       </div>
+
+      {regenMsg && (
+        <div className="mt-3 text-right">
+          <span className="inline-block px-3 py-1 rounded bg-emerald-500/15 text-emerald-300 text-xs border border-emerald-500/30">
+            {regenMsg}
+          </span>
+        </div>
+      )}
 
       <Inner9Overview inner9Data={inner9Data} onRunDemo={runInner9Demo} />
     </div>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 
@@ -36,11 +36,7 @@ export default function HoroscopeDetailPage() {
   const [loading, setLoading] = useState(true)
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
-    fetchHoroscope()
-  }, [params.id])
-
-  const fetchHoroscope = async () => {
+  const fetchHoroscope = useCallback(async () => {
     try {
       const res = await fetch(`/api/horoscope/${params.id}`, { cache: 'no-store' })
       
@@ -64,7 +60,11 @@ export default function HoroscopeDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [params.id, router])
+
+  useEffect(() => {
+    fetchHoroscope()
+  }, [fetchHoroscope])
 
   if (loading) {
     return (
@@ -95,7 +95,7 @@ export default function HoroscopeDetailPage() {
     )
   }
 
-  const { sajuData, dailyFortune, solarBirth, lunarBirth, birthTime, location } = horoscope
+  const { sajuData, dailyFortune, solarBirth, birthTime, location } = horoscope
 
   const elementInfo = {
     wood: { name: '木 (나무)', color: 'text-green-400', desc: '성장과 발전의 기운' },
