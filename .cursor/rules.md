@@ -55,6 +55,8 @@ markdown
 - `dynamic import({ ssr:false })` 필수  
 - `console.log` 금지 → `logger` 사용  
 
+- PowerShell 사용하므로 터미널 용어 잘 확인하여 사용
+
 ### UI / UX
 - Tailwind 6줄 ↑ → `cn()` 압축  
 - 접근성(a11y): `role`, `aria-label` 필수  

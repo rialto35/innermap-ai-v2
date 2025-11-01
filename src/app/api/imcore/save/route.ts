@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       ? (rawEmail ? `${provider}:${rawEmail}` : `${provider}:${providerId}`)
       : (rawEmail as string)
 
-    const { user, isNewUser } = await findOrCreateUser({
+    const { user } = await findOrCreateUser({
       email: effectiveEmail,
       name: (session as any).user?.name,
       image: (session as any).user?.image,

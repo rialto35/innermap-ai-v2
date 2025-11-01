@@ -13,7 +13,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useAnalyzeStore } from '@/lib/analyze/state';
 import { loadQuestions, transformAnswers, validateCompleteness, getBig5Preview, getMBTIPreview } from '@/lib/analyze/transform';
 import { AutoSaveManager, loadFromLocal } from '@/lib/analyze/autosave';

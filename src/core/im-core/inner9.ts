@@ -4,7 +4,6 @@
  */
 
 import { Big5Scores } from './big5';
-import { RawResponse } from './types';
 
 export type Inner9Axis = { label: string; value: number };
 

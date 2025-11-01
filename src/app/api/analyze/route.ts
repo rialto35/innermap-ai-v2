@@ -8,7 +8,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase';
 import { runAnalysis } from '@/core/im-core';
-import { toInner9 } from '@/core/im-core/inner9';
 import { Inner9Schema } from '@/lib/schemas/inner9';
 import { getInner9Config } from '@/config/inner9';
 import { wrapAsReportV1 } from '@/core/im-core/orchestrator';
