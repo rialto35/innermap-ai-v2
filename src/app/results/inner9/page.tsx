@@ -26,6 +26,7 @@ function Inner9Content() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [inner9Data, setInner9Data] = useState<any>(null);
+  const [regenerating, setRegenerating] = useState(false);
 
   const runInner9Demo = useCallback(async () => {
     try {
@@ -154,6 +155,26 @@ function Inner9Content() {
     }
   }, [status, router, inner9Data, session]);
 
+  const handleRegenerate = useCallback(async () => {
+    try {
+      setRegenerating(true);
+
+      const userKeyLocal = (session as any)?.user?.email || (session as any)?.providerId || 'anon';
+      const provider = (session as any)?.provider || 'unknown';
+      const providerId = (session as any)?.providerId || 'unknown';
+      const cacheKey = `inner9_data_cache:${provider}:${providerId}:${userKeyLocal}`;
+
+      localStorage.removeItem(cacheKey);
+      setInner9Data(null);
+      await runInner9Demo();
+    } catch (e) {
+      console.error('Inner9 regenerate failed:', e);
+      alert('재생성에 실패했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setRegenerating(false);
+    }
+  }, [session, runInner9Demo]);
+
   if (status === 'loading') {
     return (
       <div className="min-h-screen flex items-center justify-center text-white/70">
@@ -178,6 +199,16 @@ function Inner9Content() {
         }
         engines={getEngineMetas.inner9()}
       />
+
+      <div className="flex justify-end">
+        <button
+          onClick={handleRegenerate}
+          disabled={regenerating}
+          className="px-3 py-2 rounded-lg border border-white/10 text-white/80 hover:bg-white/10 disabled:opacity-50 text-sm"
+        >
+          {regenerating ? '재생성 중...' : '🔄 재생성'}
+        </button>
+      </div>
 
       <Inner9Overview inner9Data={inner9Data} onRunDemo={runInner9Demo} />
     </div>
