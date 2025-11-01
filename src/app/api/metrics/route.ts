@@ -80,15 +80,22 @@ export async function GET() {
       .order('created_at', { ascending: false })
       .limit(200);
     const arows = (assess as any[]) || [];
-    const adaptiveCount = arows.filter(r => !!(r?.raw_answers?.adaptive)).length;
+    const adaptiveRows = arows.filter(r => !!(r?.raw_answers?.adaptive));
+    const adaptiveCount = adaptiveRows.length;
     const adaptiveRate = total > 0 ? Math.round((adaptiveCount / total) * 1000) / 10 : 0;
+    const avgDurationMs = adaptiveCount > 0
+      ? Math.round(adaptiveRows.reduce((s, r) => s + (r?.raw_answers?.adaptive?.durationMs || 0), 0) / adaptiveCount)
+      : 0;
+    const avgItems = adaptiveCount > 0
+      ? Math.round((adaptiveRows.reduce((s, r) => s + ((r?.raw_answers?.adaptive?.items?.length) || 0), 0) / adaptiveCount) * 10) / 10
+      : 0;
 
     return NextResponse.json({
       ok: true,
       total,
       boundaryRate, // percent
       distributions: { mbti: typeCounts, big5Mean: means },
-      adaptive: { count: adaptiveCount, rate: adaptiveRate },
+      adaptive: { count: adaptiveCount, rate: adaptiveRate, avgDurationMs, avgItems },
       // Placeholders for future: top1/top2/auc/mae/icc once gold labels & pipelines are ready
       mbti: { top1: null, top2: null, axesAuc: null },
       reti: { top1: null, top2: null },

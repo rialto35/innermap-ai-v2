@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
+import { getFlags } from '@/lib/flags';
 
 export async function POST(req: Request) {
   try {
+    const flags = getFlags();
+    if (!flags.miniAdaptive) {
+      return NextResponse.json({ ok: false, error: 'DISABLED' }, { status: 403 });
+    }
+
     const body = await req.json();
     const assessmentId: string | undefined = body?.assessmentId;
     const items: Array<{ id: string; value: number }> = Array.isArray(body?.items) ? body.items : [];
