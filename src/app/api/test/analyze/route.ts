@@ -147,7 +147,21 @@ export async function POST(req: Request) {
           confidence: v2Result.confidence?.mbti?.overall ?? 0, // 기존 컬럼용: 단일 숫자
         },
         premium: {
-          inner9: v2Result.inner9,
+          inner9: {
+            // v2.2 객체 형식 → 기존 배열 형식으로 변환
+            axes: [
+              v2Result.inner9.creation,
+              v2Result.inner9.will,
+              v2Result.inner9.sensitivity,
+              v2Result.inner9.harmony,
+              v2Result.inner9.expression,
+              v2Result.inner9.insight,
+              v2Result.inner9.resilience,
+              v2Result.inner9.balance,
+              v2Result.inner9.growth,
+            ],
+            labels: ["Creation", "Will", "Sensitivity", "Harmony", "Expression", "Insight", "Resilience", "Balance", "Growth"],
+          },
           world: {
             reti: v2Result.enneagram.type,
           },

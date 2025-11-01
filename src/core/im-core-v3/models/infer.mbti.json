@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "description": "MBTI inference coefficients (logistic regression)",
+  "E_vs_I": {
+    "intercept": 0.0,
+    "coeff": {
+      "sociability": 1.5,
+      "assertiveness": 0.8,
+      "energy": 0.5
+    }
+  },
+  "N_vs_S": {
+    "intercept": 0.0,
+    "coeff": {
+      "imagination": 1.8,
+      "curiosity": 1.2,
+      "innovation": 0.6
+    }
+  },
+  "T_vs_F": {
+    "intercept": 0.0,
+    "coeff": {
+      "empathy": 1.2,
+      "cooperation": 0.6,
+      "modesty": 0.1,
+      "assertiveness": -0.3
+    }
+  },
+  "J_vs_P": {
+    "intercept": 0.0,
+    "coeff": {
+      "order": -1.5,
+      "self_control": -1.2,
+      "grit": -0.3,
+      "innovation": 0.5
+    }
+  }
+}
+

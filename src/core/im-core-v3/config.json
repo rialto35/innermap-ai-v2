@@ -1,0 +1,186 @@
+{
+  "version": "innerlab-60.v0.1",
+  "description": "연구용 프로토타입 - 등가가중(1/N) 기본, 데이터 기반 학습 후 업데이트",
+  "scale": {
+    "min": 1,
+    "max": 5,
+    "reverse_transform": "x -> 6 - x"
+  },
+  "aggregation": {
+    "facet_method": "mean",
+    "domain_method": "mean",
+    "missing_policy": "require>=75%_per_facet_else_nan"
+  },
+  "inner9_map": {
+    "탐구심": {
+      "facets": {
+        "curiosity": 1.0,
+        "innovation": 0.5,
+        "aesthetic": 0.3
+      },
+      "normalize": "z"
+    },
+    "자기통제": {
+      "facets": {
+        "self_control": 1.0,
+        "order": 0.6,
+        "grit": 0.6
+      },
+      "normalize": "z"
+    },
+    "사회관계": {
+      "facets": {
+        "sociability": 0.8,
+        "cooperation": 0.8,
+        "empathy": 0.6
+      },
+      "normalize": "z"
+    },
+    "리더십": {
+      "facets": {
+        "assertiveness": 1.0,
+        "vitality": 0.5,
+        "order": 0.3
+      },
+      "normalize": "z"
+    },
+    "협업성": {
+      "facets": {
+        "cooperation": 1.0,
+        "modesty": 0.6,
+        "empathy": 0.6
+      },
+      "normalize": "z"
+    },
+    "정서안정": {
+      "facets": {
+        "anxiety": -1.0,
+        "impulsivity": -0.6,
+        "stress_vulnerability": -0.8
+      },
+      "normalize": "z"
+    },
+    "회복탄력": {
+      "facets": {
+        "grit": 0.9,
+        "stress_vulnerability": -0.6,
+        "empathy": 0.3
+      },
+      "normalize": "z"
+    },
+    "몰입": {
+      "facets": {
+        "grit": 0.7,
+        "self_control": 0.7,
+        "curiosity": 0.4
+      },
+      "normalize": "z"
+    },
+    "성장동기": {
+      "facets": {
+        "innovation": 0.7,
+        "curiosity": 0.7,
+        "assertiveness": 0.3
+      },
+      "normalize": "z"
+    }
+  },
+  "mbti_map": {
+    "note": "v3.0 튜닝 1차 - ENFJ+8번 조합 고려, 다중 시나리오 최적화",
+    "E_vs_I": {
+      "intercept": 0.0,
+      "coeff": {
+        "sociability": 0.9,
+        "vitality": 0.5,
+        "assertiveness": 0.3,
+        "anxiety": -0.2
+      }
+    },
+    "S_vs_N": {
+      "intercept": 0.0,
+      "coeff": {
+        "innovation": 0.6,
+        "curiosity": 0.6,
+        "order": -0.2
+      }
+    },
+    "T_vs_F": {
+      "intercept": 0.0,
+      "coeff": {
+        "empathy": 1.8,
+        "cooperation": 1.0,
+        "modesty": 0.3,
+        "assertiveness": -0.5
+      }
+    },
+    "J_vs_P": {
+      "intercept": 0.0,
+      "coeff": {
+        "order": -2.0,
+        "self_control": -1.8,
+        "grit": -0.5,
+        "innovation": 0.8
+      }
+    }
+  },
+  "enneagram_map": {
+    "note": "v3.0 튜닝 1차 - 8,5,4,1번 가중치 강화, 다중 시나리오 최적화",
+    "weights": {
+      "1": {
+        "order": 0.6,
+        "self_control": 0.4,
+        "modesty": 0.3,
+        "grit": 0.3
+      },
+      "2": {
+        "empathy": 0.9,
+        "cooperation": 0.6,
+        "modesty": 0.4,
+        "sociability": 0.3
+      },
+      "3": {
+        "assertiveness": 0.7,
+        "vitality": 0.5,
+        "order": 0.2,
+        "grit": 0.3
+      },
+      "4": {
+        "aesthetic": 1.2,
+        "curiosity": 0.6,
+        "anxiety": 0.9,
+        "empathy": 0.5,
+        "impulsivity": 0.4
+      },
+      "5": {
+        "curiosity": 1.0,
+        "innovation": 0.5,
+        "sociability": -0.5,
+        "self_control": 0.3
+      },
+      "6": {
+        "anxiety": 0.6,
+        "cooperation": 0.4,
+        "self_control": 0.3
+      },
+      "7": {
+        "vitality": 0.8,
+        "innovation": 0.4,
+        "self_control": -0.3
+      },
+      "8": {
+        "assertiveness": 1.0,
+        "grit": 0.5,
+        "modesty": -0.5,
+        "vitality": 0.3,
+        "self_control": 0.2
+      },
+      "9": {
+        "cooperation": 0.6,
+        "modesty": 0.5,
+        "impulsivity": -0.3
+      }
+    },
+    "normalize": "softmax"
+  }
+}
+

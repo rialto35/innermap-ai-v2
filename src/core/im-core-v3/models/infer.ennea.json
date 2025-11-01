@@ -1,0 +1,57 @@
+{
+  "version": "1.0",
+  "description": "Enneagram inference weights (weighted sum + softmax)",
+  "weights": {
+    "1": {
+      "order": 0.6,
+      "self_control": 0.5,
+      "modesty": 0.3,
+      "cooperation": 0.2
+    },
+    "2": {
+      "empathy": 0.7,
+      "cooperation": 0.6,
+      "sociability": 0.4
+    },
+    "3": {
+      "assertiveness": 0.6,
+      "energy": 0.5,
+      "grit": 0.4,
+      "sociability": 0.3
+    },
+    "4": {
+      "anxiety": 0.7,
+      "imagination": 0.5,
+      "empathy": 0.4
+    },
+    "5": {
+      "curiosity": 0.7,
+      "imagination": 0.5,
+      "sociability": -0.5
+    },
+    "6": {
+      "anxiety": 0.6,
+      "self_control": 0.4,
+      "cooperation": 0.3
+    },
+    "7": {
+      "energy": 0.7,
+      "sociability": 0.6,
+      "innovation": 0.5,
+      "anxiety": -0.5
+    },
+    "8": {
+      "assertiveness": 0.8,
+      "energy": 0.6,
+      "modesty": -0.6,
+      "cooperation": -0.3
+    },
+    "9": {
+      "cooperation": 0.7,
+      "modesty": 0.5,
+      "anxiety": -0.5,
+      "assertiveness": -0.4
+    }
+  }
+}
+
