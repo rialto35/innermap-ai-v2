@@ -5,11 +5,11 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import type { ExportRequest, ExportResponse, ErrorResponse } from '@innermap/types';
+import type { ExportRequest, ErrorResponse } from '@innermap/types';
 
 export async function POST(request: NextRequest) {
   try {
-    const body: ExportRequest = await request.json();
+    const _body: ExportRequest = await request.json();
     
     // TODO M3: Implement data export
     // 1. Validate auth & plan

@@ -17,7 +17,7 @@ interface UnifiedProgressProps {
 }
 
 export default function UnifiedProgress({
-  current,
+  current: _current,
   total,
   answered,
   estimatedTimeLeft

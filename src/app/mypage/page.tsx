@@ -5,6 +5,8 @@
 
 'use client';
 
+/* eslint-disable @next/next/no-img-element */
+
 import { useEffect, useState, useCallback, Suspense, FormEvent } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
@@ -166,7 +168,7 @@ function DashboardContent() {
     } finally {
       setLoading(false);
     }
-  }, [session, heroData]);
+  }, [session, heroData, router]);
 
   useEffect(() => {
     if (status === 'unauthenticated') {

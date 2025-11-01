@@ -41,6 +41,7 @@ export default function AnalyzePage() {
 }
 
 // 기존 코드 보관 (참고용)
+/* eslint-disable @typescript-eslint/no-unused-vars, react-hooks/exhaustive-deps */
 function AnalyzePageOld() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -334,3 +335,4 @@ function AnalyzePageOld() {
     </div>
   );
 }
+/* eslint-enable @typescript-eslint/no-unused-vars, react-hooks/exhaustive-deps */

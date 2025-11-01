@@ -23,7 +23,7 @@ function getOpenAIClient(): OpenAI {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { userId, big5, mbti, inner9, hero } = body;
+    const { big5, mbti, inner9, hero } = body;
 
     // Validate input
     if (!big5 || !inner9) {

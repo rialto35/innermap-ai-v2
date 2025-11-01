@@ -208,6 +208,7 @@ export default function ReportDeep({ report }: ReportDeepProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {deep.resources.charts.big5 && (
               <div className="text-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={deep.resources.charts.big5} 
                   alt="Big5 차트" 
@@ -218,6 +219,7 @@ export default function ReportDeep({ report }: ReportDeepProps) {
             )}
             {deep.resources.charts.inner9 && (
               <div className="text-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img 
                   src={deep.resources.charts.inner9} 
                   alt="Inner9 차트" 
